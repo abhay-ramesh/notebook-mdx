@@ -1,4 +1,10 @@
-import { JupyterComponents } from "@notebook-mdx/jupyter";
+import {
+  NotebookCodeCell,
+  NotebookLoader,
+  NotebookMarkdownCell,
+  NotebookRawCell,
+  NotebookStyles,
+} from "@notebook-mdx/jupyter";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
 
@@ -8,9 +14,10 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ...defaultMdxComponents,
     ...components,
     // Add jupyter components directly
-    NotebookCodeCell: JupyterComponents.NotebookCodeCell,
-    NotebookLoader: JupyterComponents.NotebookLoader,
-    NotebookMarkdownCell: JupyterComponents.NotebookMarkdownCell,
-    NotebookStyles: JupyterComponents.NotebookStyles,
+    NotebookCodeCell,
+    NotebookLoader,
+    NotebookMarkdownCell,
+    NotebookRawCell,
+    NotebookStyles,
   } as MDXComponents;
 }

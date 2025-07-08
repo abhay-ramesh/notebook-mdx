@@ -1,4 +1,6 @@
-// TypeScript interfaces for Jupyter notebook support
+// Types based on official Jupyter notebook format and messaging protocol
+// Reference: https://jupyter-client.readthedocs.io/en/stable/messaging.html
+
 export interface JupyterOptions {
   executeCode?: boolean;
   showCellNumbers?: boolean;
@@ -13,83 +15,60 @@ export interface NotebookMetadata {
     name: string;
   };
   language_info?: {
-    codemirror_mode?: {
-      name: string;
-      version: number;
-    };
-    file_extension: string;
-    mimetype: string;
     name: string;
-    nbconvert_exporter: string;
-    pygments_lexer: string;
-    version: string;
+    version?: string;
+    mimetype?: string;
+    file_extension?: string;
   };
+  [key: string]: any;
 }
 
-export interface NotebookOutput {
-  output_type: "stream" | "display_data" | "execute_result" | "error";
-  name?: "stdout" | "stderr"; // for stream outputs
-  text?: string | string[]; // for stream outputs
-  data?: {
-    "text/plain"?: string | string[];
-    "text/html"?: string | string[];
-    "text/markdown"?: string | string[];
-    "image/png"?: string; // base64-encoded image data
-    "image/jpeg"?: string; // base64-encoded image data
-    "image/svg+xml"?: string | string[]; // SVG as string
-    "image/gif"?: string; // base64-encoded image data
-    "application/json"?: any;
-    "application/javascript"?: string | string[];
-    [key: string]: any; // Allow other MIME types
-  };
-  metadata?: {
-    "image/png"?: {
-      width?: number;
-      height?: number;
-      [key: string]: any;
-    };
-    "image/jpeg"?: {
-      width?: number;
-      height?: number;
-      [key: string]: any;
-    };
-    "image/svg+xml"?: {
-      width?: number;
-      height?: number;
-      [key: string]: any;
-    };
-    "image/gif"?: {
-      width?: number;
-      height?: number;
-      [key: string]: any;
-    };
-    [key: string]: any; // Allow other metadata
-  };
-  execution_count?: number | null; // for execute_result outputs
-  ename?: string; // for error outputs
-  evalue?: string; // for error outputs
-  traceback?: string[]; // for error outputs
+// Based on Jupyter messaging protocol output types
+export interface StreamOutput {
+  output_type: "stream";
+  name: "stdout" | "stderr";
+  text: string | string[];
 }
+
+export interface DisplayDataOutput {
+  output_type: "display_data";
+  data: Record<string, any>;
+  metadata?: Record<string, any>;
+}
+
+export interface ExecuteResultOutput {
+  output_type: "execute_result";
+  execution_count: number;
+  data: Record<string, any>;
+  metadata?: Record<string, any>;
+}
+
+export interface ErrorOutput {
+  output_type: "error";
+  ename: string;
+  evalue: string;
+  traceback: string[];
+}
+
+// Union type matching the Jupyter protocol exactly
+export type NotebookOutput =
+  | StreamOutput
+  | DisplayDataOutput
+  | ExecuteResultOutput
+  | ErrorOutput;
 
 export interface NotebookCell {
-  cell_type: "markdown" | "code" | "raw";
-  metadata?: {
-    collapsed?: boolean;
-    autoscroll?: boolean | "auto";
-    deletable?: boolean;
-    format?: string; // MIME type for raw cells
-    name?: string;
-    tags?: string[];
-    [key: string]: any;
-  };
+  cell_type: "code" | "markdown" | "raw";
   source: string | string[];
-  execution_count?: number | null; // for code cells
-  outputs?: NotebookOutput[]; // for code cells
+  metadata?: Record<string, any>;
+  // For code cells only
+  execution_count?: number | null;
+  outputs?: NotebookOutput[];
 }
 
 export interface NotebookData {
+  cells: NotebookCell[];
+  metadata: NotebookMetadata;
   nbformat: number;
   nbformat_minor: number;
-  metadata: NotebookMetadata;
-  cells: NotebookCell[];
 }

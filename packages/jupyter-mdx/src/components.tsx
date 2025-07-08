@@ -13,91 +13,163 @@ interface NotebookCodeCellProps {
 
 // Helper function to render different types of output data
 const renderOutputData = (output: NotebookOutput) => {
-  if (!output.data) return null;
+  // Handle different output types according to Jupyter protocol
+  if (output.output_type === "stream") {
+    return (
+      <div className="jp-output-stream">
+        <pre>
+          {Array.isArray(output.text) ? output.text.join("") : output.text}
+        </pre>
+      </div>
+    );
+  }
 
-  const elements: React.ReactNode[] = [];
+  if (output.output_type === "error") {
+    return (
+      <div className="jp-output-error">
+        <div className="jp-output-error-name">
+          {output.ename}: {output.evalue}
+        </div>
+        {output.traceback && (
+          <pre className="jp-output-traceback">
+            {output.traceback.join("\n")}
+          </pre>
+        )}
+      </div>
+    );
+  }
 
-  // Handle images first (most visual)
-  const imageTypes = ["image/png", "image/jpeg", "image/gif", "image/svg+xml"];
-  for (const imageType of imageTypes) {
-    if (output.data[imageType]) {
-      const imageData = output.data[imageType];
-      const metadata = output.metadata?.[imageType];
+  // For display_data and execute_result, handle MIME types with priority
+  if (
+    output.output_type === "display_data" ||
+    output.output_type === "execute_result"
+  ) {
+    const data = output.data;
+    if (!data) return null;
 
-      if (imageType === "image/svg+xml") {
-        // SVG is stored as string, render directly
-        const svgString = Array.isArray(imageData)
-          ? imageData.join("")
-          : imageData;
-        elements.push(
-          <div key={imageType} className="notebook-output-image">
-            <div
-              dangerouslySetInnerHTML={{ __html: svgString }}
-              style={{
-                width: metadata?.width ? `${metadata.width}px` : undefined,
-                height: metadata?.height ? `${metadata.height}px` : undefined,
-                maxWidth: "100%",
-                textAlign: "center",
-              }}
-            />
-          </div>
-        );
-      } else {
-        // PNG, JPEG, GIF are base64-encoded
-        const imageUrl = `data:${imageType};base64,${imageData}`;
-        elements.push(
-          <div key={imageType} className="notebook-output-image">
-            <img
-              src={imageUrl}
-              alt="Notebook output"
-              style={{
-                width: metadata?.width ? `${metadata.width}px` : undefined,
-                height: metadata?.height ? `${metadata.height}px` : undefined,
-                maxWidth: "100%",
-                display: "block",
-                margin: "0 auto",
-              }}
-            />
-          </div>
-        );
+    const elements: React.ReactNode[] = [];
+
+    // MIME type priority order matching Jupyter protocol
+    const MIME_PRIORITY = [
+      "text/html",
+      "image/svg+xml",
+      "image/png",
+      "image/jpeg",
+      "image/gif",
+      "text/markdown",
+      "text/latex",
+      "application/json",
+      "text/plain",
+    ];
+
+    // Handle images first (highest visual priority)
+    const imageTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/gif",
+      "image/svg+xml",
+    ];
+    for (const imageType of imageTypes) {
+      if (data[imageType]) {
+        const imageData = data[imageType];
+        const metadata = output.metadata?.[imageType];
+
+        if (imageType === "image/svg+xml") {
+          // SVG is stored as string, render directly
+          const svgString = Array.isArray(imageData)
+            ? imageData.join("")
+            : imageData;
+          elements.push(
+            <div key={imageType} className="notebook-output-image">
+              <div
+                dangerouslySetInnerHTML={{ __html: svgString }}
+                style={{
+                  width: metadata?.width ? `${metadata.width}px` : undefined,
+                  height: metadata?.height ? `${metadata.height}px` : undefined,
+                  maxWidth: "100%",
+                  textAlign: "center",
+                }}
+              />
+            </div>
+          );
+        } else {
+          // PNG, JPEG, GIF are base64-encoded
+          const imageUrl = `data:${imageType};base64,${imageData}`;
+          elements.push(
+            <div key={imageType} className="notebook-output-image">
+              <img
+                src={imageUrl}
+                alt="Notebook output"
+                style={{
+                  width: metadata?.width ? `${metadata.width}px` : undefined,
+                  height: metadata?.height ? `${metadata.height}px` : undefined,
+                  maxWidth: "100%",
+                  display: "block",
+                  margin: "0 auto",
+                }}
+              />
+            </div>
+          );
+        }
+        break; // Only render the first image type found
       }
     }
+
+    // If no images, handle other MIME types in priority order
+    if (elements.length === 0) {
+      for (const mimeType of MIME_PRIORITY) {
+        if (data[mimeType]) {
+          switch (mimeType) {
+            case "text/html":
+              const htmlContent = Array.isArray(data[mimeType])
+                ? data[mimeType].join("")
+                : data[mimeType];
+              elements.push(
+                <div key="html" className="notebook-output-html">
+                  <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+                </div>
+              );
+              break;
+
+            case "application/json":
+              elements.push(
+                <div key="json" className="notebook-output-json">
+                  <pre>{JSON.stringify(data[mimeType], null, 2)}</pre>
+                </div>
+              );
+              break;
+
+            case "text/plain":
+              const textContent = Array.isArray(data[mimeType])
+                ? data[mimeType].join("")
+                : data[mimeType];
+              elements.push(
+                <div key="text" className="notebook-output-text">
+                  <pre>{textContent}</pre>
+                </div>
+              );
+              break;
+
+            default:
+              // Handle other MIME types as text
+              const content = Array.isArray(data[mimeType])
+                ? data[mimeType].join("")
+                : data[mimeType];
+              elements.push(
+                <div key={mimeType} className="notebook-output-text">
+                  <pre>{content}</pre>
+                </div>
+              );
+          }
+          break; // Only render the first MIME type found in priority order
+        }
+      }
+    }
+
+    return elements.length > 0 ? <>{elements}</> : null;
   }
 
-  // Handle HTML content
-  if (output.data["text/html"]) {
-    const htmlContent = Array.isArray(output.data["text/html"])
-      ? output.data["text/html"].join("")
-      : output.data["text/html"];
-    elements.push(
-      <div key="html" className="notebook-output-html">
-        <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-      </div>
-    );
-  }
-
-  // Handle JSON data
-  if (output.data["application/json"]) {
-    elements.push(
-      <div key="json" className="notebook-output-json">
-        <pre>{JSON.stringify(output.data["application/json"], null, 2)}</pre>
-      </div>
-    );
-  }
-
-  // Handle plain text (fallback)
-  if (output.data["text/plain"] && elements.length === 0) {
-    const textContent = Array.isArray(output.data["text/plain"])
-      ? output.data["text/plain"].join("")
-      : output.data["text/plain"];
-    elements.push(
-      <div key="text" className="notebook-output-text">
-        <pre>{textContent}</pre>
-      </div>
-    );
-  }
-
-  return elements.length > 0 ? <>{elements}</> : null;
+  return null;
 };
 
 const NotebookOutputComponent: React.FC<{
@@ -113,7 +185,7 @@ const NotebookOutputComponent: React.FC<{
     <div className="jp-cell-output-wrapper">
       {/* Output prompt */}
       <div className="jp-cell-output-prompt">
-        {isExecuteResult && output.execution_count && (
+        {isExecuteResult && (
           <div className="jp-output-prompt jp-output-execute-count">
             Out[{output.execution_count}]:
           </div>
@@ -122,32 +194,7 @@ const NotebookOutputComponent: React.FC<{
 
       {/* Output content */}
       <div className="jp-cell-output-area">
-        <div className="jp-cell-output-content">
-          {isStream && (
-            <div className="jp-output-stream">
-              <pre>
-                {Array.isArray(output.text)
-                  ? output.text.join("")
-                  : output.text}
-              </pre>
-            </div>
-          )}
-
-          {isError && (
-            <div className="jp-output-error">
-              <div className="jp-output-error-name">
-                {output.ename}: {output.evalue}
-              </div>
-              {output.traceback && (
-                <pre className="jp-output-traceback">
-                  {output.traceback.join("\n")}
-                </pre>
-              )}
-            </div>
-          )}
-
-          {(isDisplayData || isExecuteResult) && renderOutputData(output)}
-        </div>
+        <div className="jp-cell-output-content">{renderOutputData(output)}</div>
       </div>
     </div>
   );
@@ -244,6 +291,27 @@ export const NotebookMarkdownCell: React.FC<NotebookMarkdownCellProps> = ({
   );
 };
 
+interface NotebookRawCellProps {
+  source: string | string[];
+}
+
+export const NotebookRawCell: React.FC<NotebookRawCellProps> = ({ source }) => {
+  const sourceString = Array.isArray(source) ? source.join("") : source;
+
+  return (
+    <>
+      <NotebookStyles />
+      <div className="jp-notebook-cell jp-raw-cell">
+        <div className="jp-raw-content">
+          <pre className="jp-raw-source">
+            <code>{sourceString}</code>
+          </pre>
+        </div>
+      </div>
+    </>
+  );
+};
+
 interface NotebookLoaderProps {
   notebookPath?: string;
   showCellNumbers?: boolean;
@@ -326,6 +394,8 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
                 showLineNumbers={showCellNumbers}
               />
             );
+          } else if (cell.cell_type === "raw") {
+            return <NotebookRawCell key={index} source={cell.source} />;
           }
           return null;
         })}
@@ -464,31 +534,7 @@ export const NotebookStyles: React.FC = () => {
         background: transparent;
       }
 
-      /* Input area - light styling that adapts to theme */
-      .jp-cell-input-area {
-        flex: 1;
-        border: 1px solid rgba(128, 128, 128, 0.2);
-        border-radius: var(--jp-border-radius);
-        background: rgba(128, 128, 128, 0.05);
-        position: relative;
-        overflow: visible;
-        transition: border-color 0.1s ease, background-color 0.1s ease;
-        color: inherit;
-      }
-
-      .jp-cell-input-area:focus-within {
-        border-color: #66afe9;
-        box-shadow: 0 0 0 1px #66afe9;
-      }
-
-      .jp-cell-input-content {
-        padding: 4px 8px;
-        overflow: visible;
-        background: transparent;
-        color: inherit;
-      }
-
-      /* Code source styling - inherit theme colors and prevent line borders */
+      /* Code source styling - treat as single message unit per protocol */
       .jp-code-source {
         margin: 0 !important;
         padding: 0 !important;
@@ -507,33 +553,70 @@ export const NotebookStyles: React.FC = () => {
         box-shadow: none !important;
       }
 
-      /* Ensure no child elements get borders */
+      /* Override any theme CSS that might add line-level styling */
       .jp-code-source *,
-      .jp-code-source code,
+      .jp-code-source > *,
       .jp-code-source span,
-      .jp-code-source div {
+      .jp-code-source div,
+      .jp-code-source .line,
+      .jp-code-source .token,
+      .jp-code-source code {
         color: inherit !important;
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
         outline: none !important;
         font-family: inherit !important;
-        display: inline !important;
-        padding: 0 !important;
-        margin: 0 !important;
-      }
-
-      .jp-code-source code {
-        display: block !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border: none !important;
-        background: transparent !important;
-        font-family: inherit !important;
         font-size: inherit !important;
         line-height: inherit !important;
         white-space: inherit !important;
         word-wrap: inherit !important;
+        display: inline !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        text-decoration: none !important;
+      }
+
+      /* Ensure code element displays as block container */
+      .jp-code-source > code {
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+      }
+
+      /* Kill any syntax highlighting that adds borders */
+      .jp-code-source .hljs,
+      .jp-code-source .highlight,
+      .jp-code-source .CodeMirror,
+      .jp-code-source .cm-editor {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+      }
+
+      /* Message-level styling only on container */
+      .jp-cell-input-area {
+        flex: 1;
+        border: 1px solid rgba(128, 128, 128, 0.2);
+        border-radius: var(--jp-border-radius);
+        background: rgba(128, 128, 128, 0.05);
+        position: relative;
+        overflow: hidden; /* Prevent child elements from breaking out */
+        transition: border-color 0.1s ease, background-color 0.1s ease;
+        color: inherit;
+      }
+
+      .jp-cell-input-area:focus-within {
+        border-color: #66afe9;
+        box-shadow: 0 0 0 1px #66afe9;
+      }
+
+      .jp-cell-input-content {
+        padding: 4px 8px;
+        overflow: visible;
+        background: transparent;
+        color: inherit;
       }
 
       /* Markdown content - inherit theme colors */
@@ -603,6 +686,59 @@ export const NotebookStyles: React.FC = () => {
         overflow-x: auto;
         white-space: pre-wrap;
         margin: 1em 0;
+      }
+
+              /* Raw cell styling */
+      .jp-raw-cell {
+        position: relative;
+        margin: 0;
+        background: transparent;
+        color: inherit;
+      }
+
+      .jp-raw-content {
+        font-family: var(--jp-code-font-family);
+        font-size: var(--jp-code-font-size);
+        line-height: var(--jp-code-line-height);
+        color: inherit;
+        padding: 6px 12px;
+        margin: 0;
+        background: rgba(128, 128, 128, 0.05);
+        border: 1px solid rgba(128, 128, 128, 0.2);
+        border-radius: var(--jp-border-radius);
+        border-left: 4px solid #17a2b8;
+      }
+
+      .jp-raw-source {
+        margin: 0 !important;
+        padding: 0 !important;
+        font-family: inherit;
+        font-size: inherit;
+        line-height: inherit;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        color: inherit;
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        resize: none;
+        overflow: visible;
+        display: block;
+        box-shadow: none !important;
+      }
+
+      .jp-raw-source code {
+        color: inherit !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-family: inherit !important;
+        font-size: inherit !important;
+        line-height: inherit !important;
+        white-space: inherit !important;
+        word-wrap: inherit !important;
+        display: inline !important;
       }
 
       /* Cell outputs - inherit theme colors */
@@ -824,6 +960,7 @@ export const NotebookStyles: React.FC = () => {
 export const JupyterComponents = {
   NotebookCodeCell,
   NotebookMarkdownCell,
+  NotebookRawCell,
   NotebookLoader,
   NotebookStyles,
 };

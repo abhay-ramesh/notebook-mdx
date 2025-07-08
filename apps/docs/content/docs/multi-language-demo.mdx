@@ -1,0 +1,41 @@
+---
+title: "Multi-Language and Raw Cell Demo"
+description: "Demonstration of Jupyter notebooks with multiple programming languages and raw text cells"
+---
+
+# Multi-Language and Raw Cell Demo
+
+This demo shows how our Jupyter MDX integration now supports:
+
+- **Raw text cells** - for documentation, notes, and unformatted content
+- **Multiple programming languages** - code cells display properly formatted code
+- **All cell types** - code, markdown, and raw cells are all supported
+
+import notebookRaw from './multi-language-notebook.ipynb';
+
+<NotebookLoader notebookData={JSON.parse(notebookRaw)} />
+
+## Features Demonstrated
+
+### 1. Raw Cells
+Raw cells contain unformatted text and are useful for:
+- Documentation fragments
+- Configuration snippets
+- Plain text notes
+- Template content
+
+### 2. Code Cell Support
+Code cells display properly formatted code from any programming language:
+- Python, JavaScript, TypeScript
+- R, Julia, SQL
+- Java, C, C++, Go, Rust
+- PHP, Ruby, Perl
+- MATLAB, Fortran, Haskell
+- And any other language!
+
+### 3. Authentic Jupyter Styling
+The notebook cells maintain authentic Jupyter appearance:
+- **Input prompts** - distinctive blue "In [n]:" prompts
+- **Output prompts** - orange "Out[n]:" prompts for execution results
+- **Theme adaptation** - colors adapt to your site's light/dark theme
+- **Proper formatting** - code blocks, outputs, and markdown render correctly 

@@ -4,6 +4,7 @@ export {
   NotebookCodeCell,
   NotebookLoader,
   NotebookMarkdownCell,
+  NotebookRawCell,
   NotebookStyles,
 } from "./components.js";
 export { rehypeJupyter } from "./rehype-jupyter.js";
