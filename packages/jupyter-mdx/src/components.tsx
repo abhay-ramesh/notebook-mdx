@@ -630,21 +630,17 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
   );
 };
 
-// Global flag to ensure styles are only rendered once
-let stylesRendered = false;
-
 // CSS styles embedded as a component
 export const NotebookStyles: React.FC = () => {
-  // Only render styles once per page load
-  if (typeof window !== "undefined" && stylesRendered) {
+  // Check if styles already exist in DOM before initial render
+  const stylesExist =
+    typeof window !== "undefined" &&
+    document.getElementById("jupyter-notebook-styles") !== null;
+
+  // Don't render if styles already exist
+  if (stylesExist) {
     return null;
   }
-
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      stylesRendered = true;
-    }
-  }, []);
 
   return (
     <style id="jupyter-notebook-styles">{`
@@ -1137,7 +1133,6 @@ export const NotebookStyles: React.FC = () => {
         color: #d32f2f;
         font-family: var(--jp-code-font-family);
         font-size: var(--jp-code-font-size);
-        line-height: var(--jp-code-line-height);
         background: transparent;
       }
 
