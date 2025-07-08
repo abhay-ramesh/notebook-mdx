@@ -109,25 +109,28 @@ Document data pipelines, analysis workflows, and research findings in company wi
 
 ## 🖼️ Screenshots
 
-<div align="center" style="display: flex; gap: 2rem; justify-content: center; align-items: flex-start;">
-
-<div style="flex: 1; text-align: center;">
+<table>
+<tr>
+<td width="50%" align="center">
 
 ### Before (Plain Markdown)
 
+*Generic code blocks with basic syntax highlighting*
+
 ![Plain Markdown](.github/assets/before.png)
 
-</div>
-
-<div style="flex: 1; text-align: center;">
+</td>
+<td width="50%" align="center">
 
 ### After (notebook-mdx)
 
+*Authentic Jupyter styling with In/Out prompts*
+
 ![notebook-mdx](.github/assets/after.png)
 
-</div>
-
-</div>
+</td>
+</tr>
+</table>
 
 ## 🔧 Framework Examples
 
