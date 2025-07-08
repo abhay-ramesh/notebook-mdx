@@ -542,52 +542,12 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
       return "raw";
     }
 
-    // 4. For code cells, check for magic commands
-    if (cell.cell_type === "code" && cell.source) {
-      const sourceString = Array.isArray(cell.source)
-        ? cell.source.join("")
-        : cell.source;
-
-      // Check for cell magic commands (%%magic)
-      const cellMagicMatch = sourceString.match(/^%%(\w+)/);
-      if (cellMagicMatch) {
-        const magic = cellMagicMatch[1].toLowerCase();
-
-        // Map common magic commands to languages
-        const magicToLanguage: Record<string, string> = {
-          javascript: "javascript",
-          js: "javascript",
-          bash: "bash",
-          sh: "bash",
-          python: "python",
-          python2: "python",
-          python3: "python",
-          ruby: "ruby",
-          perl: "perl",
-          html: "html",
-          latex: "latex",
-          markdown: "markdown",
-          sql: "sql",
-          R: "r",
-          julia: "julia",
-          scala: "scala",
-          matlab: "matlab",
-          octave: "octave",
-          script: "bash", // Generic script magic
-        };
-
-        if (magicToLanguage[magic]) {
-          return magicToLanguage[magic];
-        }
-      }
-    }
-
-    // 5. Fall back to notebook kernel language for regular code cells
+    // 4. Fall back to notebook kernel language for regular code cells
     if (cell.cell_type === "code") {
       return fallbackLanguage;
     }
 
-    // 6. No language for markdown cells
+    // 5. No language for markdown cells
     return undefined;
   };
 
