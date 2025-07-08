@@ -1,0 +1,62 @@
+---
+title: Jupyter Notebook Demo
+description: Live demonstration of Jupyter notebook integration with image rendering
+---
+
+import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
+import notebookRaw from './example-notebook.ipynb';
+
+export const notebookData = JSON.parse(notebookRaw);
+
+<NotebookStyles />
+
+# Jupyter Notebook Demo
+
+This page demonstrates how to import and display Jupyter notebooks directly in MDX with **authentic styling and image rendering**.
+
+## 🎯 Features
+
+- **📄 Direct Import**: Import `.ipynb` files directly in MDX
+- **🎨 Authentic Styling**: Matches real Jupyter notebook interface  
+- **🖼️ Image Rendering**: Supports PNG, JPEG, GIF, and SVG images
+- **📊 Multiple Outputs**: Stream, execute_result, display_data, and error outputs
+- **🔢 Execution Counts**: Proper `In [n]:` and `Out [n]:` prompts
+
+## 📓 Live Notebook Display
+
+Here's the imported notebook:
+
+<NotebookLoader notebookData={notebookData} />
+
+## 🧪 Image Output Types Supported
+
+The notebook renderer supports all standard Jupyter image formats:
+
+- **PNG Images**: `image/png` - Base64 encoded
+- **JPEG Images**: `image/jpeg` - Base64 encoded  
+- **GIF Images**: `image/gif` - Base64 encoded
+- **SVG Images**: `image/svg+xml` - Raw SVG string
+- **HTML Content**: `text/html` - Rich HTML outputs
+- **JSON Data**: `application/json` - Formatted JSON display
+
+## 🎛️ How It Works
+
+1. **Webpack Loader**: Next.js processes `.ipynb` files with `raw-loader`
+2. **JSON Parsing**: Raw notebook string is parsed into JavaScript object
+3. **Component Rendering**: React components render each cell with proper styling
+4. **Image Processing**: Base64 images are converted to data URLs
+5. **Metadata Handling**: Image dimensions and other metadata are preserved
+
+## 💡 Usage Example
+
+```mdx
+import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
+import notebookRaw from './my-notebook.ipynb';
+
+export const notebookData = JSON.parse(notebookRaw);
+
+<NotebookStyles />
+<NotebookLoader notebookData={notebookData} />
+```
+
+This approach allows you to version control your notebooks and display them with full fidelity in your documentation!

@@ -1,0 +1,346 @@
+---
+title: Advanced Usage
+description: Learn about multi-language support, cell-level language detection, and advanced features
+---
+
+import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
+
+<NotebookStyles />
+
+# Advanced Usage
+
+Learn about advanced features including multi-language support, cell-level language detection, and customization options.
+
+## 🌐 Multi-Language Support
+
+notebook-mdx supports multiple programming languages within a single notebook, with automatic language detection.
+
+### Language Detection Hierarchy
+
+The language detection follows this priority order:
+
+1. **VSCode metadata**: `cell.metadata.vscode.languageId`
+2. **Cell metadata**: `cell.metadata.languageId` or `cell.metadata.language`  
+3. **Raw cells**: Always display as `raw`
+4. **Notebook kernel**: Fallback to notebook's default language
+
+### Example Multi-Language Notebook
+
+<NotebookLoader
+  notebookData={{
+    "cells": [
+      {
+        "cell_type": "markdown",
+        "source": "# Multi-Language Demo\n\nThis notebook demonstrates different languages in different cells."
+      },
+      {
+        "cell_type": "code",
+        "execution_count": 1,
+        "metadata": {},
+        "outputs": [],
+        "source": "# Python cell (default kernel)\nimport pandas as pd\nprint('Hello from Python!')"
+      },
+      {
+        "cell_type": "code",
+        "execution_count": 2,
+        "metadata": {
+          "vscode": {
+            "languageId": "javascript"
+          }
+        },
+        "outputs": [],
+        "source": "// JavaScript cell (VSCode metadata)\nconsole.log('Hello from JavaScript!');\nconst data = [1, 2, 3, 4, 5];"
+      },
+      {
+        "cell_type": "code",
+        "execution_count": 3,
+        "metadata": {
+          "languageId": "sql"
+        },
+        "outputs": [],
+        "source": "-- SQL cell (cell metadata)\nSELECT customer_name, order_date \nFROM orders \nWHERE order_date > '2023-01-01'\nORDER BY order_date DESC;"
+      },
+      {
+        "cell_type": "raw",
+        "metadata": {
+          "format": "text/html"
+        },
+        "source": "<h3>Raw HTML Cell</h3>\n<p>This is a raw cell - always shows 'raw' language.</p>"
+      }
+    ],
+    "metadata": {
+      "kernelspec": {
+        "display_name": "Python 3",
+        "language": "python",
+        "name": "python3"
+      }
+    },
+    "nbformat": 4,
+    "nbformat_minor": 4
+  }}
+/>
+
+### Language Indicators
+
+Notice the language indicators in the bottom-right corner of each cell:
+- **Cell 1**: `python` (kernel default)
+- **Cell 2**: `javascript` (VSCode metadata)
+- **Cell 3**: `sql` (cell metadata)
+- **Raw Cell**: `raw` (always raw)
+
+## 🔧 Configuration Options
+
+### Plugin Configuration
+
+Configure the remark and rehype plugins with these options:
+
+```typescript
+import { remarkJupyter, rehypeJupyter } from 'notebook-mdx';
+
+export default defineConfig({
+  mdxOptions: {
+    remarkPlugins: [
+      [remarkJupyter, {
+        executeCode: false,           // Don't execute code cells
+        showCellNumbers: true,        // Show In[n]/Out[n] numbers
+        showLanguageIndicators: true, // Show language badges
+        // Custom language mapping
+        languageMapping: {
+          'py': 'python',
+          'js': 'javascript',
+          'ts': 'typescript'
+        }
+      }],
+    ],
+    rehypePlugins: [
+      [rehypeJupyter, {
+        showCellNumbers: true,        // Show execution counts
+        syntaxHighlighting: true,     // Enable syntax highlighting
+        // Custom CSS class prefix
+        classPrefix: 'jupyter-'
+      }]
+    ],
+  },
+});
+```
+
+### Component Props
+
+#### NotebookLoader Props
+
+```typescript
+interface NotebookLoaderProps {
+  notebookData: NotebookData;     // Parsed notebook JSON
+  showCellNumbers?: boolean;      // Show In[n]/Out[n] prompts
+  showLanguageIndicators?: boolean; // Show language badges
+  className?: string;             // Custom CSS class
+}
+```
+
+#### NotebookCodeCell Props
+
+```typescript
+interface NotebookCodeCellProps {
+  source: string;                 // Cell source code
+  executionCount?: number | null; // Execution count
+  outputs?: CellOutput[];         // Cell outputs
+  metadata?: CellMetadata;        // Cell metadata
+  language?: string;              // Override language
+  showLanguageIndicator?: boolean; // Show language badge
+}
+```
+
+## 🎨 Custom Styling
+
+### CSS Custom Properties
+
+You can customize the styling using CSS custom properties:
+
+```css
+:root {
+  /* Colors */
+  --jp-input-prompt-color: #307FC1;
+  --jp-output-prompt-color: #D84315;
+  --jp-cell-border-color: #e0e0e0;
+  --jp-cell-hover-color: #2196F3;
+  
+  /* Typography */
+  --jp-code-font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --jp-code-font-size: 13px;
+  --jp-code-line-height: 1.4;
+  
+  /* Spacing */
+  --jp-cell-padding: 8px 12px;
+  --jp-cell-margin: 4px 0;
+  
+  /* Interactive */
+  --jp-cell-transition: all 0.2s ease;
+  --jp-cell-focus-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+}
+```
+
+### Custom Component Classes
+
+Override default styling with custom CSS classes:
+
+```css
+.custom-notebook {
+  /* Custom notebook container styles */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.custom-notebook .notebook-cell {
+  /* Custom cell styles */
+  margin: 12px 0;
+  padding: 16px;
+  background: #f8f9fa;
+}
+
+.custom-notebook .notebook-code-cell {
+  /* Custom code cell styles */
+  border-left: 4px solid #007ACC;
+}
+```
+
+## 📊 Output Types
+
+notebook-mdx supports all standard Jupyter output types:
+
+### Stream Output
+```json
+{
+  "output_type": "stream",
+  "name": "stdout",
+  "text": ["Hello, World!\n"]
+}
+```
+
+### Execute Result
+```json
+{
+  "output_type": "execute_result",
+  "execution_count": 1,
+  "data": {
+    "text/plain": ["42"]
+  }
+}
+```
+
+### Display Data
+```json
+{
+  "output_type": "display_data",
+  "data": {
+    "image/png": "iVBORw0KGgoAAAANSUhEUgAA...",
+    "text/plain": ["<matplotlib.figure.Figure>"]
+  }
+}
+```
+
+### Error Output
+```json
+{
+  "output_type": "error",
+  "ename": "ValueError",
+  "evalue": "invalid literal for int()",
+  "traceback": ["Traceback (most recent call last):\n", "ValueError: invalid literal for int()\n"]
+}
+```
+
+## 🖼️ Image Support
+
+Supports all Jupyter image formats:
+
+- **PNG**: `image/png` (base64 encoded)
+- **JPEG**: `image/jpeg` (base64 encoded)
+- **GIF**: `image/gif` (base64 encoded)
+- **SVG**: `image/svg+xml` (raw SVG string)
+
+Images are automatically converted to proper data URLs for display.
+
+## 🔍 TypeScript Support
+
+Full TypeScript support with comprehensive type definitions:
+
+```typescript
+import type { 
+  NotebookData, 
+  CellData, 
+  CellOutput, 
+  CellMetadata 
+} from 'notebook-mdx';
+
+// Type-safe notebook handling
+const notebook: NotebookData = {
+  cells: [
+    {
+      cell_type: 'code',
+      source: 'print("Hello")',
+      execution_count: 1,
+      metadata: {},
+      outputs: []
+    }
+  ],
+  metadata: {
+    kernelspec: {
+      display_name: 'Python 3',
+      language: 'python',
+      name: 'python3'
+    }
+  },
+  nbformat: 4,
+  nbformat_minor: 4
+};
+```
+
+## 🚀 Performance Tips
+
+### 1. Lazy Loading
+For large notebooks, consider lazy loading:
+
+```typescript
+import { lazy, Suspense } from 'react';
+
+const NotebookLoader = lazy(() => import('notebook-mdx').then(m => ({ default: m.NotebookLoader })));
+
+function MyComponent() {
+  return (
+    <Suspense fallback={<div>Loading notebook...</div>}>
+      <NotebookLoader notebookData={notebookData} />
+    </Suspense>
+  );
+}
+```
+
+### 2. Memoization
+Memoize parsed notebook data:
+
+```typescript
+import { useMemo } from 'react';
+
+function NotebookPage({ notebookRaw }) {
+  const notebookData = useMemo(() => JSON.parse(notebookRaw), [notebookRaw]);
+  
+  return <NotebookLoader notebookData={notebookData} />;
+}
+```
+
+### 3. Bundle Size
+Import only what you need:
+
+```typescript
+// Instead of importing everything
+import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
+
+// Import specific components
+import { NotebookLoader } from 'notebook-mdx/components';
+import { NotebookStyles } from 'notebook-mdx/styles';
+```
+
+## 🔧 Next Steps
+
+- [API Reference](/docs/api) - Complete API documentation for all components and plugins
+
+Ready to build amazing notebook-powered documentation with notebook-mdx! 

@@ -2,118 +2,186 @@
 
 **Jupyter Notebook support for MDX via Remark and Rehype plugins**
 
-## Installation
+A comprehensive solution for rendering Jupyter notebooks in MDX with authentic styling, syntax highlighting, and full cell type support.
+
+## ✨ Features
+
+- 🎯 **Authentic Jupyter styling** - Matches real Jupyter notebook appearance
+- 🎨 **Syntax highlighting** - Full language support with Shiki
+- 📊 **All cell types** - Code, markdown, and raw cells
+- 🔧 **TypeScript ready** - Full type safety and IntelliSense
+- ⚡ **Fast rendering** - Optimized for performance
+- 🌐 **Multi-language** - Cell-level language detection
+- 🖼️ **Image support** - PNG, JPEG, GIF, and SVG outputs
+
+## 📦 Installation
 
 ```bash
 npm install notebook-mdx
 ```
 
-## Usage
+## 🚀 Quick Start
 
-### Basic Setup
+### 1. Configure Your MDX Pipeline
 
-Add the plugins to your MDX pipeline:
-
-```typescript
-import { remarkJupyter, rehypeJupyter } from 'notebook-mdx';
-```
-
-### With Fumadocs
+Add the plugins to your MDX configuration:
 
 ```typescript
-// source.config.ts
-import { defineConfig } from 'fumadocs-mdx/config';
 import { remarkJupyter, rehypeJupyter } from 'notebook-mdx';
 
 export default defineConfig({
   mdxOptions: {
     remarkPlugins: [
-      [remarkJupyter, { executeCode: false }],
+      [remarkJupyter, { executeCode: false, showCellNumbers: true }],
     ],
-    rehypePlugins: [
-      [rehypeJupyter, { showCellNumbers: true }],
-    ],
+    rehypePlugins: [[rehypeJupyter, { showCellNumbers: true }]],
   },
 });
 ```
 
-### With Next.js + MDX
+### 2. Import and Render Notebooks
 
-```javascript
-// next.config.js
-import { remarkJupyter, rehypeJupyter } from 'notebook-mdx';
+```mdx
+import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
+import notebookRaw from './my-notebook.ipynb';
 
-const withMDX = require('@next/mdx')({
-  extension: /\.mdx?$/,
-  options: {
-    remarkPlugins: [remarkJupyter],
-    rehypePlugins: [rehypeJupyter],
-  },
-});
-
-module.exports = withMDX({
-  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx', 'ipynb'],
-});
+<NotebookStyles />
+<NotebookLoader notebookData={JSON.parse(notebookRaw)} />
 ```
 
-### Components
+### 3. Manual Cell Creation
 
-```tsx
-// mdx-components.tsx
-import { JupyterComponents } from 'notebook-mdx';
+```mdx
+import { NotebookCodeCell, NotebookMarkdownCell, NotebookStyles } from 'notebook-mdx';
 
-export function getMDXComponents(components) {
-  return {
-    ...components,
-    ...JupyterComponents,
-  };
+<NotebookStyles />
+
+<NotebookCodeCell
+  source="print('Hello from Python!')"
+  executionCount={1}
+/>
+
+<NotebookMarkdownCell
+  source="## This is a markdown cell"
+/>
+```
+
+## 🎨 Authentic Styling
+
+The package provides authentic Jupyter notebook styling that matches VSCode and Jupyter Lab:
+
+- **Input prompts**: Blue `In [n]:` indicators
+- **Output prompts**: Orange `Out[n]:` indicators  
+- **Cell borders**: Subtle borders with hover effects
+- **Monospace fonts**: System monospace fonts for code
+- **Color scheme**: Authentic Jupyter color palette
+- **Responsive design**: Works on all screen sizes
+
+## 🌐 Multi-Language Support
+
+Supports multiple programming languages with automatic detection:
+
+```typescript
+// Language detection hierarchy:
+// 1. VSCode metadata (cell.metadata.vscode.languageId)
+// 2. Cell metadata (cell.metadata.languageId)
+// 3. Raw cells (always "raw")
+// 4. Notebook kernel language (fallback)
+```
+
+## 🔧 Configuration
+
+### Plugin Options
+
+```typescript
+// Remark plugin options
+remarkJupyter({
+  executeCode: false,           // Don't execute code cells
+  showCellNumbers: true,        // Show In[n]/Out[n] numbers
+  showLanguageIndicators: true, // Show language badges
+  languageMapping: {            // Custom language aliases
+    'py': 'python',
+    'js': 'javascript'
+  }
+})
+
+// Rehype plugin options
+rehypeJupyter({
+  showCellNumbers: true,        // Show execution counts
+  syntaxHighlighting: true,     // Enable syntax highlighting
+  classPrefix: 'jupyter-'       // CSS class prefix
+})
+```
+
+### Component Props
+
+```typescript
+// NotebookLoader
+<NotebookLoader
+  notebookData={parsedNotebook}
+  showCellNumbers={true}
+  showLanguageIndicators={true}
+  className="custom-notebook"
+/>
+
+// NotebookCodeCell
+<NotebookCodeCell
+  source="print('Hello')"
+  executionCount={1}
+  language="python"
+  outputs={outputs}
+  showLanguageIndicator={true}
+/>
+```
+
+## 📚 Documentation
+
+For complete documentation, examples, and API reference:
+
+**[View Documentation →](https://your-docs-url.com)**
+
+## 🎯 Use Cases
+
+- **Documentation sites** - Embed notebooks in your docs
+- **Technical blogs** - Share code examples with outputs
+- **Educational content** - Interactive learning materials
+- **API documentation** - Live code examples
+- **Data science** - Share analysis and visualizations
+
+## 🔧 TypeScript Support
+
+Full TypeScript support with comprehensive type definitions:
+
+```typescript
+import type { 
+  NotebookData, 
+  CellData, 
+  CellOutput, 
+  CellMetadata 
+} from 'notebook-mdx';
+```
+
+## 🎨 CSS Custom Properties
+
+Customize styling with CSS variables:
+
+```css
+:root {
+  --jp-input-prompt-color: #307FC1;
+  --jp-output-prompt-color: #D84315;
+  --jp-cell-border-color: #e0e0e0;
+  --jp-code-font-family: 'SFMono-Regular', Consolas, monospace;
 }
 ```
 
-## Features
+## 🤝 Contributing
 
-- ✅ Parse `.ipynb` files directly in MDX
-- ✅ Render code cells with syntax highlighting
-- ✅ Display outputs (text, HTML, images)
-- ✅ Show execution counts
-- ✅ Customizable components
-- 🚧 Code execution during build (coming soon)
-- 🚧 Interactive widgets (coming soon)
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## API
+## 📄 License
 
-### remarkJupyter(options)
+MIT License - see LICENSE file for details.
 
-Remark plugin to parse Jupyter notebooks.
+---
 
-#### Options
-
-- `executeCode` (boolean): Whether to execute code cells during build
-- `showCellNumbers` (boolean): Whether to show cell execution numbers
-
-### rehypeJupyter(options)
-
-Rehype plugin to transform notebook elements.
-
-### JupyterComponents
-
-React components for rendering notebook elements:
-
-- `NotebookCodeCell`: Renders code cells with outputs
-- `NotebookOutput`: Renders individual outputs
-
-## Example
-
-```mdx
-# My Analysis
-
-Here's my data analysis notebook:
-
-import MyNotebook from './analysis.ipynb';
-
-<MyNotebook />
-```
-
-## License
-
-MIT
+**notebook-mdx** - Bring your Jupyter notebooks to life in MDX!

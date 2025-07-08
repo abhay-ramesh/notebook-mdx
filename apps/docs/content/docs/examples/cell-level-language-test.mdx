@@ -18,30 +18,38 @@ import { NotebookLoader } from "notebook-mdx";
       {
         "cell_type": "code", 
         "execution_count": 1,
-        "metadata": {},
+        "metadata": {
+          "language": "python"
+        },
         "outputs": [],
         "source": "# Regular Python cell\nprint('Hello from Python!')\nimport pandas as pd"
       },
       {
         "cell_type": "code",
         "execution_count": 2, 
-        "metadata": {},
+        "metadata": {
+          "language": "javascript"
+        },
         "outputs": [],
-        "source": "%%javascript\n// This cell uses JavaScript magic\nconsole.log('Hello from JavaScript!');\ndocument.querySelector('body').style.background = 'lightblue';"
+        "source": "// This cell uses JavaScript magic\nconsole.log('Hello from JavaScript!');\ndocument.querySelector('body').style.background = 'lightblue';"
       },
       {
         "cell_type": "code",
         "execution_count": 3,
-        "metadata": {},
+        "metadata": {
+          "language": "bash"
+        },
         "outputs": [],
-        "source": "%%bash\n# This cell uses bash magic\necho \"Hello from Bash!\"\nls -la /tmp"
+        "source": "# This cell uses bash magic\necho \"Hello from Bash!\"\nls -la /tmp"
       },
       {
         "cell_type": "code",
         "execution_count": 4,
-        "metadata": {},
+        "metadata": {
+          "language": "html"
+        },
         "outputs": [],
-        "source": "%%html\n<div style=\"color: red; font-weight: bold;\">\n  <h2>Hello from HTML!</h2>\n  <p>This is rendered HTML content.</p>\n</div>"
+        "source": "<div style=\"color: red; font-weight: bold;\">\n  <h2>Hello from HTML!</h2>\n  <p>This is rendered HTML content.</p>\n</div>"
       },
       {
         "cell_type": "code",
@@ -55,9 +63,11 @@ import { NotebookLoader } from "notebook-mdx";
       {
         "cell_type": "code",
         "execution_count": 6,
-        "metadata": {},
+        "metadata": {
+          "language": "ruby"
+        },
         "outputs": [],
-        "source": "%%ruby\n# Ruby magic command\nputs 'Hello from Ruby!'\n3.times { |i| puts \"Count: #{i}\" }"
+        "source": "# Ruby magic command\nputs 'Hello from Ruby!'\n3.times { |i| puts \"Count: #{i}\" }"
       },
       {
         "cell_type": "raw",
@@ -76,7 +86,9 @@ import { NotebookLoader } from "notebook-mdx";
       {
         "cell_type": "code",
         "execution_count": 7,
-        "metadata": {},
+        "metadata": {
+          "language": "python"
+        },
         "outputs": [],
         "source": "# Back to regular Python\ndef fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n\nprint(f'Fibonacci(10) = {fibonacci(10)}')"
       }

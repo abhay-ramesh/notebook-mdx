@@ -1,0 +1,509 @@
+---
+title: API Reference
+description: Complete API documentation for all components and plugins
+---
+
+# API Reference
+
+Complete reference documentation for all notebook-mdx components, plugins, and TypeScript interfaces.
+
+## 🧩 Components
+
+### NotebookLoader
+
+The main component for rendering complete Jupyter notebooks.
+
+```typescript
+interface NotebookLoaderProps {
+  notebookData: NotebookData;
+  showCellNumbers?: boolean;
+  showLanguageIndicators?: boolean;
+  className?: string;
+}
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `notebookData` | `NotebookData` | Required | Parsed notebook JSON data |
+| `showCellNumbers` | `boolean` | `true` | Show In[n]/Out[n] execution counts |
+| `showLanguageIndicators` | `boolean` | `true` | Show language badges on cells |
+| `className` | `string` | `undefined` | Custom CSS class for the container |
+
+#### Example
+
+```tsx
+import { NotebookLoader } from 'notebook-mdx';
+
+<NotebookLoader 
+  notebookData={parsedNotebook}
+  showCellNumbers={true}
+  showLanguageIndicators={true}
+  className="custom-notebook"
+/>
+```
+
+### NotebookCodeCell
+
+Component for rendering individual code cells.
+
+```typescript
+interface NotebookCodeCellProps {
+  source: string;
+  executionCount?: number | null;
+  outputs?: CellOutput[];
+  metadata?: CellMetadata;
+  language?: string;
+  showLanguageIndicator?: boolean;
+  className?: string;
+}
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `source` | `string` | Required | Cell source code |
+| `executionCount` | `number \| null` | `null` | Execution count (In[n]) |
+| `outputs` | `CellOutput[]` | `[]` | Cell outputs |
+| `metadata` | `CellMetadata` | `{}` | Cell metadata |
+| `language` | `string` | Auto-detected | Override language |
+| `showLanguageIndicator` | `boolean` | `true` | Show language badge |
+| `className` | `string` | `undefined` | Custom CSS class |
+
+#### Example
+
+```tsx
+import { NotebookCodeCell } from 'notebook-mdx';
+
+<NotebookCodeCell
+  source="print('Hello, World!')"
+  executionCount={1}
+  language="python"
+  outputs={[
+    {
+      output_type: "stream",
+      name: "stdout", 
+      text: ["Hello, World!\n"]
+    }
+  ]}
+/>
+```
+
+### NotebookMarkdownCell
+
+Component for rendering markdown cells.
+
+```typescript
+interface NotebookMarkdownCellProps {
+  source: string;
+  className?: string;
+}
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `source` | `string` | Required | Markdown source content |
+| `className` | `string` | `undefined` | Custom CSS class |
+
+#### Example
+
+```tsx
+import { NotebookMarkdownCell } from 'notebook-mdx';
+
+<NotebookMarkdownCell
+  source="# Heading\n\nThis is **bold** text."
+  className="custom-markdown"
+/>
+```
+
+### NotebookRawCell
+
+Component for rendering raw cells.
+
+```typescript
+interface NotebookRawCellProps {
+  source: string;
+  className?: string;
+}
+```
+
+#### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `source` | `string` | Required | Raw cell content |
+| `className` | `string` | `undefined` | Custom CSS class |
+
+#### Example
+
+```tsx
+import { NotebookRawCell } from 'notebook-mdx';
+
+<NotebookRawCell
+  source="<h1>Raw HTML content</h1>"
+  className="custom-raw"
+/>
+```
+
+### NotebookStyles
+
+Component that injects global notebook styles.
+
+```typescript
+interface NotebookStylesProps {
+  // No props - styles are global
+}
+```
+
+#### Example
+
+```tsx
+import { NotebookStyles } from 'notebook-mdx';
+
+// Add once per page
+<NotebookStyles />
+```
+
+## 🔌 Plugins
+
+### remarkJupyter
+
+Remark plugin for processing Jupyter notebook content.
+
+```typescript
+function remarkJupyter(options?: RemarkJupyterOptions): Plugin;
+
+interface RemarkJupyterOptions {
+  executeCode?: boolean;
+  showCellNumbers?: boolean;
+  showLanguageIndicators?: boolean;
+  languageMapping?: Record<string, string>;
+}
+```
+
+#### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `executeCode` | `boolean` | `false` | Execute code cells (unsafe) |
+| `showCellNumbers` | `boolean` | `true` | Show In[n]/Out[n] numbers |
+| `showLanguageIndicators` | `boolean` | `true` | Show language badges |
+| `languageMapping` | `Record<string, string>` | `{}` | Custom language aliases |
+
+#### Example
+
+```typescript
+import { remarkJupyter } from 'notebook-mdx';
+
+const mdxOptions = {
+  remarkPlugins: [
+    [remarkJupyter, {
+      executeCode: false,
+      showCellNumbers: true,
+      languageMapping: {
+        'py': 'python',
+        'js': 'javascript'
+      }
+    }]
+  ]
+};
+```
+
+### rehypeJupyter
+
+Rehype plugin for processing Jupyter notebook HTML.
+
+```typescript
+function rehypeJupyter(options?: RehypeJupyterOptions): Plugin;
+
+interface RehypeJupyterOptions {
+  showCellNumbers?: boolean;
+  syntaxHighlighting?: boolean;
+  classPrefix?: string;
+}
+```
+
+#### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `showCellNumbers` | `boolean` | `true` | Show execution counts |
+| `syntaxHighlighting` | `boolean` | `true` | Enable syntax highlighting |
+| `classPrefix` | `string` | `'jupyter-'` | CSS class prefix |
+
+#### Example
+
+```typescript
+import { rehypeJupyter } from 'notebook-mdx';
+
+const mdxOptions = {
+  rehypePlugins: [
+    [rehypeJupyter, {
+      showCellNumbers: true,
+      syntaxHighlighting: true,
+      classPrefix: 'nb-'
+    }]
+  ]
+};
+```
+
+## 📝 TypeScript Interfaces
+
+### NotebookData
+
+Main notebook data structure.
+
+```typescript
+interface NotebookData {
+  cells: CellData[];
+  metadata: NotebookMetadata;
+  nbformat: number;
+  nbformat_minor: number;
+}
+```
+
+### CellData
+
+Union type for all cell types.
+
+```typescript
+type CellData = CodeCell | MarkdownCell | RawCell;
+```
+
+### CodeCell
+
+Code cell structure.
+
+```typescript
+interface CodeCell {
+  cell_type: 'code';
+  source: string | string[];
+  execution_count?: number | null;
+  outputs?: CellOutput[];
+  metadata?: CellMetadata;
+}
+```
+
+### MarkdownCell
+
+Markdown cell structure.
+
+```typescript
+interface MarkdownCell {
+  cell_type: 'markdown';
+  source: string | string[];
+  metadata?: CellMetadata;
+}
+```
+
+### RawCell
+
+Raw cell structure.
+
+```typescript
+interface RawCell {
+  cell_type: 'raw';
+  source: string | string[];
+  metadata?: CellMetadata;
+}
+```
+
+### CellOutput
+
+Union type for all output types.
+
+```typescript
+type CellOutput = StreamOutput | ExecuteResultOutput | DisplayDataOutput | ErrorOutput;
+```
+
+### StreamOutput
+
+Stream output (stdout/stderr).
+
+```typescript
+interface StreamOutput {
+  output_type: 'stream';
+  name: 'stdout' | 'stderr';
+  text: string[];
+}
+```
+
+### ExecuteResultOutput
+
+Execution result output.
+
+```typescript
+interface ExecuteResultOutput {
+  output_type: 'execute_result';
+  execution_count: number;
+  data: OutputData;
+  metadata?: OutputMetadata;
+}
+```
+
+### DisplayDataOutput
+
+Display data output.
+
+```typescript
+interface DisplayDataOutput {
+  output_type: 'display_data';
+  data: OutputData;
+  metadata?: OutputMetadata;
+}
+```
+
+### ErrorOutput
+
+Error output.
+
+```typescript
+interface ErrorOutput {
+  output_type: 'error';
+  ename: string;
+  evalue: string;
+  traceback: string[];
+}
+```
+
+### OutputData
+
+Output data with multiple formats.
+
+```typescript
+interface OutputData {
+  'text/plain'?: string[];
+  'text/html'?: string[];
+  'text/markdown'?: string[];
+  'image/png'?: string;
+  'image/jpeg'?: string;
+  'image/gif'?: string;
+  'image/svg+xml'?: string;
+  'application/json'?: any;
+  [mimeType: string]: any;
+}
+```
+
+### CellMetadata
+
+Cell metadata structure.
+
+```typescript
+interface CellMetadata {
+  vscode?: {
+    languageId?: string;
+  };
+  languageId?: string;
+  language?: string;
+  collapsed?: boolean;
+  scrolled?: boolean;
+  [key: string]: any;
+}
+```
+
+### NotebookMetadata
+
+Notebook metadata structure.
+
+```typescript
+interface NotebookMetadata {
+  kernelspec?: {
+    display_name: string;
+    language: string;
+    name: string;
+  };
+  language_info?: {
+    name: string;
+    version?: string;
+    codemirror_mode?: any;
+    file_extension?: string;
+    mimetype?: string;
+    nbconvert_exporter?: string;
+    pygments_lexer?: string;
+  };
+  [key: string]: any;
+}
+```
+
+## 🎨 CSS Classes
+
+### Container Classes
+
+| Class | Description |
+|-------|-------------|
+| `.jupyter-notebook` | Main notebook container |
+| `.jupyter-cell` | Individual cell container |
+| `.jupyter-code-cell` | Code cell container |
+| `.jupyter-markdown-cell` | Markdown cell container |
+| `.jupyter-raw-cell` | Raw cell container |
+
+### Cell Content Classes
+
+| Class | Description |
+|-------|-------------|
+| `.jupyter-input` | Input area container |
+| `.jupyter-output` | Output area container |
+| `.jupyter-prompt` | Prompt area (In[n]/Out[n]) |
+| `.jupyter-source` | Source code area |
+| `.jupyter-language-indicator` | Language badge |
+
+### Output Classes
+
+| Class | Description |
+|-------|-------------|
+| `.jupyter-stream` | Stream output |
+| `.jupyter-execute-result` | Execute result |
+| `.jupyter-display-data` | Display data |
+| `.jupyter-error` | Error output |
+| `.jupyter-image` | Image output |
+
+### Interactive Classes
+
+| Class | Description |
+|-------|-------------|
+| `.jupyter-cell:hover` | Cell hover state |
+| `.jupyter-cell:focus` | Cell focus state |
+| `.jupyter-cell.selected` | Selected cell |
+
+## 🎯 Utility Functions
+
+### parseNotebook
+
+Parse raw notebook string to NotebookData.
+
+```typescript
+function parseNotebook(raw: string): NotebookData;
+```
+
+### detectCellLanguage
+
+Detect language for a cell.
+
+```typescript
+function detectCellLanguage(
+  cell: CellData,
+  fallbackLanguage: string
+): string | undefined;
+```
+
+### formatCellSource
+
+Format cell source (string or array) to string.
+
+```typescript
+function formatCellSource(source: string | string[]): string;
+```
+
+### createDataUrl
+
+Create data URL from base64 image data.
+
+```typescript
+function createDataUrl(data: string, mimeType: string): string;
+```
+
+This completes the API reference for notebook-mdx. All components, plugins, and types are designed to work together seamlessly for rendering Jupyter notebooks in MDX. 

@@ -1,13 +1,146 @@
 ---
-title: Hello World
-description: Your first document
+title: Getting Started
+description: Learn how to render Jupyter notebooks in MDX with authentic styling
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+import { NotebookLoader, NotebookStyles, NotebookCodeCell, NotebookMarkdownCell } from 'notebook-mdx';
 
-## What is Next?
+<NotebookStyles />
 
-<Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.vercel.app" />
-</Cards>
+# notebook-mdx
+
+A comprehensive solution for rendering Jupyter notebooks in MDX with authentic styling, syntax highlighting, and full cell type support.
+
+## ✨ Features
+
+- 🎯 **Authentic Jupyter styling** - Matches real Jupyter notebook appearance
+- 🎨 **Syntax highlighting** - Full language support with Shiki
+- 📊 **All cell types** - Code, markdown, and raw cells
+- 🔧 **TypeScript ready** - Full type safety and IntelliSense
+- ⚡ **Fast rendering** - Optimized for performance
+- 🌐 **Multi-language** - Cell-level language detection
+- 🖼️ **Image support** - PNG, JPEG, GIF, and SVG outputs
+
+## 📦 Installation
+
+```bash
+npm install notebook-mdx
+```
+
+## 🚀 Quick Start
+
+### 1. Configure Your MDX Pipeline
+
+Add the plugins to your MDX configuration:
+
+```typescript
+import { remarkJupyter, rehypeJupyter } from 'notebook-mdx';
+
+export default defineConfig({
+  mdxOptions: {
+    remarkPlugins: [
+      [remarkJupyter, { executeCode: false, showCellNumbers: true }],
+    ],
+    rehypePlugins: [[rehypeJupyter, { showCellNumbers: true }]],
+  },
+});
+```
+
+### 2. Import and Render Notebooks
+
+```mdx
+import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
+import notebookRaw from './my-notebook.ipynb';
+
+<NotebookStyles />
+<NotebookLoader notebookData={JSON.parse(notebookRaw)} />
+```
+
+### 3. Manual Cell Creation
+
+You can also create individual cells manually:
+
+<NotebookCodeCell
+  source={`# Hello from Python!
+import numpy as np
+print("notebook-mdx is working!")`}
+  executionCount={1}
+/>
+
+<NotebookMarkdownCell
+  source={`## Markdown Cell
+This is a **markdown cell** with proper styling.`}
+/>
+
+## 🎨 Authentic Styling
+
+The package provides authentic Jupyter notebook styling that matches VSCode and Jupyter Lab:
+
+- **Input prompts**: Blue `In [n]:` indicators
+- **Output prompts**: Orange `Out[n]:` indicators  
+- **Cell borders**: Subtle borders with hover effects
+- **Monospace fonts**: System monospace fonts for code
+- **Color scheme**: Authentic Jupyter color palette
+- **Responsive design**: Works on all screen sizes
+
+## 📝 Cell Types Supported
+
+### Code Cells
+- Python, JavaScript, SQL, Bash, and more
+- Execution counts and outputs
+- Syntax highlighting with Shiki
+- Language detection from metadata
+
+### Markdown Cells
+- Full markdown support
+- Proper typography
+- Code blocks and syntax highlighting
+
+### Raw Cells
+- Plain text display
+- No processing or rendering
+- Useful for data and configuration
+
+## 🔧 Next Steps
+
+- [Advanced Usage](/docs/advanced) - Learn about cell-level language detection, custom styling, and advanced features
+- [API Reference](/docs/api) - Complete API documentation for all components and plugins
+
+## 💡 Example Output
+
+Here's what a rendered notebook looks like:
+
+<NotebookLoader
+  notebookData={{
+    "cells": [
+      {
+        "cell_type": "markdown",
+        "source": "# Data Analysis Demo\n\nThis notebook demonstrates data analysis capabilities."
+      },
+      {
+        "cell_type": "code", 
+        "execution_count": 1,
+        "metadata": {},
+        "outputs": [
+          {
+            "output_type": "stream",
+            "name": "stdout",
+            "text": "Processing 100 data points...\nMean: 0.05\nStd: 0.98\n"
+          }
+        ],
+        "source": "import numpy as np\n\n# Generate sample data\ndata = np.random.randn(100)\nprint(f'Processing {len(data)} data points...')\nprint(f'Mean: {np.mean(data):.2f}')\nprint(f'Std: {np.std(data):.2f}')"
+      }
+    ],
+    "metadata": {
+      "kernelspec": {
+        "display_name": "Python 3",
+        "language": "python",
+        "name": "python3"
+      }
+    },
+    "nbformat": 4,
+    "nbformat_minor": 4
+  }}
+/>
+
+Get started with notebook-mdx today and bring your Jupyter notebooks to life in MDX!

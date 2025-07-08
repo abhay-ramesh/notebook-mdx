@@ -1,4 +1,4 @@
-import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
+import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
 
 /**
  * Shared layout configurations
@@ -16,13 +16,42 @@ export const baseOptions: BaseLayoutProps = {
           height="24"
           xmlns="http://www.w3.org/2000/svg"
           aria-label="Logo"
+          viewBox="0 0 24 24"
         >
-          <circle cx={12} cy={12} r={12} fill="currentColor" />
+          <rect x="2" y="4" width="20" height="3" rx="1" fill="currentColor" />
+          <rect
+            x="2"
+            y="9"
+            width="20"
+            height="8"
+            rx="1"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          />
+          <rect
+            x="2"
+            y="19"
+            width="20"
+            height="1"
+            rx="0.5"
+            fill="currentColor"
+          />
         </svg>
-        My App
+        notebook-mdx
       </>
     ),
   },
   // see https://fumadocs.dev/docs/ui/navigation/links
-  links: [],
+  links: [
+    {
+      text: "Documentation",
+      url: "/docs",
+    },
+    {
+      text: "GitHub",
+      url: "https://github.com/your-username/notebook-mdx",
+    },
+  ],
+  githubUrl: "https://github.com/abhay-ramesh/notebook-mdx",
 };
