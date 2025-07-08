@@ -562,14 +562,13 @@ export const NotebookStyles: React.FC = () => {
         position: relative;
         border-left: var(--jp-border-width) solid transparent;
         padding-left: var(--jp-cell-padding);
-        transition: border-color 0.1s ease;
+        transition: border-color 0.2s ease;
         /* Inherit text color from parent */
         color: inherit;
       }
 
       .jp-notebook-cell:hover {
-        border-left-color: currentColor;
-        opacity: 0.3;
+        border-left-color: rgba(128, 128, 128, 0.3);
       }
 
       .jp-notebook-cell.jp-cell-selected {
@@ -692,13 +691,11 @@ export const NotebookStyles: React.FC = () => {
         background: rgba(128, 128, 128, 0.05);
         position: relative;
         overflow: hidden; /* Prevent child elements from breaking out */
-        transition: border-color 0.1s ease, background-color 0.1s ease;
         color: inherit;
       }
 
       .jp-cell-input-area:focus-within {
-        border-color: #66afe9;
-        box-shadow: 0 0 0 1px #66afe9;
+        border-color: rgba(102, 175, 233, 0.5);
       }
 
       .jp-cell-input-content {
