@@ -9,6 +9,7 @@ interface NotebookCodeCellProps {
   outputs?: NotebookOutput[];
   executionCount?: number | null;
   showLineNumbers?: boolean;
+  language?: string;
 }
 
 // Helper function to render different types of output data
@@ -205,6 +206,7 @@ export const NotebookCodeCell: React.FC<NotebookCodeCellProps> = ({
   outputs = [],
   executionCount,
   showLineNumbers = false,
+  language,
 }) => {
   const sourceString = Array.isArray(source) ? source.join("") : source;
 
@@ -228,6 +230,9 @@ export const NotebookCodeCell: React.FC<NotebookCodeCellProps> = ({
               <pre className="jp-code-source">
                 <code>{sourceString}</code>
               </pre>
+              {language && (
+                <div className="jp-language-indicator">{language}</div>
+              )}
             </div>
           </div>
         </div>
@@ -356,6 +361,89 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
     );
   }
 
+  // Extract language from notebook metadata
+  const kernelLanguage =
+    notebook.metadata?.kernelspec?.language ||
+    notebook.metadata?.language_info?.name;
+
+  // Function to detect cell-level language
+  const detectCellLanguage = (
+    cell: any,
+    fallbackLanguage?: string
+  ): string | undefined => {
+    // 1. Check cell metadata for language override (VSCode format)
+    if (cell.metadata?.vscode?.languageId) {
+      const vscodeLang = cell.metadata.vscode.languageId;
+      // Don't show language indicator for raw cells even if VSCode metadata is present
+      if (cell.cell_type === "raw") {
+        return "raw";
+      }
+      return vscodeLang;
+    }
+
+    // 2. Check other common metadata formats
+    if (cell.metadata?.languageId) {
+      return cell.metadata.languageId;
+    }
+
+    if (cell.metadata?.language) {
+      return cell.metadata.language;
+    }
+
+    // 3. For raw cells, always show "raw"
+    if (cell.cell_type === "raw") {
+      return "raw";
+    }
+
+    // 4. For code cells, check for magic commands
+    if (cell.cell_type === "code" && cell.source) {
+      const sourceString = Array.isArray(cell.source)
+        ? cell.source.join("")
+        : cell.source;
+
+      // Check for cell magic commands (%%magic)
+      const cellMagicMatch = sourceString.match(/^%%(\w+)/);
+      if (cellMagicMatch) {
+        const magic = cellMagicMatch[1].toLowerCase();
+
+        // Map common magic commands to languages
+        const magicToLanguage: Record<string, string> = {
+          javascript: "javascript",
+          js: "javascript",
+          bash: "bash",
+          sh: "bash",
+          python: "python",
+          python2: "python",
+          python3: "python",
+          ruby: "ruby",
+          perl: "perl",
+          html: "html",
+          latex: "latex",
+          markdown: "markdown",
+          sql: "sql",
+          R: "r",
+          julia: "julia",
+          scala: "scala",
+          matlab: "matlab",
+          octave: "octave",
+          script: "bash", // Generic script magic
+        };
+
+        if (magicToLanguage[magic]) {
+          return magicToLanguage[magic];
+        }
+      }
+    }
+
+    // 5. Fall back to notebook kernel language for regular code cells
+    if (cell.cell_type === "code") {
+      return fallbackLanguage;
+    }
+
+    // 6. No language for markdown cells
+    return undefined;
+  };
+
   return (
     <>
       <NotebookStyles />
@@ -364,6 +452,7 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
           if (cell.cell_type === "markdown") {
             return <NotebookMarkdownCell key={index} source={cell.source} />;
           } else if (cell.cell_type === "code") {
+            const cellLanguage = detectCellLanguage(cell, kernelLanguage);
             return (
               <NotebookCodeCell
                 key={index}
@@ -371,10 +460,21 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
                 outputs={cell.outputs || []}
                 executionCount={cell.execution_count}
                 showLineNumbers={showCellNumbers}
+                language={cellLanguage}
               />
             );
           } else if (cell.cell_type === "raw") {
-            return <NotebookCodeCell key={index} source={cell.source} />;
+            const cellLanguage = detectCellLanguage(cell, kernelLanguage);
+            return (
+              <NotebookCodeCell
+                key={index}
+                source={cell.source}
+                outputs={[]}
+                executionCount={null}
+                showLineNumbers={showCellNumbers}
+                language={cellLanguage}
+              />
+            );
           }
           return null;
         })}
@@ -596,6 +696,25 @@ export const NotebookStyles: React.FC = () => {
         overflow: visible;
         background: transparent;
         color: inherit;
+        position: relative;
+      }
+
+      /* Language indicator in bottom right */
+      .jp-language-indicator {
+        position: absolute;
+        bottom: 4px;
+        right: 8px;
+        font-size: 10px;
+        font-family: var(--jp-ui-font-family);
+        color: rgba(128, 128, 128, 0.7);
+        background: rgba(128, 128, 128, 0.1);
+        padding: 2px 6px;
+        border-radius: 2px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        pointer-events: none;
+        user-select: none;
       }
 
       /* Markdown content - inherit theme colors */
@@ -667,55 +786,7 @@ export const NotebookStyles: React.FC = () => {
         margin: 1em 0;
       }
 
-              /* Raw cell styling - make it look like code blocks */
-      .jp-raw-cell {
-        position: relative;
-        margin: 0;
-        background: transparent;
-        color: inherit;
-      }
-
-      .jp-raw-content {
-        border: 1px solid rgba(128, 128, 128, 0.2);
-        border-radius: var(--jp-border-radius);
-        background: rgba(128, 128, 128, 0.05);
-        position: relative;
-        overflow: hidden;
-        transition: border-color 0.1s ease, background-color 0.1s ease;
-        color: inherit;
-      }
-
-      .jp-raw-source {
-        margin: 0 !important;
-        padding: 4px 8px !important;
-        font-family: var(--jp-code-font-family);
-        font-size: var(--jp-code-font-size);
-        line-height: var(--jp-code-line-height);
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        color: inherit;
-        background: transparent !important;
-        border: none !important;
-        outline: none !important;
-        resize: none;
-        overflow: visible;
-        display: block;
-        box-shadow: none !important;
-      }
-
-      .jp-raw-source code {
-        color: inherit !important;
-        background: transparent !important;
-        border: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        font-family: inherit !important;
-        font-size: inherit !important;
-        line-height: inherit !important;
-        white-space: inherit !important;
-        word-wrap: inherit !important;
-        display: inline !important;
-      }
+              
 
       /* Cell outputs - inherit theme colors */
       .jp-cell-outputs {

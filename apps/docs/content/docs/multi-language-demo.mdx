@@ -1,41 +1,44 @@
 ---
-title: "Multi-Language and Raw Cell Demo"
-description: "Demonstration of Jupyter notebooks with multiple programming languages and raw text cells"
+title: Multi-Language Notebook Demo
 ---
 
-# Multi-Language and Raw Cell Demo
+# Multi-Language Notebook Demo
 
-This demo shows how our Jupyter MDX integration now supports:
+This demonstrates real-world cell-level language detection using VSCode metadata format.
 
-- **Raw text cells** - for documentation, notes, and unformatted content
-- **Multiple programming languages** - code cells display properly formatted code
-- **All cell types** - code, markdown, and raw cells are all supported
-
-import notebookRaw from './multi-language-notebook.ipynb';
+import { NotebookLoader } from "@notebook-mdx/jupyter";
+import notebookRaw from "./multi-language-notebook.ipynb";
 
 <NotebookLoader notebookData={JSON.parse(notebookRaw)} />
 
-## Features Demonstrated
+## How Cell-Level Languages Work
 
-### 1. Raw Cells
-Raw cells contain unformatted text and are useful for:
-- Documentation fragments
-- Configuration snippets
-- Plain text notes
-- Template content
+This notebook demonstrates the following language detection features:
 
-### 2. Code Cell Support
-Code cells display properly formatted code from any programming language:
-- Python, JavaScript, TypeScript
-- R, Julia, SQL
-- Java, C, C++, Go, Rust
-- PHP, Ruby, Perl
-- MATLAB, Fortran, Haskell
-- And any other language!
+### 1. VSCode Metadata Format
+Individual cells can specify their language using VSCode's metadata format:
+```json
+"metadata": {
+  "vscode": {
+    "languageId": "javascript"
+  }
+}
+```
 
-### 3. Authentic Jupyter Styling
-The notebook cells maintain authentic Jupyter appearance:
-- **Input prompts** - distinctive blue "In [n]:" prompts
-- **Output prompts** - orange "Out[n]:" prompts for execution results
-- **Theme adaptation** - colors adapt to your site's light/dark theme
-- **Proper formatting** - code blocks, outputs, and markdown render correctly 
+### 2. Language Indicators
+Each cell shows its detected language in the bottom-right corner:
+- **Raw cells**: Always show `raw` (regardless of VSCode metadata)
+- **JavaScript cells**: Show `javascript` (from VSCode metadata)
+- **SQL cells**: Show `sql` (from VSCode metadata)  
+- **Python cells**: Show `python` (notebook kernel default)
+
+### 3. Priority Order
+The language detection follows this hierarchy:
+1. VSCode metadata (`cell.metadata.vscode.languageId`)
+2. Raw cells always override to show `raw`
+3. Other metadata formats (`languageId`, `language`)
+4. Magic commands (`%%javascript`, `%%bash`, etc.)
+5. Notebook kernel language (fallback)
+
+### 4. No Syntax Highlighting
+Note that we show language indicators but don't apply syntax highlighting, keeping the code clean and readable without artificial coloring. 
