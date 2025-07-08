@@ -50,7 +50,7 @@ export const baseOptions: BaseLayoutProps = {
     },
     {
       text: "GitHub",
-      url: "https://github.com/your-username/notebook-mdx",
+      url: "https://github.com/abhay-ramesh/notebook-mdx",
     },
   ],
   githubUrl: "https://github.com/abhay-ramesh/notebook-mdx",

@@ -138,7 +138,7 @@ rehypeJupyter({
 
 For complete documentation, examples, and API reference:
 
-**[View Documentation →](https://your-docs-url.com)**
+**[View Documentation →](https://github.com/abhay-ramesh/notebook-mdx/tree/main/apps/docs)**
 
 ## 🎯 Use Cases
 
