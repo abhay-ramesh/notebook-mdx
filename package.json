@@ -1,12 +1,51 @@
 {
   "name": "notebook-mdx",
   "private": true,
+  "description": "Render Jupyter notebooks in MDX with authentic styling and syntax highlighting",
+  "keywords": [
+    "jupyter",
+    "notebook",
+    "mdx",
+    "react",
+    "documentation",
+    "typescript",
+    "syntax-highlighting",
+    "markdown",
+    "remark",
+    "rehype",
+    "jupyter-notebook",
+    "data-science",
+    "code-cells",
+    "interactive"
+  ],
+  "homepage": "https://github.com/abhay-ramesh/notebook-mdx",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abhay-ramesh/notebook-mdx.git"
+  },
+  "bugs": {
+    "url": "https://github.com/abhay-ramesh/notebook-mdx/issues"
+  },
+  "author": {
+    "name": "Abhay Ramesh",
+    "url": "https://github.com/abhay-ramesh"
+  },
+  "license": "MIT",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "lint:fix": "turbo run lint:fix",
+    "type-check": "turbo run type-check",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules .turbo",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,md,json,yml,yaml}\"",
+    "docs:dev": "turbo run dev --filter=docs",
+    "docs:build": "turbo run build --filter=docs",
+    "package:build": "turbo run build --filter=notebook-mdx",
+    "package:test": "turbo run test --filter=notebook-mdx",
+    "demo": "pnpm docs:dev"
   },
   "devDependencies": {
     "prettier": "^3.6.0",

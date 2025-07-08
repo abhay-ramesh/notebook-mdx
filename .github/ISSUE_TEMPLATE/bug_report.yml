@@ -1,0 +1,156 @@
+name: 🐛 Bug Report
+description: Report a bug or issue with notebook-mdx
+title: "[Bug]: "
+labels: 
+  - "bug"
+  - "needs-triage"
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! 🐛
+        
+        Please fill out the following information to help us debug the issue.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: |
+        Example: When I import a notebook with matplotlib plots, the images don't render properly...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Create a notebook with '...'
+        2. Import it with '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen
+      placeholder: Images should render correctly in the MDX output
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened
+      placeholder: Images show as broken links or don't appear at all
+    validations:
+      required: true
+
+  - type: textarea
+    id: notebook-sample
+    attributes:
+      label: Sample Notebook
+      description: If possible, provide a minimal sample notebook (.ipynb) that reproduces the issue
+      placeholder: |
+        {
+          "cells": [
+            {
+              "cell_type": "code",
+              "source": "...",
+              "execution_count": 1
+            }
+          ]
+        }
+
+  - type: textarea
+    id: mdx-code
+    attributes:
+      label: MDX Code
+      description: The MDX code you're using
+      placeholder: |
+        ```mdx
+        import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
+        import notebook from './my-notebook.ipynb';
+        
+        <NotebookStyles />
+        <NotebookLoader notebookData={JSON.parse(notebook)} />
+        ```
+
+  - type: input
+    id: version
+    attributes:
+      label: notebook-mdx Version
+      description: Which version of notebook-mdx are you using?
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: framework
+    attributes:
+      label: Framework
+      description: What framework are you using?
+      options:
+        - Next.js
+        - Docusaurus
+        - Fumadocs
+        - Remix
+        - Vite
+        - Other (specify in additional context)
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js Version
+      description: What version of Node.js are you using?
+      placeholder: "20.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: browser
+    attributes:
+      label: Browser Information
+      description: If this is a browser issue, which browser and version?
+      placeholder: "Chrome 120.0.0, Safari 17.0, Firefox 121.0"
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem (error messages, screenshots, etc.)
+
+  - type: checkboxes
+    id: search
+    attributes:
+      label: Checklist
+      description: Before submitting, please check:
+      options:
+        - label: "I have searched existing issues to avoid duplicates"
+          required: true
+        - label: "I have provided a minimal reproduction case"
+          required: false
+        - label: "This issue is specifically about notebook-mdx (not about the framework I'm using)"
+          required: true 

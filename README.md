@@ -1,144 +1,231 @@
 # notebook-mdx
 
-A comprehensive solution for rendering Jupyter notebooks in MDX with authentic styling, syntax highlighting, and full cell type support.
+<div align="center">
+
+![notebook-mdx Logo](.github/assets/logo.png)
+
+**Render Jupyter notebooks in MDX with authentic styling and syntax highlighting**
+
+[![NPM Version](https://img.shields.io/npm/v/notebook-mdx?style=flat&colorA=18181B&colorB=28CF8D)](https://www.npmjs.com/package/notebook-mdx)
+[![NPM Downloads](https://img.shields.io/npm/dm/notebook-mdx?style=flat&colorA=18181B&colorB=28CF8D)](https://www.npmjs.com/package/notebook-mdx)
+[![Bundle Size](https://img.shields.io/bundlephobia/minzip/notebook-mdx?style=flat&colorA=18181B&colorB=28CF8D)](https://bundlephobia.com/package/notebook-mdx)
+[![GitHub Stars](https://img.shields.io/github/stars/abhay-ramesh/notebook-mdx?style=flat&colorA=18181B&colorB=28CF8D)](https://github.com/abhay-ramesh/notebook-mdx)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue?style=flat&colorA=18181B&colorB=3178C6)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat&colorA=18181B&colorB=F59E0B)](https://opensource.org/licenses/MIT)
+
+[Documentation](https://notebook-mdx.vercel.app) • [Demo](https://notebook-mdx.vercel.app/notebook-demo) • [NPM](https://www.npmjs.com/package/notebook-mdx) • [GitHub](https://github.com/abhay-ramesh/notebook-mdx)
+
+</div>
 
 ## ✨ Features
 
-- 🎯 **Authentic Jupyter styling** - Matches real Jupyter notebook appearance
-- 🎨 **Syntax highlighting** - Full language support with Shiki
-- 📊 **All cell types** - Code, markdown, and raw cells
-- 🔧 **TypeScript ready** - Full type safety and IntelliSense
-- ⚡ **Fast rendering** - Optimized for performance
-- 🌐 **Multi-language** - Cell-level language detection
-- 🖼️ **Image support** - PNG, JPEG, GIF, and SVG outputs
-
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) documentation app showcasing notebook-mdx features
-- `notebook-mdx`: the main package providing Jupyter notebook support for MDX
-- `@repo/ui`: shared React component library
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-## 📦 Installation
-
-```bash
-npm install notebook-mdx
-```
+- 🎨 **Authentic Jupyter styling** - Pixel-perfect recreation of Jupyter notebook appearance
+- 🖥️ **Syntax highlighting** - Multi-language code highlighting with Highlight.js  
+- 📱 **Responsive design** - Looks great on desktop, tablet, and mobile
+- ⚡ **Zero client-side dependencies** - Renders at build time for optimal performance
+- 🔧 **Framework agnostic** - Works with Next.js, Docusaurus, Fumadocs, and more
+- 📦 **TypeScript support** - Full type safety out of the box
+- 🎯 **Simple API** - Just import and render, no complex configuration
+- 🔄 **Multi-language cells** - Python, R, JavaScript, SQL, and more
+- 🖼️ **Rich outputs** - Images, HTML, JSON, and text outputs
+- 📋 **Copy-paste ready** - Code cells with built-in copy functionality
 
 ## 🚀 Quick Start
 
-### 1. Configure Your MDX Pipeline
+### Installation
 
-Add the plugins to your MDX configuration:
-
-```typescript
-import { remarkJupyter, rehypeJupyter } from 'notebook-mdx';
-
-export default defineConfig({
-  mdxOptions: {
-    remarkPlugins: [
-      [remarkJupyter, { executeCode: false, showCellNumbers: true }],
-    ],
-    rehypePlugins: [[rehypeJupyter, { showCellNumbers: true }]],
-  },
-});
+```bash
+npm install notebook-mdx
+# or
+yarn add notebook-mdx
+# or
+pnpm add notebook-mdx
 ```
 
-### 2. Import and Render Notebooks
+### Basic Usage
 
 ```mdx
 import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
-import notebookRaw from './my-notebook.ipynb';
+import notebook from './my-notebook.ipynb';
+
+# My Data Analysis
 
 <NotebookStyles />
-<NotebookLoader notebookData={JSON.parse(notebookRaw)} />
+<NotebookLoader notebookData={JSON.parse(notebook)} />
 ```
 
-### 3. Manual Cell Creation
+### Next.js Setup
 
-```mdx
-import { NotebookCodeCell, NotebookMarkdownCell, NotebookStyles } from 'notebook-mdx';
+Add to your `next.config.js`:
 
-<NotebookStyles />
-
-<NotebookCodeCell
-  source="print('Hello from Python!')"
-  executionCount={1}
-/>
-
-<NotebookMarkdownCell
-  source="## This is a markdown cell"
-/>
+```javascript
+module.exports = {
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.ipynb$/,
+      type: 'json',
+      use: 'raw-loader',
+    });
+    return config;
+  },
+};
 ```
 
-## 🎨 Authentic Styling
+## 📖 Documentation
 
-The package provides authentic Jupyter notebook styling that matches VSCode and Jupyter Lab:
-
-- **Input prompts**: Blue `In [n]:` indicators
-- **Output prompts**: Orange `Out[n]:` indicators  
-- **Cell borders**: Subtle borders with hover effects
-- **Monospace fonts**: System monospace fonts for code
-- **Color scheme**: Authentic Jupyter color palette
-- **Responsive design**: Works on all screen sizes
-
-## 🌐 Multi-Language Support
-
-Supports multiple programming languages with automatic detection:
-
-```typescript
-// Language detection hierarchy:
-// 1. VSCode metadata (cell.metadata.vscode.languageId)
-// 2. Cell metadata (cell.metadata.languageId)
-// 3. Raw cells (always "raw")
-// 4. Notebook kernel language (fallback)
-```
-
-### Build
-
-To build all apps and packages, run the following command:
-
-```bash
-pnpm build
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-```bash
-pnpm dev
-```
-
-You can develop a specific package by using a filter:
-
-```bash
-pnpm dev --filter=docs
-```
-
-## 📚 Documentation
-
-Visit the [documentation site](./apps/docs) for comprehensive examples and usage guides.
+- **[Getting Started](https://notebook-mdx.vercel.app)** - Installation and basic usage
+- **[Advanced Usage](https://notebook-mdx.vercel.app/advanced)** - Multi-language support and configuration
+- **[API Reference](https://notebook-mdx.vercel.app/api)** - Complete component props and options
+- **[Live Demo](https://notebook-mdx.vercel.app/notebook-demo)** - Interactive examples
 
 ## 🎯 Use Cases
 
-- **Documentation sites** - Embed notebooks in your docs
-- **Technical blogs** - Share code examples with outputs
-- **Educational content** - Interactive learning materials
-- **API documentation** - Live code examples
-- **Data science** - Share analysis and visualizations
+### 📚 Technical Documentation
+
+Perfect for data science blogs, tutorials, and educational content where you want to show Jupyter notebooks inline with your documentation.
+
+### 🔬 Research Papers
+
+Embed computational notebooks directly in academic papers and research documentation.
+
+### 📊 Data Science Portfolios
+
+Showcase your data analysis projects with authentic notebook styling in your portfolio site.
+
+### 🏢 Internal Documentation
+
+Document data pipelines, analysis workflows, and research findings in company wikis and documentation sites.
+
+## 🌟 Why notebook-mdx?
+
+| Feature | notebook-mdx | Alternatives |
+|---------|-------------|--------------|
+| **Authentic Styling** | ✅ Pixel-perfect Jupyter look | ❌ Generic code blocks |
+| **Zero Runtime** | ✅ Renders at build time | ❌ Client-side rendering |
+| **TypeScript** | ✅ Full type safety | ❌ Limited or no types |
+| **Framework Support** | ✅ Works everywhere | ❌ Framework-specific |
+| **Bundle Size** | ✅ ~15kB minzipped | ❌ Often 100kB+ |
+| **Maintenance** | ✅ Actively maintained | ❌ Many are abandoned |
+
+## 🖼️ Screenshots
+
+<div align="center">
+
+### Before (Plain Markdown)
+
+![Plain Markdown](.github/assets/before.png)
+
+### After (notebook-mdx)
+
+![notebook-mdx](.github/assets/after.png)
+
+</div>
+
+## 🔧 Framework Examples
+
+<details>
+<summary><strong>Next.js App Router</strong></summary>
+
+```mdx
+// app/blog/my-analysis/page.mdx
+import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
+import notebook from './analysis.ipynb';
+
+export const metadata = {
+  title: 'My Data Analysis',
+  description: 'Deep dive into user behavior data'
+};
+
+# My Data Analysis
+
+<NotebookStyles />
+<NotebookLoader notebookData={JSON.parse(notebook)} />
+```
+
+</details>
+
+<details>
+<summary><strong>Docusaurus</strong></summary>
+
+```mdx
+---
+title: Machine Learning Tutorial
+---
+
+import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
+import notebook from './tutorial.ipynb';
+
+# Machine Learning Tutorial
+
+<NotebookStyles />
+<NotebookLoader notebookData={JSON.parse(notebook)} />
+```
+
+</details>
+
+<details>
+<summary><strong>Fumadocs</strong></summary>
+
+```mdx
+---
+title: API Documentation
+description: Complete guide to our data API
+---
+
+import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
+import examples from './api-examples.ipynb';
+
+<NotebookStyles />
+<NotebookLoader notebookData={JSON.parse(examples)} />
+```
+
+</details>
+
+## 🏗️ Development
+
+```bash
+# Clone the repository
+git clone https://github.com/abhay-ramesh/notebook-mdx.git
+cd notebook-mdx
+
+# Install dependencies
+pnpm install
+
+# Start development
+pnpm dev
+
+# Run tests
+pnpm test
+
+# Build packages
+pnpm build
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+- 🐛 [Report bugs](https://github.com/abhay-ramesh/notebook-mdx/issues/new?template=bug_report.md)
+- 💡 [Request features](https://github.com/abhay-ramesh/notebook-mdx/issues/new?template=feature_request.md)
+- 📖 [Improve docs](https://github.com/abhay-ramesh/notebook-mdx/tree/main/apps/docs)
+- 🔧 [Submit PRs](https://github.com/abhay-ramesh/notebook-mdx/pulls)
+
+## 🙏 Acknowledgments
+
+- [Jupyter Project](https://jupyter.org/) for the amazing notebook format
+- [Highlight.js](https://highlightjs.org/) for syntax highlighting
+- [MDX](https://mdxjs.com/) for making this integration possible
 
 ## 📄 License
 
-MIT License - see LICENSE file for details.
+MIT © [Abhay Ramesh](https://github.com/abhay-ramesh)
 
 ---
 
-**notebook-mdx** - Bring your Jupyter notebooks to life in MDX!
+<div align="center">
+
+**[⭐ Star this repo](https://github.com/abhay-ramesh/notebook-mdx) if notebook-mdx helped you!**
+
+Made with ❤️ by [@abhay-ramesh](https://github.com/abhay-ramesh)
+
+</div>

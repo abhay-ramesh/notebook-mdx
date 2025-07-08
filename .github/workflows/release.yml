@@ -1,0 +1,82 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm build
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get the previous tag
+          PREVIOUS_TAG=$(git tag --sort=-version:refname | head -2 | tail -1)
+          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+
+          # Generate changelog
+          echo "## What's Changed" > changelog.md
+          echo "" >> changelog.md
+
+          # Get commits between tags
+          if [ -n "$PREVIOUS_TAG" ]; then
+            git log --pretty=format:"- %s by @%an in %h" $PREVIOUS_TAG..$CURRENT_TAG --no-merges >> changelog.md
+          else
+            git log --pretty=format:"- %s by @%an in %h" $CURRENT_TAG --no-merges >> changelog.md
+          fi
+
+          echo "" >> changelog.md
+          echo "**Full Changelog:** https://github.com/${{ github.repository }}/compare/$PREVIOUS_TAG...$CURRENT_TAG" >> changelog.md
+
+          # Set output
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cat changelog.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          name: Release ${{ github.ref_name }}
+          tag: ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') || contains(github.ref_name, 'rc') }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-${{ github.ref_name }}
+          path: |
+            packages/notebook-mdx/dist/
+            packages/notebook-mdx/package.json
+            packages/notebook-mdx/README.md
