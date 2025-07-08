@@ -284,12 +284,22 @@ export const NotebookMarkdownCell: React.FC<NotebookMarkdownCellProps> = ({
     <>
       <NotebookStyles />
       <div className="jp-notebook-cell jp-markdown-cell">
-        <div className="jp-markdown-content">
-          <div
-            dangerouslySetInnerHTML={{
-              __html: `<p>${parseMarkdown(sourceString)}</p>`,
-            }}
-          />
+        {/* Input area with same structure as code cells */}
+        <div className="jp-cell-input-wrapper">
+          <div className="jp-cell-input-prompt">
+            {/* Empty prompt area to maintain indentation alignment */}
+          </div>
+          <div className="jp-cell-input-area">
+            <div className="jp-cell-input-content">
+              <div className="jp-markdown-content">
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: `<p>${parseMarkdown(sourceString)}</p>`,
+                  }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
