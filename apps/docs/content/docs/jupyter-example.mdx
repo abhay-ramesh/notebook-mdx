@@ -1,0 +1,92 @@
+---
+title: Jupyter Notebook Integration
+description: Example of how Jupyter notebooks work with MDX
+---
+
+# Jupyter Notebook Integration
+
+This page demonstrates how Jupyter notebooks can be integrated directly into MDX documentation.
+
+## Features
+
+With the `@notebook-mdx/jupyter` library, you can:
+
+- ✅ Import `.ipynb` files directly in MDX
+- ✅ Render code cells with syntax highlighting
+- ✅ Display outputs (text, HTML, images)
+- ✅ Show execution counts
+- ✅ Customize the appearance
+
+## Usage
+
+First, configure your MDX pipeline:
+
+```typescript
+// source.config.ts
+import { defineConfig } from "fumadocs-mdx/config";
+import { remarkJupyter, rehypeJupyter } from "@notebook-mdx/jupyter";
+
+export default defineConfig({
+  mdxOptions: {
+    remarkPlugins: [[remarkJupyter, { executeCode: false }]],
+    rehypePlugins: [[rehypeJupyter, { showCellNumbers: true }]],
+  },
+});
+```
+
+Then import and use notebooks in your MDX:
+
+```mdx
+import ExampleNotebook from "./example.ipynb";
+
+<ExampleNotebook />
+```
+
+## How It Works
+
+The library uses two plugins:
+
+1. **`remarkJupyter`** - Parses `.ipynb` files and converts them to MDAST
+2. **`rehypeJupyter`** - Transforms the HAST into React components
+
+This follows the same pattern as other unified/remark/rehype plugins, making it composable with your existing MDX pipeline.
+
+## Example Output
+
+Here's what a rendered notebook would look like:
+
+<div className="notebook-code-cell">
+  <div className="notebook-code-input">
+    <div className="notebook-execution-count">[1]:</div>
+    <pre className="notebook-code">
+      <code>{`# Simple calculation
+x = 10
+y = 5
+result = x + y
+result`}</code>
+    </pre>
+  </div>
+  <div className="notebook-outputs">
+    <div className="notebook-output-text">
+      <pre>15</pre>
+    </div>
+  </div>
+</div>
+
+## Benefits
+
+- **Build-time processing**: Notebooks are processed during build, not runtime
+- **Static output**: Results in fast, static HTML like MkDocs
+- **Composable**: Works with existing remark/rehype plugins
+- **Customizable**: Full control over rendering components
+- **Type-safe**: Built with TypeScript
+
+## Next Steps
+
+To implement this in your project:
+
+1. Install the package: `npm install @notebook-mdx/jupyter`
+2. Configure your MDX pipeline
+3. Start importing `.ipynb` files in your MDX content
+
+This gives you the same workflow as MkDocs-Jupyter, but in the MDX ecosystem!

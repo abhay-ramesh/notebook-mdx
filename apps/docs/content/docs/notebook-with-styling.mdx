@@ -1,0 +1,328 @@
+---
+title: Jupyter Notebook Demo - Authentic Styling
+description: Live demonstration with authentic Jupyter notebook styling
+---
+
+# Jupyter Notebook Demo - Authentic Styling
+
+This page demonstrates authentic Jupyter notebook styling that matches the real interface.
+
+<div className="jp-notebook" style={{
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
+  fontSize: '13px',
+  backgroundColor: '#fff',
+  color: '#333'
+}}>
+
+{/* Notebook Cell 1 - Markdown */}
+
+<div className="jp-cell jp-markdown-cell">
+  <div className="jp-cell-input-wrapper">
+    <div className="jp-cell-input-prompt"></div>
+    <div className="jp-cell-input-area">
+      <div className="jp-cell-input-content">
+        <h1>Data Analysis Example</h1>
+        <p>This notebook demonstrates basic data analysis using Python.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{/* Notebook Cell 2 - Code */}
+
+<div className="jp-cell jp-code-cell">
+  <div className="jp-cell-input-wrapper">
+    <div className="jp-cell-input-prompt" style={{
+      width: '80px',
+      minWidth: '80px',
+      textAlign: 'right',
+      fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+      fontSize: '12px',
+      color: '#307FC1',
+      paddingRight: '8px',
+      paddingTop: '4px'
+    }}>
+      In&nbsp;[1]:
+    </div>
+    <div className="jp-cell-input-area" style={{
+      marginLeft: '80px',
+      border: '1px solid #d0d7de',
+      borderRadius: '3px'
+    }}>
+      <pre style={{
+        fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+        fontSize: '12px',
+        margin: '0',
+        padding: '8px',
+        backgroundColor: '#f6f8fa',
+        whiteSpace: 'pre-wrap'
+      }}>
+{`import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Create sample data
+
+np.random.seed(42)
+data = np.random.randn(100)
+print(f"Generated {len(data)} data points")
+print(f"Mean: {np.mean(data):.2f}")
+print(f"Std: {np.std(data):.2f}")`}
+</pre>
+</div>
+
+  </div>
+  
+  {/* Output */}
+  <div className="jp-cell-output-wrapper">
+    <div className="jp-cell-output-prompt" style={{
+      width: '80px',
+      minWidth: '80px',
+      textAlign: 'right',
+      fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+      fontSize: '12px',
+      color: '#be5046',
+      paddingRight: '8px',
+      paddingTop: '4px'
+    }}>
+    </div>
+    <div className="jp-cell-output-area" style={{
+      marginLeft: '80px',
+      border: '1px solid #d0d7de',
+      borderRadius: '3px',
+      backgroundColor: '#fff'
+    }}>
+      <div className="jp-cell-output-content" style={{
+        fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+        fontSize: '12px',
+        padding: '8px',
+        whiteSpace: 'pre-wrap'
+      }}>
+{`Generated 100 data points
+Mean: 0.50
+Std: 0.99`}
+      </div>
+    </div>
+  </div>
+</div>
+
+{/* Notebook Cell 3 - Markdown */}
+
+<div className="jp-cell jp-markdown-cell">
+  <div className="jp-cell-input-wrapper">
+    <div className="jp-cell-input-prompt"></div>
+    <div className="jp-cell-input-area">
+      <div className="jp-cell-input-content">
+        <h2>Data Visualization</h2>
+        <p>
+          Let's create a simple histogram to visualize the data distribution.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{/* Notebook Cell 4 - Code with Plot Output */}
+
+<div className="jp-cell jp-code-cell">
+  <div className="jp-cell-input-wrapper">
+    <div
+      className="jp-cell-input-prompt"
+      style={{
+        width: "80px",
+        minWidth: "80px",
+        textAlign: "right",
+        fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+        fontSize: "12px",
+        color: "#307FC1",
+        paddingRight: "8px",
+        paddingTop: "4px",
+      }}
+    >
+      In&nbsp;[2]:
+    </div>
+    <div
+      className="jp-cell-input-area"
+      style={{
+        marginLeft: "80px",
+        border: "1px solid #d0d7de",
+        borderRadius: "3px",
+      }}
+    >
+      <pre
+        style={{
+          fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+          fontSize: "12px",
+          margin: "0",
+          padding: "8px",
+          backgroundColor: "#f6f8fa",
+          whiteSpace: "pre-wrap",
+        }}
+      >
+        {`plt.figure(figsize=(10, 6))
+plt.hist(data, bins=20, alpha=0.7, color='skyblue', edgecolor='black')
+plt.title('Distribution of Random Data')
+plt.xlabel('Value')
+plt.ylabel('Frequency')
+plt.grid(True, alpha=0.3)
+plt.show()`}
+      </pre>
+    </div>
+  </div>
+
+  {/* Plot Output */}
+  <div className="jp-cell-output-wrapper">
+    <div
+      className="jp-cell-output-prompt"
+      style={{
+        width: "80px",
+        minWidth: "80px",
+        textAlign: "right",
+        fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+        fontSize: "12px",
+        color: "#be5046",
+        paddingRight: "8px",
+        paddingTop: "4px",
+      }}
+    ></div>
+    <div
+      className="jp-cell-output-area"
+      style={{
+        marginLeft: "80px",
+        border: "1px solid #d0d7de",
+        borderRadius: "3px",
+        backgroundColor: "#fff",
+      }}
+    >
+      <div
+        className="jp-cell-output-content"
+        style={{
+          padding: "8px",
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            width: "100%",
+            height: "300px",
+            backgroundColor: "#f8f9fa",
+            border: "1px dashed #dee2e6",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "4px",
+          }}
+        >
+          📊 <em>Histogram plot would appear here</em>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{/* Notebook Cell 5 - Code with Execute Result */}
+
+<div className="jp-cell jp-code-cell">
+  <div className="jp-cell-input-wrapper">
+    <div
+      className="jp-cell-input-prompt"
+      style={{
+        width: "80px",
+        minWidth: "80px",
+        textAlign: "right",
+        fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+        fontSize: "12px",
+        color: "#307FC1",
+        paddingRight: "8px",
+        paddingTop: "4px",
+      }}
+    >
+      In&nbsp;[3]:
+    </div>
+    <div
+      className="jp-cell-input-area"
+      style={{
+        marginLeft: "80px",
+        border: "1px solid #d0d7de",
+        borderRadius: "3px",
+      }}
+    >
+      <pre
+        style={{
+          fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+          fontSize: "12px",
+          margin: "0",
+          padding: "8px",
+          backgroundColor: "#f6f8fa",
+          whiteSpace: "pre-wrap",
+        }}
+      >
+        {`# Show first 5 data points
+data[:5]`}
+      </pre>
+    </div>
+  </div>
+
+  {/* Execute Result Output */}
+  <div className="jp-cell-output-wrapper">
+    <div
+      className="jp-cell-output-prompt"
+      style={{
+        width: "80px",
+        minWidth: "80px",
+        textAlign: "right",
+        fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+        fontSize: "12px",
+        color: "#be5046",
+        paddingRight: "8px",
+        paddingTop: "4px",
+      }}
+    >
+      Out[3]:
+    </div>
+    <div
+      className="jp-cell-output-area"
+      style={{
+        marginLeft: "80px",
+        border: "1px solid #d0d7de",
+        borderRadius: "3px",
+        backgroundColor: "#fff",
+      }}
+    >
+      <div
+        className="jp-cell-output-content"
+        style={{
+          fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+          fontSize: "12px",
+          padding: "8px",
+          whiteSpace: "pre-wrap",
+        }}
+      >
+        {`array([ 0.49671415, -0.1382643 ,  0.64768854,  1.52302986, -0.23415337])`}
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+## ✨ Key Features Demonstrated
+
+This example shows the authentic Jupyter notebook styling including:
+
+- **Input prompts**: `In [n]:` with proper blue coloring
+- **Output prompts**: `Out[n]:` with proper red coloring
+- **Code cells**: Light gray background with monospace font
+- **Markdown cells**: Clean typography without prompts
+- **Proper spacing**: Matches real Jupyter interface
+- **Execution counts**: Sequential numbering of cells
+
+## 🎯 Benefits
+
+- **Familiar interface** - Users immediately recognize the Jupyter format
+- **Professional appearance** - Maintains visual consistency
+- **Print-friendly** - Looks great in documentation
+- **Fast loading** - No JavaScript dependencies
+- **Responsive** - Works on all screen sizes
+
+This approach provides the authentic Jupyter look while working seamlessly in Next.js/MDX documentation.

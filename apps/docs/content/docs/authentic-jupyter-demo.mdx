@@ -1,0 +1,131 @@
+---
+title: "Authentic Jupyter Styling Demo"
+description: "Showcasing the improved authentic Jupyter notebook styling that matches VSCode and Jupyter"
+---
+
+import { NotebookCodeCell, NotebookMarkdownCell, NotebookStyles } from '@notebook-mdx/jupyter';
+
+<NotebookStyles />
+
+# Authentic Jupyter Styling Demo
+
+This page demonstrates the **authentic Jupyter notebook styling** that now matches the visual appearance of VSCode and Jupyter Lab.
+
+## 🎨 Key Styling Improvements
+
+### ✨ Visual Features
+- **Authentic cell borders** with hover effects
+- **Left border selection indicators** (blue highlight)
+- **Proper input/output prompts** with correct colors
+- **Monospace fonts** matching system defaults
+- **Consistent spacing** and padding
+- **Professional color scheme** matching Jupyter/VSCode
+
+### 🎯 Interactive Elements
+- **Hover effects** on cells
+- **Focus states** for input areas
+- **Transition animations** for smooth interactions
+- **Responsive design** for mobile viewing
+
+## 📝 Sample Markdown Cell
+
+<NotebookMarkdownCell
+  source={`# Data Analysis Tutorial
+
+This is a **markdown cell** with proper styling:
+
+- Bullet points work correctly
+- Code snippets look \`authentic\`
+- **Bold** and *italic* text is styled properly
+
+## Subheadings
+
+Block quotes also work:
+
+> This is a blockquote with proper styling
+
+And code blocks:
+
+\`\`\`python
+def hello_world():
+    print("Hello from a markdown cell!")
+\`\`\`
+`}
+/>
+
+## 💻 Sample Code Cell (No Execution)
+
+<NotebookCodeCell
+  source={`# Sample Python code cell
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Create sample data
+data = np.random.randn(100)
+print(f"Generated {len(data)} data points")
+print(f"Mean: {np.mean(data):.2f}")
+print(f"Standard deviation: {np.std(data):.2f}")
+
+# Create a simple plot
+plt.figure(figsize=(8, 6))
+plt.hist(data, bins=20, alpha=0.7, color='skyblue', edgecolor='black')
+plt.title('Distribution of Random Data')
+plt.xlabel('Value')
+plt.ylabel('Frequency')
+plt.grid(True, alpha=0.3)
+plt.show()`}
+  executionCount={null}
+/>
+
+## 🧮 Code Cell with Execution Count
+
+<NotebookCodeCell
+  source={`# This cell has an execution count
+import pandas as pd
+
+# Create a simple dataframe
+df = pd.DataFrame({
+    'A': [1, 2, 3, 4, 5],
+    'B': [10, 20, 30, 40, 50],
+    'C': ['alpha', 'beta', 'gamma', 'delta', 'epsilon']
+})
+
+print("DataFrame created:")
+df.head()`}
+  executionCount={1}
+/>
+
+## 🎯 Styling Highlights
+
+### Color Scheme
+- **Input prompts**: Blue (`#307FC1`) - `In [n]:`
+- **Output prompts**: Orange/Red (`#D84315`) - `Out[n]:`
+- **Cell borders**: Light gray with blue selection highlight
+- **Code font**: System monospace fonts (SFMono-Regular, Consolas, etc.)
+
+### Layout
+- **Consistent padding**: Proper spacing around cells
+- **Flexible layout**: Responsive design that works on all screen sizes
+- **Proper alignment**: Input/output prompts are right-aligned
+- **Visual hierarchy**: Clear distinction between different elements
+
+### Interactive States
+- **Hover effects**: Subtle left border highlight on hover
+- **Focus states**: Blue border and shadow when focused
+- **Transitions**: Smooth animations for state changes
+
+## 🔧 Technical Implementation
+
+The styling uses:
+- **CSS Variables** for consistent theming
+- **Authentic color palette** matching Jupyter/VSCode
+- **System fonts** for better OS integration
+- **Flexbox layout** for proper alignment
+- **Dark mode support** with proper contrast ratios
+
+## 🌟 Result
+
+The notebook now looks and feels like a **real Jupyter notebook** with authentic styling that matches what users expect from VSCode and Jupyter Lab!
+
+You can view the full notebook demo with images and outputs at: [Jupyter Notebook Demo](/docs/notebook-demo) 

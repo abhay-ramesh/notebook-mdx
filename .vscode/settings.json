@@ -11,5 +11,16 @@
     "**/.DS_Store": true,
     "**/Thumbs.db": true
   },
-  "hide-files.files": []
+  "hide-files.files": [],
+  "[mdx]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "never",
+      "source.organizeImports": "never",
+      "source.fixAll": "never",
+      "source.removeUnusedImports": "never",
+      "source.fixAll.stylelint": "never"
+    }
+  }
 }
