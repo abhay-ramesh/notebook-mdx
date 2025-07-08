@@ -9,7 +9,7 @@
     "postinstall": "fumadocs-mdx"
   },
   "dependencies": {
-    "@notebook-mdx/jupyter": "workspace:*",
+    "notebook-mdx": "workspace:*",
     "fumadocs-core": "15.6.1",
     "fumadocs-mdx": "11.6.10",
     "fumadocs-ui": "15.6.1",

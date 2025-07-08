@@ -3,7 +3,7 @@ title: Jupyter Notebook Demo
 description: Live demonstration of Jupyter notebook integration with image rendering
 ---
 
-import { NotebookLoader, NotebookStyles } from '@notebook-mdx/jupyter';
+import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
 import notebookRaw from './example-notebook.ipynb';
 
 export const notebookData = JSON.parse(notebookRaw);
@@ -50,7 +50,7 @@ The notebook renderer supports all standard Jupyter image formats:
 ## 💡 Usage Example
 
 ```mdx
-import { NotebookLoader, NotebookStyles } from '@notebook-mdx/jupyter';
+import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
 import notebookRaw from './my-notebook.ipynb';
 
 export const notebookData = JSON.parse(notebookRaw);

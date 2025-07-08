@@ -1,4 +1,4 @@
-// Main entry point for the jupyter-mdx library
+// Main entry point for the notebook-mdx library
 export {
   JupyterComponents,
   NotebookCodeCell,

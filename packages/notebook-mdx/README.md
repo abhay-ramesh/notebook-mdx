@@ -1,21 +1,29 @@
-# @notebook-mdx/jupyter
+# notebook-mdx
 
-Jupyter Notebook support for MDX via Remark and Rehype plugins.
+**Jupyter Notebook support for MDX via Remark and Rehype plugins**
 
 ## Installation
 
 ```bash
-npm install @notebook-mdx/jupyter
+npm install notebook-mdx
 ```
 
 ## Usage
+
+### Basic Setup
+
+Add the plugins to your MDX pipeline:
+
+```typescript
+import { remarkJupyter, rehypeJupyter } from 'notebook-mdx';
+```
 
 ### With Fumadocs
 
 ```typescript
 // source.config.ts
 import { defineConfig } from 'fumadocs-mdx/config';
-import { remarkJupyter, rehypeJupyter } from '@notebook-mdx/jupyter';
+import { remarkJupyter, rehypeJupyter } from 'notebook-mdx';
 
 export default defineConfig({
   mdxOptions: {
@@ -33,7 +41,7 @@ export default defineConfig({
 
 ```javascript
 // next.config.js
-import { remarkJupyter, rehypeJupyter } from '@notebook-mdx/jupyter';
+import { remarkJupyter, rehypeJupyter } from 'notebook-mdx';
 
 const withMDX = require('@next/mdx')({
   extension: /\.mdx?$/,
@@ -52,7 +60,7 @@ module.exports = withMDX({
 
 ```tsx
 // mdx-components.tsx
-import { JupyterComponents } from '@notebook-mdx/jupyter';
+import { JupyterComponents } from 'notebook-mdx';
 
 export function getMDXComponents(components) {
   return {

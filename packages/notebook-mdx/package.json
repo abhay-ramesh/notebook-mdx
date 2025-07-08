@@ -1,5 +1,5 @@
 {
-    "name": "@notebook-mdx/jupyter",
+    "name": "notebook-mdx",
     "version": "0.1.0",
     "description": "Jupyter Notebook support for MDX via Remark and Rehype plugins",
     "type": "module",
