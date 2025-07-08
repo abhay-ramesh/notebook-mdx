@@ -7,6 +7,36 @@ description: Complete API documentation for all components and plugins
 
 Complete reference documentation for all notebook-mdx components, plugins, and TypeScript interfaces.
 
+## ⚙️ Next.js Configuration
+
+**Required for Next.js projects:** Configure webpack to handle `.ipynb` files:
+
+```javascript
+// next.config.mjs
+/** @type {import('next').NextConfig} */
+const config = {
+  webpack: (config, { dev, isServer }) => {
+    // Add loader for .ipynb files to enable direct import in MDX
+    config.module.rules.push({
+      test: /\.ipynb$/,
+      use: [{ loader: 'raw-loader' }],
+    });
+
+    // Add .ipynb to resolvable extensions
+    config.resolve.extensions.push('.ipynb');
+
+    return config;
+  },
+};
+
+export default config;
+```
+
+**Install raw-loader:**
+```bash
+npm install --save-dev raw-loader
+```
+
 ## 🧩 Components
 
 ### NotebookLoader

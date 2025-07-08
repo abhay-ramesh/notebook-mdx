@@ -39,7 +39,47 @@ export default defineConfig({
 });
 ```
 
-### 2. Import and Render Notebooks
+### 2. Configure Next.js (Required)
+
+For Next.js projects, you need to configure webpack to handle `.ipynb` files:
+
+```javascript
+// next.config.mjs
+import { createMDX } from 'fumadocs-mdx/next';
+
+const withMDX = createMDX();
+
+/** @type {import('next').NextConfig} */
+const config = {
+  reactStrictMode: true,
+  webpack: (config, { dev, isServer }) => {
+    // Add loader for .ipynb files to enable direct import in MDX
+    config.module.rules.push({
+      test: /\.ipynb$/,
+      use: [
+        {
+          loader: 'raw-loader',
+        },
+      ],
+    });
+
+    // Add .ipynb to resolvable extensions
+    config.resolve.extensions.push('.ipynb');
+
+    return config;
+  },
+};
+
+export default withMDX(config);
+```
+
+**Install raw-loader:**
+
+```bash
+npm install --save-dev raw-loader
+```
+
+### 3. Import and Render Notebooks
 
 ```mdx
 import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
@@ -49,7 +89,7 @@ import notebookRaw from './my-notebook.ipynb';
 <NotebookLoader notebookData={JSON.parse(notebookRaw)} />
 ```
 
-### 3. Manual Cell Creation
+### 4. Manual Cell Creation
 
 ```mdx
 import { NotebookCodeCell, NotebookMarkdownCell, NotebookStyles } from 'notebook-mdx';
