@@ -1,8 +1,115 @@
 "use client";
 
 // React components for rendering Jupyter notebook elements with authentic styling
+import hljs from "highlight.js";
 import React from "react";
 import type { NotebookData, NotebookOutput } from "./types.js";
+
+// Initialize highlight.js
+if (typeof window !== "undefined") {
+  // Configure highlight.js
+  hljs.configure({
+    ignoreUnescapedHTML: true,
+    classPrefix: "hljs-",
+  });
+}
+
+// Function to highlight code with language detection
+const highlightCode = (code: string, language?: string | undefined): string => {
+  if (typeof window === "undefined") {
+    // Server-side: return plain code
+    return code;
+  }
+
+  try {
+    if (language && hljs.getLanguage(language)) {
+      return hljs.highlight(code, { language }).value;
+    } else {
+      // Auto-detect language
+      const result = hljs.highlightAuto(code);
+      return result.value;
+    }
+  } catch (error) {
+    console.warn("Highlight.js error:", error);
+    return code;
+  }
+};
+
+// Map common language names to highlight.js language identifiers
+const normalizeLanguage = (lang?: string): string | undefined => {
+  if (!lang) return undefined;
+
+  const languageMap: Record<string, string | undefined> = {
+    python: "python",
+    py: "python",
+    javascript: "javascript",
+    js: "javascript",
+    typescript: "typescript",
+    ts: "typescript",
+    bash: "bash",
+    sh: "bash",
+    shell: "bash",
+    html: "html",
+    css: "css",
+    json: "json",
+    sql: "sql",
+    r: "r",
+    julia: "julia",
+    scala: "scala",
+    java: "java",
+    cpp: "cpp",
+    c: "c",
+    csharp: "csharp",
+    php: "php",
+    ruby: "ruby",
+    go: "go",
+    rust: "rust",
+    swift: "swift",
+    kotlin: "kotlin",
+    dart: "dart",
+    perl: "perl",
+    lua: "lua",
+    matlab: "matlab",
+    octave: "octave",
+    markdown: "markdown",
+    md: "markdown",
+    latex: "latex",
+    tex: "latex",
+    xml: "xml",
+    yaml: "yaml",
+    yml: "yaml",
+    toml: "toml",
+    ini: "ini",
+    dockerfile: "dockerfile",
+    makefile: "makefile",
+    raw: undefined, // No highlighting for raw cells
+  };
+
+  return languageMap[lang.toLowerCase()] || lang.toLowerCase();
+};
+
+// Component for rendering output text with syntax highlighting
+const OutputText: React.FC<{ content: string }> = ({ content }) => {
+  const [highlightedContent, setHighlightedContent] =
+    React.useState<string>(content);
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+    const highlighted = highlightCode(content);
+    setHighlightedContent(highlighted);
+  }, [content]);
+
+  return (
+    <pre>
+      {isClient ? (
+        <span dangerouslySetInnerHTML={{ __html: highlightedContent }} />
+      ) : (
+        content
+      )}
+    </pre>
+  );
+};
 
 interface NotebookCodeCellProps {
   source: string | string[];
@@ -16,11 +123,12 @@ interface NotebookCodeCellProps {
 const renderOutputData = (output: NotebookOutput) => {
   // Handle different output types according to Jupyter protocol
   if (output.output_type === "stream") {
+    const textContent = Array.isArray(output.text)
+      ? output.text.join("")
+      : output.text;
     return (
       <div className="jp-output-stream">
-        <pre>
-          {Array.isArray(output.text) ? output.text.join("") : output.text}
-        </pre>
+        <OutputText content={textContent} />
       </div>
     );
   }
@@ -146,7 +254,7 @@ const renderOutputData = (output: NotebookOutput) => {
                 : data[mimeType];
               elements.push(
                 <div key="text" className="notebook-output-text">
-                  <pre>{textContent}</pre>
+                  <OutputText content={textContent} />
                 </div>
               );
               break;
@@ -209,6 +317,20 @@ export const NotebookCodeCell: React.FC<NotebookCodeCellProps> = ({
   language,
 }) => {
   const sourceString = Array.isArray(source) ? source.join("") : source;
+  const normalizedLanguage = normalizeLanguage(language);
+  const [highlightedCode, setHighlightedCode] =
+    React.useState<string>(sourceString);
+  const [isClient, setIsClient] = React.useState(false);
+
+  // Handle client-side highlighting after component mounts
+  React.useEffect(() => {
+    setIsClient(true);
+    const highlighted = highlightCode(
+      sourceString,
+      normalizedLanguage || undefined
+    );
+    setHighlightedCode(highlighted);
+  }, [sourceString, normalizedLanguage]);
 
   return (
     <>
@@ -228,7 +350,22 @@ export const NotebookCodeCell: React.FC<NotebookCodeCellProps> = ({
           <div className="jp-cell-input-area">
             <div className="jp-cell-input-content">
               <pre className="jp-code-source">
-                <code>{sourceString}</code>
+                {isClient ? (
+                  <code
+                    className={
+                      normalizedLanguage ? `language-${normalizedLanguage}` : ""
+                    }
+                    dangerouslySetInnerHTML={{ __html: highlightedCode }}
+                  />
+                ) : (
+                  <code
+                    className={
+                      normalizedLanguage ? `language-${normalizedLanguage}` : ""
+                    }
+                  >
+                    {sourceString}
+                  </code>
+                )}
               </pre>
               {language && (
                 <div className="jp-language-indicator">{language}</div>
@@ -639,14 +776,148 @@ export const NotebookStyles: React.FC = () => {
         box-shadow: none !important;
       }
 
-      /* Override any theme CSS that might add line-level styling */
-      .jp-code-source *,
-      .jp-code-source > *,
-      .jp-code-source span,
-      .jp-code-source div,
-      .jp-code-source .line,
-      .jp-code-source .token,
-      .jp-code-source code {
+      /* Highlight.js theme - adaptive colors that work with light/dark themes */
+      .hljs {
+        color: inherit;
+        background: transparent;
+      }
+
+      .hljs-comment,
+      .hljs-quote {
+        color: #6a737d;
+        font-style: italic;
+      }
+
+      .hljs-doctag,
+      .hljs-keyword,
+      .hljs-formula {
+        color: #d73a49;
+        font-weight: bold;
+      }
+
+      .hljs-section,
+      .hljs-name,
+      .hljs-selector-tag,
+      .hljs-deletion,
+      .hljs-subst {
+        color: #22863a;
+      }
+
+      .hljs-literal {
+        color: #032f62;
+      }
+
+      .hljs-string,
+      .hljs-regexp,
+      .hljs-addition,
+      .hljs-attribute,
+      .hljs-meta-string {
+        color: #032f62;
+      }
+
+      .hljs-built_in,
+      .hljs-class .hljs-title {
+        color: #6f42c1;
+      }
+
+      .hljs-attr,
+      .hljs-variable,
+      .hljs-template-variable,
+      .hljs-type,
+      .hljs-selector-class,
+      .hljs-selector-attr,
+      .hljs-selector-pseudo,
+      .hljs-number {
+        color: #005cc5;
+      }
+
+      .hljs-symbol,
+      .hljs-bullet,
+      .hljs-link,
+      .hljs-meta,
+      .hljs-selector-id,
+      .hljs-title {
+        color: #6f42c1;
+      }
+
+      .hljs-emphasis {
+        font-style: italic;
+      }
+
+      .hljs-strong {
+        font-weight: bold;
+      }
+
+      .hljs-link {
+        text-decoration: underline;
+      }
+
+      /* Adjust colors for dark themes */
+      @media (prefers-color-scheme: dark) {
+        .hljs-comment,
+        .hljs-quote {
+          color: #8b949e;
+        }
+
+        .hljs-doctag,
+        .hljs-keyword,
+        .hljs-formula {
+          color: #ff7b72;
+        }
+
+        .hljs-section,
+        .hljs-name,
+        .hljs-selector-tag,
+        .hljs-deletion,
+        .hljs-subst {
+          color: #7ee787;
+        }
+
+        .hljs-literal {
+          color: #79c0ff;
+        }
+
+        .hljs-string,
+        .hljs-regexp,
+        .hljs-addition,
+        .hljs-attribute,
+        .hljs-meta-string {
+          color: #a5d6ff;
+        }
+
+        .hljs-built_in,
+        .hljs-class .hljs-title {
+          color: #d2a8ff;
+        }
+
+        .hljs-attr,
+        .hljs-variable,
+        .hljs-template-variable,
+        .hljs-type,
+        .hljs-selector-class,
+        .hljs-selector-attr,
+        .hljs-selector-pseudo,
+        .hljs-number {
+          color: #79c0ff;
+        }
+
+        .hljs-symbol,
+        .hljs-bullet,
+        .hljs-link,
+        .hljs-meta,
+        .hljs-selector-id,
+        .hljs-title {
+          color: #d2a8ff;
+        }
+      }
+
+      /* Override any theme CSS that might add line-level styling while preserving highlight.js classes */
+      .jp-code-source *:not(.hljs):not([class*="hljs-"]),
+      .jp-code-source > *:not(.hljs):not([class*="hljs-"]),
+      .jp-code-source span:not([class*="hljs-"]),
+      .jp-code-source div:not([class*="hljs-"]),
+      .jp-code-source .line:not([class*="hljs-"]),
+      .jp-code-source .token:not([class*="hljs-"]) {
         color: inherit !important;
         background: transparent !important;
         border: none !important;
@@ -908,6 +1179,19 @@ export const NotebookStyles: React.FC = () => {
 
       /* Text output - inherit theme colors */
       .notebook-output-text pre {
+        margin: 0;
+        padding: 0;
+        font-family: var(--jp-code-font-family);
+        font-size: var(--jp-code-font-size);
+        line-height: var(--jp-code-line-height);
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        color: inherit;
+        background: transparent;
+      }
+
+      /* Stream output - inherit theme colors */
+      .jp-output-stream pre {
         margin: 0;
         padding: 0;
         font-family: var(--jp-code-font-family);
