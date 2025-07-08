@@ -109,15 +109,23 @@ Document data pipelines, analysis workflows, and research findings in company wi
 
 ## 🖼️ Screenshots
 
-<div align="center">
+<div align="center" style="display: flex; gap: 2rem; justify-content: center; align-items: flex-start;">
+
+<div style="flex: 1; text-align: center;">
 
 ### Before (Plain Markdown)
 
 ![Plain Markdown](.github/assets/before.png)
 
+</div>
+
+<div style="flex: 1; text-align: center;">
+
 ### After (notebook-mdx)
 
 ![notebook-mdx](.github/assets/after.png)
+
+</div>
 
 </div>
 
