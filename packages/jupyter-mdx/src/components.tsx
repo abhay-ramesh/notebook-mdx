@@ -291,27 +291,6 @@ export const NotebookMarkdownCell: React.FC<NotebookMarkdownCellProps> = ({
   );
 };
 
-interface NotebookRawCellProps {
-  source: string | string[];
-}
-
-export const NotebookRawCell: React.FC<NotebookRawCellProps> = ({ source }) => {
-  const sourceString = Array.isArray(source) ? source.join("") : source;
-
-  return (
-    <>
-      <NotebookStyles />
-      <div className="jp-notebook-cell jp-raw-cell">
-        <div className="jp-raw-content">
-          <pre className="jp-raw-source">
-            <code>{sourceString}</code>
-          </pre>
-        </div>
-      </div>
-    </>
-  );
-};
-
 interface NotebookLoaderProps {
   notebookPath?: string;
   showCellNumbers?: boolean;
@@ -395,7 +374,7 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
               />
             );
           } else if (cell.cell_type === "raw") {
-            return <NotebookRawCell key={index} source={cell.source} />;
+            return <NotebookCodeCell key={index} source={cell.source} />;
           }
           return null;
         })}
@@ -688,7 +667,7 @@ export const NotebookStyles: React.FC = () => {
         margin: 1em 0;
       }
 
-              /* Raw cell styling */
+              /* Raw cell styling - make it look like code blocks */
       .jp-raw-cell {
         position: relative;
         margin: 0;
@@ -697,24 +676,21 @@ export const NotebookStyles: React.FC = () => {
       }
 
       .jp-raw-content {
-        font-family: var(--jp-code-font-family);
-        font-size: var(--jp-code-font-size);
-        line-height: var(--jp-code-line-height);
-        color: inherit;
-        padding: 6px 12px;
-        margin: 0;
-        background: rgba(128, 128, 128, 0.05);
         border: 1px solid rgba(128, 128, 128, 0.2);
         border-radius: var(--jp-border-radius);
-        border-left: 4px solid #17a2b8;
+        background: rgba(128, 128, 128, 0.05);
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.1s ease, background-color 0.1s ease;
+        color: inherit;
       }
 
       .jp-raw-source {
         margin: 0 !important;
-        padding: 0 !important;
-        font-family: inherit;
-        font-size: inherit;
-        line-height: inherit;
+        padding: 4px 8px !important;
+        font-family: var(--jp-code-font-family);
+        font-size: var(--jp-code-font-size);
+        line-height: var(--jp-code-line-height);
         white-space: pre-wrap;
         word-wrap: break-word;
         color: inherit;
@@ -960,7 +936,6 @@ export const NotebookStyles: React.FC = () => {
 export const JupyterComponents = {
   NotebookCodeCell,
   NotebookMarkdownCell,
-  NotebookRawCell,
   NotebookLoader,
   NotebookStyles,
 };

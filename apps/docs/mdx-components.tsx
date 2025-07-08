@@ -2,7 +2,6 @@ import {
   NotebookCodeCell,
   NotebookLoader,
   NotebookMarkdownCell,
-  NotebookRawCell,
   NotebookStyles,
 } from "@notebook-mdx/jupyter";
 import defaultMdxComponents from "fumadocs-ui/mdx";
@@ -17,7 +16,6 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     NotebookCodeCell,
     NotebookLoader,
     NotebookMarkdownCell,
-    NotebookRawCell,
     NotebookStyles,
   } as MDXComponents;
 }
