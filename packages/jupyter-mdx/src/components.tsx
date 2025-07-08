@@ -554,7 +554,7 @@ export const NotebookStyles: React.FC = () => {
       /* Individual cells - inherit theme colors */
       .jp-notebook-cell {
         display: block;
-        margin: 0 0 6px 0;
+        margin: 0 0 16px 0;
         padding: 0;
         border: none;
         outline: none;
@@ -578,14 +578,12 @@ export const NotebookStyles: React.FC = () => {
 
       .jp-code-cell {
         position: relative;
-        margin: 0;
         background: transparent;
         color: inherit;
       }
 
       .jp-markdown-cell {
         position: relative;
-        margin: 0;
         background: transparent;
         color: inherit;
       }
