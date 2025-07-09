@@ -1,9 +1,9 @@
 ---
 name: 🚀 Feature Request
 about: Suggest a new feature for notebook-mdx
-title: '[Feature]: '
-labels: 'enhancement'
-assignees: ''
+title: "[Feature]: "
+labels: "enhancement"
+assignees: ""
 ---
 
 ## 🚀 Feature Request

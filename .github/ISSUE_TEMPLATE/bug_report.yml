@@ -1,7 +1,7 @@
 name: 🐛 Bug Report
 description: Report a bug or issue with notebook-mdx
 title: "[Bug]: "
-labels: 
+labels:
   - "bug"
   - "needs-triage"
 
@@ -10,7 +10,7 @@ body:
     attributes:
       value: |
         Thanks for taking the time to report a bug! 🐛
-        
+
         Please fill out the following information to help us debug the issue.
 
   - type: textarea
@@ -78,7 +78,7 @@ body:
         ```mdx
         import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
         import notebook from './my-notebook.ipynb';
-        
+
         <NotebookStyles />
         <NotebookLoader notebookData={JSON.parse(notebook)} />
         ```
@@ -146,11 +146,11 @@ body:
     id: search
     attributes:
       label: Checklist
-      description: Before submitting, please check:
+      description: "Before submitting, please check:"
       options:
         - label: "I have searched existing issues to avoid duplicates"
           required: true
         - label: "I have provided a minimal reproduction case"
           required: false
         - label: "This issue is specifically about notebook-mdx (not about the framework I'm using)"
-          required: true 
+          required: true

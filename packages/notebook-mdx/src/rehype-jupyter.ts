@@ -5,7 +5,7 @@ import { visit } from "unist-util-visit";
 import type { JupyterOptions } from "./types.js";
 
 export const rehypeJupyter: Plugin<[JupyterOptions?], Root> = (
-  options = {}
+  options = {},
 ) => {
   return (tree) => {
     visit(tree, "element", (node) => {

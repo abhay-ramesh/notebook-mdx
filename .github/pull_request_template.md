@@ -5,12 +5,15 @@ Thank you for contributing to notebook-mdx! Please ensure your PR meets these re
 ### 🎯 Description
 
 **What does this PR do?**
+
 <!-- Brief description of the changes -->
 
 **Why is this change needed?**
+
 <!-- Link to issue or explain the problem this solves -->
 
 **How did you implement it?**
+
 <!-- Brief technical explanation -->
 
 ### 🔗 Related Issues
@@ -25,6 +28,7 @@ Thank you for contributing to notebook-mdx! Please ensure your PR meets these re
 - [ ] I have tested this manually
 
 **Test details:**
+
 <!-- Describe how you tested the changes -->
 
 ### 📖 Documentation
@@ -46,7 +50,7 @@ Thank you for contributing to notebook-mdx! Please ensure your PR meets these re
 If this affects the frontend, I have tested in:
 
 - [ ] Chrome
-- [ ] Firefox  
+- [ ] Firefox
 - [ ] Safari
 - [ ] Edge
 

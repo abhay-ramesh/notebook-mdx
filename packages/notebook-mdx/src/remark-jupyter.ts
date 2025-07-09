@@ -4,7 +4,7 @@ import type { Plugin } from "unified";
 import type { JupyterOptions } from "./types.js";
 
 export const remarkJupyter: Plugin<[JupyterOptions?], Root> = (
-  options = {}
+  options = {},
 ) => {
   return (tree, file) => {
     // This plugin processes notebook-related content in MDX

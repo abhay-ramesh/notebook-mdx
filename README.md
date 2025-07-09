@@ -20,7 +20,7 @@
 ## ✨ Features
 
 - 🎨 **Authentic Jupyter styling** - Pixel-perfect recreation of Jupyter notebook appearance
-- 🖥️ **Syntax highlighting** - Multi-language code highlighting with Highlight.js  
+- 🖥️ **Syntax highlighting** - Multi-language code highlighting with Highlight.js
 - 📱 **Responsive design** - Looks great on desktop, tablet, and mobile
 - ⚡ **Zero client-side dependencies** - Renders at build time for optimal performance
 - 🔧 **Framework agnostic** - Works with Next.js, Docusaurus, Fumadocs, and more
@@ -45,8 +45,8 @@ pnpm add notebook-mdx
 ### Basic Usage
 
 ```mdx
-import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
-import notebook from './my-notebook.ipynb';
+import { NotebookLoader, NotebookStyles } from "notebook-mdx";
+import notebook from "./my-notebook.ipynb";
 
 # My Data Analysis
 
@@ -63,8 +63,8 @@ module.exports = {
   webpack: (config) => {
     config.module.rules.push({
       test: /\.ipynb$/,
-      type: 'json',
-      use: 'raw-loader',
+      type: "json",
+      use: "raw-loader",
     });
     return config;
   },
@@ -98,14 +98,14 @@ Document data pipelines, analysis workflows, and research findings in company wi
 
 ## 🌟 Why notebook-mdx?
 
-| Feature | notebook-mdx | Alternatives |
-|---------|-------------|--------------|
-| **Authentic Styling** | ✅ Pixel-perfect Jupyter look | ❌ Generic code blocks |
-| **Zero Runtime** | ✅ Renders at build time | ❌ Client-side rendering |
-| **TypeScript** | ✅ Full type safety | ❌ Limited or no types |
-| **Framework Support** | ✅ Works everywhere | ❌ Framework-specific |
-| **Bundle Size** | ✅ ~15kB minzipped | ❌ Often 100kB+ |
-| **Maintenance** | ✅ Actively maintained | ❌ Many are abandoned |
+| Feature               | notebook-mdx                  | Alternatives             |
+| --------------------- | ----------------------------- | ------------------------ |
+| **Authentic Styling** | ✅ Pixel-perfect Jupyter look | ❌ Generic code blocks   |
+| **Zero Runtime**      | ✅ Renders at build time      | ❌ Client-side rendering |
+| **TypeScript**        | ✅ Full type safety           | ❌ Limited or no types   |
+| **Framework Support** | ✅ Works everywhere           | ❌ Framework-specific    |
+| **Bundle Size**       | ✅ ~15kB minzipped            | ❌ Often 100kB+          |
+| **Maintenance**       | ✅ Actively maintained        | ❌ Many are abandoned    |
 
 ## 🖼️ Screenshots
 
@@ -115,7 +115,7 @@ Document data pipelines, analysis workflows, and research findings in company wi
 
 ### Before (Plain Markdown)
 
-*Generic code blocks with basic syntax highlighting*
+_Generic code blocks with basic syntax highlighting_
 
 ![Plain Markdown](.github/assets/before.png)
 
@@ -124,7 +124,7 @@ Document data pipelines, analysis workflows, and research findings in company wi
 
 ### After (notebook-mdx)
 
-*Authentic Jupyter styling with In/Out prompts*
+_Authentic Jupyter styling with In/Out prompts_
 
 ![notebook-mdx](.github/assets/after.png)
 
@@ -143,8 +143,8 @@ import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
 import notebook from './analysis.ipynb';
 
 export const metadata = {
-  title: 'My Data Analysis',
-  description: 'Deep dive into user behavior data'
+  title: "My Data Analysis",
+  description: "Deep dive into user behavior data",
 };
 
 # My Data Analysis
@@ -163,8 +163,8 @@ export const metadata = {
 title: Machine Learning Tutorial
 ---
 
-import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
-import notebook from './tutorial.ipynb';
+import { NotebookLoader, NotebookStyles } from "notebook-mdx";
+import notebook from "./tutorial.ipynb";
 
 # Machine Learning Tutorial
 
@@ -183,8 +183,8 @@ title: API Documentation
 description: Complete guide to our data API
 ---
 
-import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
-import examples from './api-examples.ipynb';
+import { NotebookLoader, NotebookStyles } from "notebook-mdx";
+import examples from "./api-examples.ipynb";
 
 <NotebookStyles />
 <NotebookLoader notebookData={JSON.parse(examples)} />

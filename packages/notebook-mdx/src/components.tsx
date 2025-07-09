@@ -199,7 +199,7 @@ const renderOutputData = (output: NotebookOutput) => {
                   textAlign: "center",
                 }}
               />
-            </div>
+            </div>,
           );
         } else {
           // PNG, JPEG, GIF are base64-encoded
@@ -217,7 +217,7 @@ const renderOutputData = (output: NotebookOutput) => {
                   margin: "0 auto",
                 }}
               />
-            </div>
+            </div>,
           );
         }
         break; // Only render the first image type found
@@ -236,7 +236,7 @@ const renderOutputData = (output: NotebookOutput) => {
               elements.push(
                 <div key="html" className="notebook-output-html">
                   <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-                </div>
+                </div>,
               );
               break;
 
@@ -244,7 +244,7 @@ const renderOutputData = (output: NotebookOutput) => {
               elements.push(
                 <div key="json" className="notebook-output-json">
                   <pre>{JSON.stringify(data[mimeType], null, 2)}</pre>
-                </div>
+                </div>,
               );
               break;
 
@@ -255,7 +255,7 @@ const renderOutputData = (output: NotebookOutput) => {
               elements.push(
                 <div key="text" className="notebook-output-text">
                   <OutputText content={textContent} />
-                </div>
+                </div>,
               );
               break;
 
@@ -267,7 +267,7 @@ const renderOutputData = (output: NotebookOutput) => {
               elements.push(
                 <div key={mimeType} className="notebook-output-text">
                   <pre>{content}</pre>
-                </div>
+                </div>,
               );
           }
           break; // Only render the first MIME type found in priority order
@@ -327,7 +327,7 @@ export const NotebookCodeCell: React.FC<NotebookCodeCellProps> = ({
     setIsClient(true);
     const highlighted = highlightCode(
       sourceString,
-      normalizedLanguage || undefined
+      normalizedLanguage || undefined,
     );
     setHighlightedCode(highlighted);
   }, [sourceString, normalizedLanguage]);
@@ -455,7 +455,7 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
   notebookData,
 }) => {
   const [notebook, setNotebook] = React.useState<NotebookData | null>(
-    notebookData || null
+    notebookData || null,
   );
   const [loading, setLoading] = React.useState(!notebookData);
   const [error, setError] = React.useState<string | null>(null);
@@ -476,7 +476,7 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
     // In a real implementation, you'd fetch the notebook file here
     // For now, we'll just show a placeholder
     setError(
-      "Notebook loading from file system not implemented yet. Use notebookData prop instead."
+      "Notebook loading from file system not implemented yet. Use notebookData prop instead.",
     );
     setLoading(false);
   }, [notebookPath, notebookData]);
@@ -516,7 +516,7 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
   // Function to detect cell-level language
   const detectCellLanguage = (
     cell: any,
-    fallbackLanguage?: string
+    fallbackLanguage?: string,
   ): string | undefined => {
     // 1. Check cell metadata for language override (VSCode format)
     if (cell.metadata?.vscode?.languageId) {

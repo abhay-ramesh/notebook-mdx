@@ -1,5 +1,5 @@
 {
-  "extends": "../typescript-config/react-library.json",
+  "extends": "../../tooling/typescript-config/react-library.json",
   "compilerOptions": {
     "outDir": "dist",
     "declaration": true,

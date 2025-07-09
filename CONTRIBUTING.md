@@ -138,11 +138,11 @@ describe('NotebookLoader', () => {
         }
       ]
     };
-    
+
     const { getByText } = render(
       <NotebookLoader notebookData={notebook} />
     );
-    
+
     expect(getByText('print("Hello, World!")')).toBeInTheDocument();
   });
 });

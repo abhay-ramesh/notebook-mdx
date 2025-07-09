@@ -27,7 +27,7 @@ npm install notebook-mdx
 Add the plugins to your MDX configuration:
 
 ```typescript
-import { remarkJupyter, rehypeJupyter } from 'notebook-mdx';
+import { remarkJupyter, rehypeJupyter } from "notebook-mdx";
 
 export default defineConfig({
   mdxOptions: {
@@ -45,7 +45,7 @@ For Next.js projects, you need to configure webpack to handle `.ipynb` files:
 
 ```javascript
 // next.config.mjs
-import { createMDX } from 'fumadocs-mdx/next';
+import { createMDX } from "fumadocs-mdx/next";
 
 const withMDX = createMDX();
 
@@ -58,13 +58,13 @@ const config = {
       test: /\.ipynb$/,
       use: [
         {
-          loader: 'raw-loader',
+          loader: "raw-loader",
         },
       ],
     });
 
     // Add .ipynb to resolvable extensions
-    config.resolve.extensions.push('.ipynb');
+    config.resolve.extensions.push(".ipynb");
 
     return config;
   },
@@ -82,8 +82,8 @@ npm install --save-dev raw-loader
 ### 3. Import and Render Notebooks
 
 ```mdx
-import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
-import notebookRaw from './my-notebook.ipynb';
+import { NotebookLoader, NotebookStyles } from "notebook-mdx";
+import notebookRaw from "./my-notebook.ipynb";
 
 <NotebookStyles />
 <NotebookLoader notebookData={JSON.parse(notebookRaw)} />
@@ -92,18 +92,17 @@ import notebookRaw from './my-notebook.ipynb';
 ### 4. Manual Cell Creation
 
 ```mdx
-import { NotebookCodeCell, NotebookMarkdownCell, NotebookStyles } from 'notebook-mdx';
+import {
+  NotebookCodeCell,
+  NotebookMarkdownCell,
+  NotebookStyles,
+} from "notebook-mdx";
 
 <NotebookStyles />
 
-<NotebookCodeCell
-  source="print('Hello from Python!')"
-  executionCount={1}
-/>
+<NotebookCodeCell source="print('Hello from Python!')" executionCount={1} />
 
-<NotebookMarkdownCell
-  source="## This is a markdown cell"
-/>
+<NotebookMarkdownCell source="## This is a markdown cell" />
 ```
 
 ## 🎨 Authentic Styling
@@ -111,7 +110,7 @@ import { NotebookCodeCell, NotebookMarkdownCell, NotebookStyles } from 'notebook
 The package provides authentic Jupyter notebook styling that matches VSCode and Jupyter Lab:
 
 - **Input prompts**: Blue `In [n]:` indicators
-- **Output prompts**: Orange `Out[n]:` indicators  
+- **Output prompts**: Orange `Out[n]:` indicators
 - **Cell borders**: Subtle borders with hover effects
 - **Monospace fonts**: System monospace fonts for code
 - **Color scheme**: Authentic Jupyter color palette
@@ -136,21 +135,22 @@ Supports multiple programming languages with automatic detection:
 ```typescript
 // Remark plugin options
 remarkJupyter({
-  executeCode: false,           // Don't execute code cells
-  showCellNumbers: true,        // Show In[n]/Out[n] numbers
+  executeCode: false, // Don't execute code cells
+  showCellNumbers: true, // Show In[n]/Out[n] numbers
   showLanguageIndicators: true, // Show language badges
-  languageMapping: {            // Custom language aliases
-    'py': 'python',
-    'js': 'javascript'
-  }
-})
+  languageMapping: {
+    // Custom language aliases
+    py: "python",
+    js: "javascript",
+  },
+});
 
 // Rehype plugin options
 rehypeJupyter({
-  showCellNumbers: true,        // Show execution counts
-  syntaxHighlighting: true,     // Enable syntax highlighting
-  classPrefix: 'jupyter-'       // CSS class prefix
-})
+  showCellNumbers: true, // Show execution counts
+  syntaxHighlighting: true, // Enable syntax highlighting
+  classPrefix: "jupyter-", // CSS class prefix
+});
 ```
 
 ### Component Props
@@ -193,12 +193,12 @@ For complete documentation, examples, and API reference:
 Full TypeScript support with comprehensive type definitions:
 
 ```typescript
-import type { 
-  NotebookData, 
-  CellData, 
-  CellOutput, 
-  CellMetadata 
-} from 'notebook-mdx';
+import type {
+  NotebookData,
+  CellData,
+  CellOutput,
+  CellMetadata,
+} from "notebook-mdx";
 ```
 
 ## 🎨 CSS Custom Properties
@@ -207,10 +207,10 @@ Customize styling with CSS variables:
 
 ```css
 :root {
-  --jp-input-prompt-color: #307FC1;
-  --jp-output-prompt-color: #D84315;
+  --jp-input-prompt-color: #307fc1;
+  --jp-output-prompt-color: #d84315;
   --jp-cell-border-color: #e0e0e0;
-  --jp-code-font-family: 'SFMono-Regular', Consolas, monospace;
+  --jp-code-font-family: "SFMono-Regular", Consolas, monospace;
 }
 ```
 

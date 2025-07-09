@@ -16,10 +16,10 @@ This guide covers deploying the documentation site to Vercel and publishing the 
    ```bash
    # Install Vercel CLI (optional)
    npm i -g vercel
-   
+
    # Login to Vercel
    vercel login
-   
+
    # Connect project
    vercel link
    ```
@@ -95,7 +95,7 @@ The package is automatically published when you create a GitHub release:
    # Create and push tag
    git tag v1.0.0
    git push origin v1.0.0
-   
+
    # Or use GitHub UI to create release
    ```
 
