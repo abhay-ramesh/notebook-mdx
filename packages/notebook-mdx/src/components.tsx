@@ -5,19 +5,17 @@ import hljs from "highlight.js";
 import React from "react";
 import type { NotebookData, NotebookOutput } from "./types.js";
 
-// Initialize highlight.js
-if (typeof window !== "undefined") {
-  // Configure highlight.js
-  hljs.configure({
-    ignoreUnescapedHTML: true,
-    classPrefix: "hljs-"
-  });
-}
+// Initialize highlight.js immediately since we're using "use client"
+hljs.configure({
+  ignoreUnescapedHTML: true,
+  classPrefix: "hljs-"
+});
 
 // Function to highlight code with language detection
 const highlightCode = (code: string, language?: string | undefined): string => {
-  if (typeof window === "undefined") {
-    // Server-side: return plain code
+  // Since we're using "use client", this always runs on client
+  // But hljs might not be ready immediately, so fallback gracefully
+  if (!hljs || !hljs.highlight) {
     return code;
   }
 
@@ -143,23 +141,14 @@ const normalizeLanguage = (lang?: string): string | undefined => {
 
 // Component for rendering output text with syntax highlighting
 const OutputText: React.FC<{ content: string }> = ({ content }) => {
-  const [highlightedContent, setHighlightedContent] =
-    React.useState<string>(content);
-  const [isClient, setIsClient] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsClient(true);
-    const highlighted = highlightCode(content);
-    setHighlightedContent(highlighted);
+  // Use useMemo to compute highlighted content only when content changes
+  const highlightedContent = React.useMemo(() => {
+    return highlightCode(content);
   }, [content]);
 
   return (
     <pre>
-      {isClient ? (
-        <span dangerouslySetInnerHTML={{ __html: highlightedContent }} />
-      ) : (
-        content
-      )}
+      <span dangerouslySetInnerHTML={{ __html: highlightedContent }} />
     </pre>
   );
 };
@@ -373,18 +362,10 @@ export const NotebookCodeCell: React.FC<NotebookCodeCellProps> = ({
 }) => {
   const sourceString = Array.isArray(source) ? source.join("") : source;
   const normalizedLanguage = normalizeLanguage(language);
-  const [highlightedCode, setHighlightedCode] =
-    React.useState<string>(sourceString);
-  const [isClient, setIsClient] = React.useState(false);
 
-  // Handle client-side highlighting after component mounts
-  React.useEffect(() => {
-    setIsClient(true);
-    const highlighted = highlightCode(
-      sourceString,
-      normalizedLanguage || undefined
-    );
-    setHighlightedCode(highlighted);
+  // Use useMemo to compute highlighted code only when dependencies change
+  const highlightedCode = React.useMemo(() => {
+    return highlightCode(sourceString, normalizedLanguage || undefined);
   }, [sourceString, normalizedLanguage]);
 
   return (
@@ -405,22 +386,13 @@ export const NotebookCodeCell: React.FC<NotebookCodeCellProps> = ({
           <div className="jp-cell-input-area">
             <div className="jp-cell-input-content">
               <pre className="jp-code-source">
-                {isClient ? (
-                  <code
-                    className={
-                      normalizedLanguage ? `language-${normalizedLanguage}` : ""
-                    }
-                    dangerouslySetInnerHTML={{ __html: highlightedCode }}
-                  />
-                ) : (
-                  <code
-                    className={
-                      normalizedLanguage ? `language-${normalizedLanguage}` : ""
-                    }
-                  >
-                    {sourceString}
-                  </code>
-                )}
+                <code
+                  className={
+                    normalizedLanguage ? `language-${normalizedLanguage}` : ""
+                  }
+                  dangerouslySetInnerHTML={{ __html: highlightedCode }}
+                  suppressHydrationWarning={true}
+                />
               </pre>
               {showCopyButton && <CopyButton code={sourceString} />}
               {language && (
@@ -456,22 +428,26 @@ export const NotebookMarkdownCell: React.FC<NotebookMarkdownCellProps> = ({
 }) => {
   const sourceString = Array.isArray(source) ? source.join("") : source;
 
-  // Enhanced markdown parsing
-  const parseMarkdown = (text: string) => {
-    return text
-      .replace(/^### (.*$)/gim, "<h3>$1</h3>")
-      .replace(/^## (.*$)/gim, "<h2>$1</h2>")
-      .replace(/^# (.*$)/gim, "<h1>$1</h1>")
-      .replace(/^\> (.*$)/gim, "<blockquote>$1</blockquote>")
-      .replace(/\*\*(.*?)\*\*/gim, "<strong>$1</strong>")
-      .replace(/\*(.*?)\*/gim, "<em>$1</em>")
-      .replace(/`([^`]+)`/gim, "<code>$1</code>")
-      .replace(/```([^`]+)```/gim, "<pre><code>$1</code></pre>")
-      .replace(/!\[([^\]]*)\]\(([^\)]*)\)/gim, '<img alt="$1" src="$2" />')
-      .replace(/\[([^\]]*)\]\(([^\)]*)\)/gim, '<a href="$2">$1</a>')
-      .replace(/\n\n/gim, "</p><p>")
-      .replace(/\n/gim, "<br>");
-  };
+  // Enhanced markdown parsing - memoized to avoid re-computation
+  const parsedMarkdown = React.useMemo(() => {
+    const parseMarkdown = (text: string) => {
+      return text
+        .replace(/^### (.*$)/gim, "<h3>$1</h3>")
+        .replace(/^## (.*$)/gim, "<h2>$1</h2>")
+        .replace(/^# (.*$)/gim, "<h1>$1</h1>")
+        .replace(/^\> (.*$)/gim, "<blockquote>$1</blockquote>")
+        .replace(/\*\*(.*?)\*\*/gim, "<strong>$1</strong>")
+        .replace(/\*(.*?)\*/gim, "<em>$1</em>")
+        .replace(/`([^`]+)`/gim, "<code>$1</code>")
+        .replace(/```([^`]+)```/gim, "<pre><code>$1</code></pre>")
+        .replace(/!\[([^\]]*)\]\(([^\)]*)\)/gim, '<img alt="$1" src="$2" />')
+        .replace(/\[([^\]]*)\]\(([^\)]*)\)/gim, '<a href="$2">$1</a>')
+        .replace(/\n\n/gim, "</p><p>")
+        .replace(/\n/gim, "<br>");
+    };
+
+    return parseMarkdown(sourceString);
+  }, [sourceString]);
 
   return (
     <>
@@ -487,7 +463,7 @@ export const NotebookMarkdownCell: React.FC<NotebookMarkdownCellProps> = ({
               <div className="jp-markdown-content">
                 <div
                   dangerouslySetInnerHTML={{
-                    __html: `<p>${parseMarkdown(sourceString)}</p>`
+                    __html: `<p>${parsedMarkdown}</p>`
                   }}
                 />
               </div>
@@ -506,6 +482,44 @@ interface NotebookLoaderProps {
   notebookDataJson?: string; // New prop for directive-based usage
   showCopyButton?: boolean;
 }
+
+// Function to detect cell-level language - moved outside component for better performance
+const detectCellLanguage = (
+  cell: any,
+  fallbackLanguage?: string
+): string | undefined => {
+  // 1. Check cell metadata for language override (VSCode format)
+  if (cell.metadata?.vscode?.languageId) {
+    const vscodeLang = cell.metadata.vscode.languageId;
+    // Don't show language indicator for raw cells even if VSCode metadata is present
+    if (cell.cell_type === "raw") {
+      return "raw";
+    }
+    return vscodeLang;
+  }
+
+  // 2. Check other common metadata formats
+  if (cell.metadata?.languageId) {
+    return cell.metadata.languageId;
+  }
+
+  if (cell.metadata?.language) {
+    return cell.metadata.language;
+  }
+
+  // 3. For raw cells, always show "raw"
+  if (cell.cell_type === "raw") {
+    return "raw";
+  }
+
+  // 4. Fall back to notebook kernel language for regular code cells
+  if (cell.cell_type === "code") {
+    return fallbackLanguage;
+  }
+
+  // 5. No language for markdown cells
+  return undefined;
+};
 
 export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
   notebookPath,
@@ -582,48 +596,13 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
     );
   }
 
-  // Extract language from notebook metadata
-  const kernelLanguage =
-    notebook.metadata?.kernelspec?.language ||
-    notebook.metadata?.language_info?.name;
-
-  // Function to detect cell-level language
-  const detectCellLanguage = (
-    cell: any,
-    fallbackLanguage?: string
-  ): string | undefined => {
-    // 1. Check cell metadata for language override (VSCode format)
-    if (cell.metadata?.vscode?.languageId) {
-      const vscodeLang = cell.metadata.vscode.languageId;
-      // Don't show language indicator for raw cells even if VSCode metadata is present
-      if (cell.cell_type === "raw") {
-        return "raw";
-      }
-      return vscodeLang;
-    }
-
-    // 2. Check other common metadata formats
-    if (cell.metadata?.languageId) {
-      return cell.metadata.languageId;
-    }
-
-    if (cell.metadata?.language) {
-      return cell.metadata.language;
-    }
-
-    // 3. For raw cells, always show "raw"
-    if (cell.cell_type === "raw") {
-      return "raw";
-    }
-
-    // 4. Fall back to notebook kernel language for regular code cells
-    if (cell.cell_type === "code") {
-      return fallbackLanguage;
-    }
-
-    // 5. No language for markdown cells
-    return undefined;
-  };
+  // Extract language from notebook metadata - memoized
+  const kernelLanguage = React.useMemo(() => {
+    return (
+      notebook?.metadata?.kernelspec?.language ||
+      notebook?.metadata?.language_info?.name
+    );
+  }, [notebook?.metadata]);
 
   return (
     <>
