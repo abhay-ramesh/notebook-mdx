@@ -1,0 +1,32 @@
+# Generated content
+docs/.source/
+docs/.contentlayer/
+docs/.content-collections/
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Turbo
+.turbo/
+
+# Vercel
+.vercel/
+
+# Misc
+.DS_Store
+*.pem
+
+# Lock files (don't format these massive files)
+pnpm-lock.yaml
+yarn.lock
+package-lock.json 
