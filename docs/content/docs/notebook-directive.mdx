@@ -1,0 +1,207 @@
+---
+title: Notebook Directives
+description: Use directive syntax to embed Jupyter notebooks in your MDX content
+---
+
+import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
+
+<NotebookStyles />
+
+# Notebook Directives
+
+The `remarkNotebookDirective` plugin enables you to embed Jupyter notebooks using a clean directive syntax that integrates seamlessly with the remark/rehype ecosystem.
+
+## Installation
+
+First, ensure you have the required dependencies:
+
+```bash
+npm install notebook-mdx remark-directive
+```
+
+## Basic Setup
+
+Configure your MDX pipeline to use both `remark-directive` and `remarkNotebookDirective`:
+
+```typescript
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkDirective from 'remark-directive';
+import { remarkNotebookDirective } from 'notebook-mdx';
+import remarkRehype from 'remark-rehype';
+import rehypeStringify from 'rehype-stringify';
+
+const processor = unified()
+  .use(remarkParse)
+  .use(remarkDirective) // Must come before remarkNotebookDirective
+  .use(remarkNotebookDirective)
+  .use(remarkRehype)
+  .use(rehypeStringify);
+```
+
+### Next.js Configuration
+
+For Next.js projects using Fumadocs or similar:
+
+```typescript
+// source.config.ts
+import { defineConfig } from 'fumadocs-mdx/config';
+import remarkDirective from 'remark-directive';
+import { remarkNotebookDirective } from 'notebook-mdx';
+
+export default defineConfig({
+  mdxOptions: {
+    remarkPlugins: [
+      remarkDirective,
+      [remarkNotebookDirective, { 
+        componentName: "NotebookLoader" 
+      }]
+    ]
+  }
+});
+```
+
+## Syntax
+
+### Container Directive (with caption)
+
+```mdx
+:::notebook{file="./example.ipynb" cells="1-5" showCellNumbers}
+This is an optional caption that appears below the notebook
+:::
+```
+
+### Leaf Directive (no caption)
+
+```mdx
+::notebook{file="./example.ipynb" hideCode showOutputs}
+```
+
+## Options
+
+All options are passed as attributes in the directive:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `file` | `string` | **Required.** Path to the .ipynb file (relative to current file) |
+| `cells` | `string` | Cell range to display (e.g., "1-5", "2,4,6") |
+| `hideCode` | `boolean` | Hide code cells, show only outputs |
+| `showOutputs` | `boolean` | Show only outputs (alias for hideCode) |
+| `showCellNumbers` | `boolean` | Display cell execution numbers |
+| `showLanguageIndicators` | `boolean` | Show language badges on code cells |
+| `theme` | `string` | Syntax highlighting theme |
+| `className` | `string` | Additional CSS classes |
+| `width` | `string` | Custom width (CSS value) |
+| `height` | `string` | Custom height (CSS value) |
+| `interactive` | `boolean` | Enable interactive features (if supported) |
+
+### Boolean Attributes
+
+Boolean attributes can be used in several ways:
+
+```mdx
+<!-- All equivalent ways to set boolean true -->
+::notebook{file="./example.ipynb" hideCode}
+::notebook{file="./example.ipynb" hideCode="true"}
+::notebook{file="./example.ipynb" hideCode=""}
+
+<!-- Set boolean false -->
+::notebook{file="./example.ipynb" hideCode="false"}
+```
+
+## Examples
+
+### Basic Notebook Embedding
+
+```mdx
+::notebook{file="./data-analysis.ipynb"}
+```
+
+### Show Only Specific Cells
+
+```mdx
+:::notebook{file="./tutorial.ipynb" cells="1-3,7,10-12"}
+Introduction to machine learning concepts
+:::
+```
+
+### Hide Code, Show Only Outputs
+
+```mdx
+::notebook{file="./visualization.ipynb" hideCode showCellNumbers}
+```
+
+### Custom Styling
+
+```mdx
+:::notebook{file="./demo.ipynb" className="my-notebook" theme="github-dark"}
+Custom styled notebook with dark theme
+:::
+```
+
+## Plugin Options
+
+Configure the plugin behavior when initializing:
+
+```typescript
+import { remarkNotebookDirective } from 'notebook-mdx';
+
+// With custom options
+.use(remarkNotebookDirective, {
+  baseDir: './notebooks',        // Base directory for notebook files
+  componentName: 'MyNotebook'    // Custom component name
+})
+```
+
+### Available Plugin Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `baseDir` | `string` | File directory | Base directory for resolving relative notebook paths |
+| `componentName` | `string` | `"NotebookLoader"` | Name of the component to render notebooks |
+
+## Error Handling
+
+The plugin provides helpful error messages for common issues:
+
+```mdx
+<!-- Missing file attribute -->
+::notebook{cells="1-5"}
+<!-- Error: Unexpected missing `file` attribute on `notebook` directive -->
+
+<!-- Invalid syntax -->
+:notebook{file="./example.ipynb"}
+<!-- Error: Unexpected `:notebook` text directive, use two colons for a leaf directive -->
+
+<!-- File not found -->
+::notebook{file="./missing.ipynb"}
+<!-- Error: Failed to process notebook file "./missing.ipynb": ENOENT -->
+```
+
+## Integration with Existing Components
+
+The directive syntax generates the same component structure as manual usage:
+
+```mdx
+<!-- These are equivalent -->
+::notebook{file="./example.ipynb" hideCode}
+
+<NotebookLoader 
+  notebookData={JSON.stringify(notebookData)} 
+  hideCode={true} 
+/>
+```
+
+This means all existing styling and customizations continue to work seamlessly.
+
+## Why Use Directives?
+
+The directive syntax provides several advantages:
+
+1. **Ecosystem Compatibility**: Works with all remark/rehype plugins
+2. **Clean Syntax**: More readable than component imports
+3. **File Resolution**: Automatic relative path resolution
+4. **Error Handling**: Better error messages and validation
+5. **Standardization**: Follows established remark-directive patterns
+
+The directive approach is used by popular tools like Docusaurus, VitePress, and many documentation frameworks, making it familiar to users and compatible with existing workflows. 

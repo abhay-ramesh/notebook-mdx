@@ -502,7 +502,8 @@ export const NotebookMarkdownCell: React.FC<NotebookMarkdownCellProps> = ({
 interface NotebookLoaderProps {
   notebookPath?: string;
   showCellNumbers?: boolean;
-  notebookData?: NotebookData;
+  notebookData?: NotebookData | string; // Allow both object and JSON string
+  notebookDataJson?: string; // New prop for directive-based usage
   showCopyButton?: boolean;
 }
 
@@ -510,59 +511,74 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
   notebookPath,
   showCellNumbers = true,
   notebookData,
-  showCopyButton = true
+  notebookDataJson,
+  showCopyButton = true,
+  ...otherProps // Capture any other props that might be passed
 }) => {
-  const [notebook, setNotebook] = React.useState<NotebookData | null>(
-    notebookData || null
-  );
-  const [loading, setLoading] = React.useState(!notebookData);
-  const [error, setError] = React.useState<string | null>(null);
+  // Parse notebook data synchronously during render to avoid hydration mismatch
+  let notebook: NotebookData | null = null;
+  let error: string | null = null;
 
-  React.useEffect(() => {
-    if (notebookData) {
-      setNotebook(notebookData);
-      setLoading(false);
-      return;
+  try {
+    // Handle notebookDataJson prop (from remark plugin)
+    if (notebookDataJson) {
+      notebook = JSON.parse(notebookDataJson);
     }
-
-    if (!notebookPath) {
-      setError("No notebook path or data provided");
-      setLoading(false);
-      return;
+    // Handle notebookData as JSON string
+    else if (notebookData && typeof notebookData === "string") {
+      notebook = JSON.parse(notebookData);
     }
-
-    // In a real implementation, you'd fetch the notebook file here
-    // For now, we'll just show a placeholder
-    setError(
-      "Notebook loading from file system not implemented yet. Use notebookData prop instead."
-    );
-    setLoading(false);
-  }, [notebookPath, notebookData]);
-
-  if (loading) {
-    return (
-      <>
-        <NotebookStyles />
-        <div className="jp-notebook-loading">Loading notebook...</div>
-      </>
-    );
+    // Handle notebookData as object
+    else if (notebookData && typeof notebookData === "object") {
+      notebook = notebookData;
+    }
+    // No data provided
+    else if (!notebookPath) {
+      error = "No notebook path or data provided";
+    }
+    // File loading not implemented
+    else {
+      error =
+        "Notebook loading from file system not implemented yet. Use notebookData prop instead.";
+    }
+  } catch (err) {
+    error = `Failed to parse notebook JSON: ${err instanceof Error ? err.message : "Unknown error"}`;
   }
 
   if (error) {
     return (
-      <>
-        <NotebookStyles />
-        <div className="jp-notebook-error">Error: {error}</div>
-      </>
+      <div className="jp-notebook">
+        <div
+          style={{
+            padding: "20px",
+            color: "#d84315",
+            border: "1px solid #ffcdd2",
+            borderRadius: "4px",
+            backgroundColor: "rgba(255, 205, 210, 0.1)"
+          }}
+        >
+          <strong>Error loading notebook:</strong> {error}
+        </div>
+      </div>
     );
   }
 
-  if (!notebook) {
+  if (!notebook || !notebook.cells || !Array.isArray(notebook.cells)) {
     return (
-      <>
-        <NotebookStyles />
-        <div className="jp-notebook-error">No notebook data available</div>
-      </>
+      <div className="jp-notebook">
+        <div
+          style={{
+            padding: "20px",
+            color: "#ff9800",
+            border: "1px solid #ffcc02",
+            borderRadius: "4px",
+            backgroundColor: "rgba(255, 204, 2, 0.1)"
+          }}
+        >
+          <strong>Warning:</strong> No valid notebook data found or notebook has
+          no cells.
+        </div>
+      </div>
     );
   }
 
@@ -652,16 +668,8 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
 
 // CSS styles embedded as a component
 export const NotebookStyles: React.FC = () => {
-  // Check if styles already exist in DOM before initial render
-  const stylesExist =
-    typeof window !== "undefined" &&
-    document.getElementById("jupyter-notebook-styles") !== null;
-
-  // Don't render if styles already exist
-  if (stylesExist) {
-    return null;
-  }
-
+  // Always render the style element to ensure server/client match
+  // Deduplication happens naturally via the id attribute
   return (
     <style id="jupyter-notebook-styles">{`
       /* CSS Variables for authentic Jupyter theming */
@@ -1126,8 +1134,6 @@ export const NotebookStyles: React.FC = () => {
         white-space: pre-wrap;
         margin: 1em 0;
       }
-
-              
 
       /* Cell outputs - inherit theme colors */
       .jp-cell-outputs {

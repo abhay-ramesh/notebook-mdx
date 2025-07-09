@@ -28,8 +28,10 @@
     "hast-util-to-jsx-runtime": "^2.0.0",
     "highlight.js": "^11.11.1",
     "mdast-util-to-hast": "^13.0.0",
+    "remark-directive": "^4.0.0",
     "shiki": "^3.7.0",
-    "unist-util-visit": "^5.0.0"
+    "unist-util-visit": "^5.0.0",
+    "vfile": "^6.0.3"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",

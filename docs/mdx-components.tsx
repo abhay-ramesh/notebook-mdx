@@ -7,15 +7,18 @@ import {
   NotebookStyles
 } from "notebook-mdx";
 
-// use this function to get MDX components, you will need it for rendering MDX
+// Direct import approach to avoid timing issues
+const notebookComponents = {
+  NotebookCodeCell,
+  NotebookLoader,
+  NotebookMarkdownCell,
+  NotebookStyles
+};
+
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,
     ...components,
-    // Add jupyter components directly
-    NotebookCodeCell,
-    NotebookLoader,
-    NotebookMarkdownCell,
-    NotebookStyles
+    ...notebookComponents
   } as MDXComponents;
 }

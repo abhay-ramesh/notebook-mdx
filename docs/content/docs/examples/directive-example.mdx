@@ -1,0 +1,22 @@
+---
+title: Notebook Directive Example
+description: Live example of notebook directive syntax in action
+---
+
+import { NotebookStyles } from 'notebook-mdx';
+
+<NotebookStyles />
+
+# Notebook Directive Example
+
+This page demonstrates the new directive syntax for embedding Jupyter notebooks.
+
+## Simple Notebook Test
+
+Here's a basic notebook without any special options:
+
+::notebook{file="./multi-language-notebook.ipynb"}
+
+::notebook{file="./example-notebook.ipynb"}
+
+That's it for now - testing one directive at a time. 
