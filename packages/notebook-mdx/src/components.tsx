@@ -35,6 +35,59 @@ const highlightCode = (code: string, language?: string | undefined): string => {
   }
 };
 
+// Copy Button Component
+const CopyButton: React.FC<{ code: string }> = ({ code }) => {
+  const [copied, setCopied] = React.useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.warn("Failed to copy code:", error);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="jp-copy-button"
+      title={copied ? "Copied!" : "Copy code"}
+      type="button"
+    >
+      {copied ? (
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <polyline points="20,6 9,17 4,12" />
+        </svg>
+      ) : (
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+          <path d="m5,15 0,-10 c0,-1.1 .9,-2 2,-2 l10,0" />
+        </svg>
+      )}
+    </button>
+  );
+};
+
 // Map common language names to highlight.js language identifiers
 const normalizeLanguage = (lang?: string): string | undefined => {
   if (!lang) return undefined;
@@ -117,6 +170,7 @@ interface NotebookCodeCellProps {
   executionCount?: number | null;
   showLineNumbers?: boolean;
   language?: string;
+  showCopyButton?: boolean;
 }
 
 // Helper function to render different types of output data
@@ -199,7 +253,7 @@ const renderOutputData = (output: NotebookOutput) => {
                   textAlign: "center",
                 }}
               />
-            </div>,
+            </div>
           );
         } else {
           // PNG, JPEG, GIF are base64-encoded
@@ -217,7 +271,7 @@ const renderOutputData = (output: NotebookOutput) => {
                   margin: "0 auto",
                 }}
               />
-            </div>,
+            </div>
           );
         }
         break; // Only render the first image type found
@@ -236,7 +290,7 @@ const renderOutputData = (output: NotebookOutput) => {
               elements.push(
                 <div key="html" className="notebook-output-html">
                   <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-                </div>,
+                </div>
               );
               break;
 
@@ -244,7 +298,7 @@ const renderOutputData = (output: NotebookOutput) => {
               elements.push(
                 <div key="json" className="notebook-output-json">
                   <pre>{JSON.stringify(data[mimeType], null, 2)}</pre>
-                </div>,
+                </div>
               );
               break;
 
@@ -255,7 +309,7 @@ const renderOutputData = (output: NotebookOutput) => {
               elements.push(
                 <div key="text" className="notebook-output-text">
                   <OutputText content={textContent} />
-                </div>,
+                </div>
               );
               break;
 
@@ -267,7 +321,7 @@ const renderOutputData = (output: NotebookOutput) => {
               elements.push(
                 <div key={mimeType} className="notebook-output-text">
                   <pre>{content}</pre>
-                </div>,
+                </div>
               );
           }
           break; // Only render the first MIME type found in priority order
@@ -315,6 +369,7 @@ export const NotebookCodeCell: React.FC<NotebookCodeCellProps> = ({
   executionCount,
   showLineNumbers = false,
   language,
+  showCopyButton = true,
 }) => {
   const sourceString = Array.isArray(source) ? source.join("") : source;
   const normalizedLanguage = normalizeLanguage(language);
@@ -327,7 +382,7 @@ export const NotebookCodeCell: React.FC<NotebookCodeCellProps> = ({
     setIsClient(true);
     const highlighted = highlightCode(
       sourceString,
-      normalizedLanguage || undefined,
+      normalizedLanguage || undefined
     );
     setHighlightedCode(highlighted);
   }, [sourceString, normalizedLanguage]);
@@ -367,6 +422,7 @@ export const NotebookCodeCell: React.FC<NotebookCodeCellProps> = ({
                   </code>
                 )}
               </pre>
+              {showCopyButton && <CopyButton code={sourceString} />}
               {language && (
                 <div className="jp-language-indicator">{language}</div>
               )}
@@ -447,15 +503,17 @@ interface NotebookLoaderProps {
   notebookPath?: string;
   showCellNumbers?: boolean;
   notebookData?: NotebookData;
+  showCopyButton?: boolean;
 }
 
 export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
   notebookPath,
   showCellNumbers = true,
   notebookData,
+  showCopyButton = true,
 }) => {
   const [notebook, setNotebook] = React.useState<NotebookData | null>(
-    notebookData || null,
+    notebookData || null
   );
   const [loading, setLoading] = React.useState(!notebookData);
   const [error, setError] = React.useState<string | null>(null);
@@ -476,7 +534,7 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
     // In a real implementation, you'd fetch the notebook file here
     // For now, we'll just show a placeholder
     setError(
-      "Notebook loading from file system not implemented yet. Use notebookData prop instead.",
+      "Notebook loading from file system not implemented yet. Use notebookData prop instead."
     );
     setLoading(false);
   }, [notebookPath, notebookData]);
@@ -516,7 +574,7 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
   // Function to detect cell-level language
   const detectCellLanguage = (
     cell: any,
-    fallbackLanguage?: string,
+    fallbackLanguage?: string
   ): string | undefined => {
     // 1. Check cell metadata for language override (VSCode format)
     if (cell.metadata?.vscode?.languageId) {
@@ -568,6 +626,7 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
                 executionCount={cell.execution_count}
                 showLineNumbers={showCellNumbers}
                 language={cellLanguage}
+                showCopyButton={showCopyButton}
               />
             );
           } else if (cell.cell_type === "raw") {
@@ -580,6 +639,7 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
                 executionCount={null}
                 showLineNumbers={showCellNumbers}
                 language={cellLanguage}
+                showCopyButton={showCopyButton}
               />
             );
           }
@@ -931,6 +991,55 @@ export const NotebookStyles: React.FC = () => {
         position: relative;
       }
 
+      /* Copy button in top right */
+      .jp-copy-button {
+        position: absolute;
+        top: 6px;
+        right: 8px;
+        width: 32px;
+        height: 32px;
+        border: 1px solid rgba(128, 128, 128, 0.3);
+        border-radius: 4px;
+        background: rgba(128, 128, 128, 0.1);
+        color: rgba(128, 128, 128, 0.8);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: all 0.2s ease;
+        z-index: 10;
+        font-size: 0;
+        line-height: 0;
+      }
+
+      .jp-copy-button:hover {
+        background: rgba(128, 128, 128, 0.2);
+        border-color: rgba(128, 128, 128, 0.5);
+        color: rgba(128, 128, 128, 1);
+      }
+
+      .jp-copy-button:focus {
+        outline: 2px solid rgba(66, 175, 233, 0.5);
+        outline-offset: 2px;
+      }
+
+      .jp-copy-button:active {
+        transform: scale(0.95);
+      }
+
+      /* Show copy button on hover of the input area */
+      .jp-cell-input-area:hover .jp-copy-button {
+        opacity: 1;
+      }
+
+      /* Always show copy button on touch devices */
+      @media (hover: none) and (pointer: coarse) {
+        .jp-copy-button {
+          opacity: 0.7;
+        }
+      }
+
       /* Language indicator in bottom right */
       .jp-language-indicator {
         position: absolute;
@@ -1253,4 +1362,12 @@ export const JupyterComponents = {
   NotebookMarkdownCell,
   NotebookLoader,
   NotebookStyles,
+  CopyButton,
+};
+
+// Export interfaces
+export type {
+  NotebookCodeCellProps,
+  NotebookLoaderProps,
+  NotebookMarkdownCellProps,
 };
