@@ -10,7 +10,7 @@ if (typeof window !== "undefined") {
   // Configure highlight.js
   hljs.configure({
     ignoreUnescapedHTML: true,
-    classPrefix: "hljs-",
+    classPrefix: "hljs-"
   });
 }
 
@@ -135,7 +135,7 @@ const normalizeLanguage = (lang?: string): string | undefined => {
     ini: "ini",
     dockerfile: "dockerfile",
     makefile: "makefile",
-    raw: undefined, // No highlighting for raw cells
+    raw: undefined // No highlighting for raw cells
   };
 
   return languageMap[lang.toLowerCase()] || lang.toLowerCase();
@@ -222,7 +222,7 @@ const renderOutputData = (output: NotebookOutput) => {
       "text/markdown",
       "text/latex",
       "application/json",
-      "text/plain",
+      "text/plain"
     ];
 
     // Handle images first (highest visual priority)
@@ -230,7 +230,7 @@ const renderOutputData = (output: NotebookOutput) => {
       "image/png",
       "image/jpeg",
       "image/gif",
-      "image/svg+xml",
+      "image/svg+xml"
     ];
     for (const imageType of imageTypes) {
       if (data[imageType]) {
@@ -250,7 +250,7 @@ const renderOutputData = (output: NotebookOutput) => {
                   width: metadata?.width ? `${metadata.width}px` : undefined,
                   height: metadata?.height ? `${metadata.height}px` : undefined,
                   maxWidth: "100%",
-                  textAlign: "center",
+                  textAlign: "center"
                 }}
               />
             </div>
@@ -268,7 +268,7 @@ const renderOutputData = (output: NotebookOutput) => {
                   height: metadata?.height ? `${metadata.height}px` : undefined,
                   maxWidth: "100%",
                   display: "block",
-                  margin: "0 auto",
+                  margin: "0 auto"
                 }}
               />
             </div>
@@ -369,7 +369,7 @@ export const NotebookCodeCell: React.FC<NotebookCodeCellProps> = ({
   executionCount,
   showLineNumbers = false,
   language,
-  showCopyButton = true,
+  showCopyButton = true
 }) => {
   const sourceString = Array.isArray(source) ? source.join("") : source;
   const normalizedLanguage = normalizeLanguage(language);
@@ -452,7 +452,7 @@ interface NotebookMarkdownCellProps {
 }
 
 export const NotebookMarkdownCell: React.FC<NotebookMarkdownCellProps> = ({
-  source,
+  source
 }) => {
   const sourceString = Array.isArray(source) ? source.join("") : source;
 
@@ -487,7 +487,7 @@ export const NotebookMarkdownCell: React.FC<NotebookMarkdownCellProps> = ({
               <div className="jp-markdown-content">
                 <div
                   dangerouslySetInnerHTML={{
-                    __html: `<p>${parseMarkdown(sourceString)}</p>`,
+                    __html: `<p>${parseMarkdown(sourceString)}</p>`
                   }}
                 />
               </div>
@@ -510,7 +510,7 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
   notebookPath,
   showCellNumbers = true,
   notebookData,
-  showCopyButton = true,
+  showCopyButton = true
 }) => {
   const [notebook, setNotebook] = React.useState<NotebookData | null>(
     notebookData || null
@@ -1362,12 +1362,12 @@ export const JupyterComponents = {
   NotebookMarkdownCell,
   NotebookLoader,
   NotebookStyles,
-  CopyButton,
+  CopyButton
 };
 
 // Export interfaces
 export type {
   NotebookCodeCellProps,
   NotebookLoaderProps,
-  NotebookMarkdownCellProps,
+  NotebookMarkdownCellProps
 };

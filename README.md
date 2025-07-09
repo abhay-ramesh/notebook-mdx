@@ -64,10 +64,10 @@ module.exports = {
     config.module.rules.push({
       test: /\.ipynb$/,
       type: "json",
-      use: "raw-loader",
+      use: "raw-loader"
     });
     return config;
-  },
+  }
 };
 ```
 
@@ -144,7 +144,7 @@ import notebook from './analysis.ipynb';
 
 export const metadata = {
   title: "My Data Analysis",
-  description: "Deep dive into user behavior data",
+  description: "Deep dive into user behavior data"
 };
 
 # My Data Analysis

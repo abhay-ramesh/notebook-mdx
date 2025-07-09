@@ -40,18 +40,18 @@ export const baseOptions: BaseLayoutProps = {
         </svg>
         notebook-mdx
       </>
-    ),
+    )
   },
   // see https://fumadocs.dev/docs/ui/navigation/links
   links: [
     {
       text: "Documentation",
-      url: "/docs",
+      url: "/docs"
     },
     {
       text: "GitHub",
-      url: "https://github.com/abhay-ramesh/notebook-mdx",
-    },
+      url: "https://github.com/abhay-ramesh/notebook-mdx"
+    }
   ],
-  githubUrl: "https://github.com/abhay-ramesh/notebook-mdx",
+  githubUrl: "https://github.com/abhay-ramesh/notebook-mdx"
 };

@@ -4,7 +4,7 @@ import {
   NotebookCodeCell,
   NotebookLoader,
   NotebookMarkdownCell,
-  NotebookStyles,
+  NotebookStyles
 } from "notebook-mdx";
 
 // use this function to get MDX components, you will need it for rendering MDX
@@ -16,6 +16,6 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     NotebookCodeCell,
     NotebookLoader,
     NotebookMarkdownCell,
-    NotebookStyles,
+    NotebookStyles
   } as MDXComponents;
 }

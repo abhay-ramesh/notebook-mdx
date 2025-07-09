@@ -4,7 +4,7 @@ export {
   NotebookCodeCell,
   NotebookLoader,
   NotebookMarkdownCell,
-  NotebookStyles,
+  NotebookStyles
 } from "./components.js";
 export { rehypeJupyter } from "./rehype-jupyter.js";
 export { remarkJupyter } from "./remark-jupyter.js";
@@ -12,5 +12,5 @@ export type {
   JupyterOptions,
   NotebookCell,
   NotebookData,
-  NotebookOutput,
+  NotebookOutput
 } from "./types.js";

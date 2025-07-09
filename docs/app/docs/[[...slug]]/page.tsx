@@ -3,7 +3,7 @@ import {
   DocsPage,
   DocsBody,
   DocsDescription,
-  DocsTitle,
+  DocsTitle
 } from "fumadocs-ui/page";
 import { notFound } from "next/navigation";
 import { createRelativeLink } from "fumadocs-ui/mdx";
@@ -26,7 +26,7 @@ export default async function Page(props: {
         <MDXContent
           components={getMDXComponents({
             // this allows you to link to other pages with relative file paths
-            a: createRelativeLink(source, page),
+            a: createRelativeLink(source, page)
           })}
         />
       </DocsBody>
@@ -47,6 +47,6 @@ export async function generateMetadata(props: {
 
   return {
     title: page.data.title,
-    description: page.data.description,
+    description: page.data.description
   };
 }

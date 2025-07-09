@@ -32,10 +32,10 @@ import { remarkJupyter, rehypeJupyter } from "notebook-mdx";
 export default defineConfig({
   mdxOptions: {
     remarkPlugins: [
-      [remarkJupyter, { executeCode: false, showCellNumbers: true }],
+      [remarkJupyter, { executeCode: false, showCellNumbers: true }]
     ],
-    rehypePlugins: [[rehypeJupyter, { showCellNumbers: true }]],
-  },
+    rehypePlugins: [[rehypeJupyter, { showCellNumbers: true }]]
+  }
 });
 ```
 
@@ -58,16 +58,16 @@ const config = {
       test: /\.ipynb$/,
       use: [
         {
-          loader: "raw-loader",
-        },
-      ],
+          loader: "raw-loader"
+        }
+      ]
     });
 
     // Add .ipynb to resolvable extensions
     config.resolve.extensions.push(".ipynb");
 
     return config;
-  },
+  }
 };
 
 export default withMDX(config);
@@ -95,7 +95,7 @@ import notebookRaw from "./my-notebook.ipynb";
 import {
   NotebookCodeCell,
   NotebookMarkdownCell,
-  NotebookStyles,
+  NotebookStyles
 } from "notebook-mdx";
 
 <NotebookStyles />
@@ -141,15 +141,15 @@ remarkJupyter({
   languageMapping: {
     // Custom language aliases
     py: "python",
-    js: "javascript",
-  },
+    js: "javascript"
+  }
 });
 
 // Rehype plugin options
 rehypeJupyter({
   showCellNumbers: true, // Show execution counts
   syntaxHighlighting: true, // Enable syntax highlighting
-  classPrefix: "jupyter-", // CSS class prefix
+  classPrefix: "jupyter-" // CSS class prefix
 });
 ```
 
@@ -197,7 +197,7 @@ import type {
   NotebookData,
   CellData,
   CellOutput,
-  CellMetadata,
+  CellMetadata
 } from "notebook-mdx";
 ```
 

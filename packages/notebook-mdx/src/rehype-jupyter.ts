@@ -5,7 +5,7 @@ import { visit } from "unist-util-visit";
 import type { JupyterOptions } from "./types.js";
 
 export const rehypeJupyter: Plugin<[JupyterOptions?], Root> = (
-  options = {},
+  options = {}
 ) => {
   return (tree) => {
     visit(tree, "element", (node) => {
@@ -15,7 +15,7 @@ export const rehypeJupyter: Plugin<[JupyterOptions?], Root> = (
         node.tagName = "div";
         node.properties = {
           ...node.properties,
-          className: "notebook-code-cell",
+          className: "notebook-code-cell"
         };
       }
     });
