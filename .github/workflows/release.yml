@@ -1,25 +1,64 @@
+# Create Release Workflow
+# Creates GitHub releases via manual dispatch or tag push - NPM publishing handled by separate workflow
+#
+# IMPORTANT: This workflow requires a Personal Access Token (PAT) to bypass branch protection rules:
+# 1. Create a PAT with 'repo' permissions at: https://github.com/settings/tokens
+# 2. Add it as a repository secret named 'PAT_TOKEN'
+# 3. The token owner must have admin permissions on the repository
+#
+# Without PAT_TOKEN, the workflow will fall back to GITHUB_TOKEN but may fail due to branch protection.
+
 name: Create Release
 
 on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: "Version bump type"
+        required: true
+        default: "patch"
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - prerelease
+      prerelease_tag:
+        description: "Prerelease tag (e.g., beta, alpha, rc)"
+        required: false
+        default: "beta"
+        type: string
+      dry_run:
+        description: "Dry run (test without creating release)"
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
-  create-release:
-    name: Create GitHub Release
+  prepare-release:
+    name: 🎯 Prepare Release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: read
+    if: github.event_name == 'workflow_dispatch'
+    outputs:
+      new_version: ${{ steps.version.outputs.new_version }}
+      current_version: ${{ steps.version.outputs.current_version }}
+      release_notes: ${{ steps.notes.outputs.release_notes }}
 
     steps:
-      - name: Checkout
+      - name: 📥 Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
 
-      - name: Setup pnpm
+      - name: 🏗️ Setup project
         uses: pnpm/action-setup@v4
 
       - name: Setup Node.js
@@ -31,50 +70,224 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
-        run: pnpm build
-
-      - name: Generate changelog
-        id: changelog
+      - name: 🎯 Calculate new version
+        id: version
         run: |
-          # Get the previous tag
-          PREVIOUS_TAG=$(git tag --sort=-version:refname | head -2 | tail -1)
-          CURRENT_TAG=${GITHUB_REF#refs/tags/}
+          CURRENT_VERSION=$(node -p "require('./packages/notebook-mdx/package.json').version")
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
 
-          # Generate changelog
-          echo "## What's Changed" > changelog.md
-          echo "" >> changelog.md
+          # Calculate new version based on type
+          cd packages/notebook-mdx
+          case "${{ github.event.inputs.version_type }}" in
+            "patch")
+              NEW_VERSION=$(npm version patch --no-git-tag-version | cut -d'v' -f2)
+              ;;
+            "minor") 
+              NEW_VERSION=$(npm version minor --no-git-tag-version | cut -d'v' -f2)
+              ;;
+            "major")
+              NEW_VERSION=$(npm version major --no-git-tag-version | cut -d'v' -f2)
+              ;;
+            "prerelease")
+              NEW_VERSION=$(npm version prerelease --preid=${{ github.event.inputs.prerelease_tag }} --no-git-tag-version | cut -d'v' -f2)
+              ;;
+          esac
 
-          # Get commits between tags
-          if [ -n "$PREVIOUS_TAG" ]; then
-            git log --pretty=format:"- %s by @%an in %h" $PREVIOUS_TAG..$CURRENT_TAG --no-merges >> changelog.md
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "📋 Version bump: $CURRENT_VERSION → $NEW_VERSION"
+
+      - name: 📝 Generate release notes
+        id: notes
+        run: |
+          echo "Generating automatic release notes"
+          # Generate release notes from commits since last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -n "$LAST_TAG" ]; then
+            NOTES=$(git log $LAST_TAG..HEAD --pretty=format:"- %s (%h)" --no-merges)
           else
-            git log --pretty=format:"- %s by @%an in %h" $CURRENT_TAG --no-merges >> changelog.md
+            NOTES=$(git log --pretty=format:"- %s (%h)" --no-merges -10)
           fi
 
-          echo "" >> changelog.md
-          echo "**Full Changelog:** https://github.com/${{ github.repository }}/compare/$PREVIOUS_TAG...$CURRENT_TAG" >> changelog.md
-
-          # Set output
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          cat changelog.md >> $GITHUB_OUTPUT
+          echo "release_notes<<EOF" >> $GITHUB_OUTPUT
+          echo "## What's Changed" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Create GitHub Release
-        uses: ncipollo/release-action@v1
-        with:
-          name: Release ${{ github.ref_name }}
-          tag: ${{ github.ref_name }}
-          body: ${{ steps.changelog.outputs.changelog }}
-          draft: false
-          prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') || contains(github.ref_name, 'rc') }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+  test-and-build:
+    name: 🧪 Test & Validate
+    runs-on: ubuntu-latest
+    needs: [prepare-release]
+    if: always() && (needs.prepare-release.result == 'success' || github.event_name == 'push')
 
-      - name: Upload package artifacts
-        uses: actions/upload-artifact@v4
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
         with:
-          name: package-${{ github.ref_name }}
-          path: |
-            packages/notebook-mdx/dist/
-            packages/notebook-mdx/package.json
-            packages/notebook-mdx/README.md
+          fetch-depth: 0
+
+      - name: 🏗️ Setup project
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🧪 Run tests
+        run: pnpm test
+
+      - name: 🔍 Type check
+        run: pnpm typecheck
+
+      - name: 🎨 Lint
+        run: pnpm lint
+
+      - name: 🏗️ Build validation
+        run: pnpm build
+
+      - name: ✅ Validation complete
+        run: |
+          echo "✅ All validation checks passed"
+          echo "🚀 Ready to create release - package will be published by publish workflow"
+
+  create-github-release:
+    name: 🚀 Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [prepare-release, test-and-build]
+    if: |
+      always() && 
+      needs.test-and-build.result == 'success' && 
+      ((github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'false') || github.event_name == 'push')
+    permissions:
+      contents: write
+      id-token: write
+      pull-requests: read
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+        with:
+          # Use PAT to bypass branch protection rules
+          token: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🏗️ Setup project
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🔄 Update package version (manual dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          NEW_VERSION="${{ needs.prepare-release.outputs.new_version }}"
+
+          cd packages/notebook-mdx
+          npm version $NEW_VERSION --no-git-tag-version
+
+      - name: 🏷️ Create git tag and commit (manual dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          NEW_VERSION="${{ needs.prepare-release.outputs.new_version }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add packages/notebook-mdx/package.json
+          git commit -m "chore(release): bump version to $NEW_VERSION"
+          git tag "v$NEW_VERSION"
+
+          # Push changes and tag
+          git push origin main
+          git push origin "v$NEW_VERSION"
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: 📝 Generate enhanced changelog
+        id: changelog
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            CURRENT_TAG="v${{ needs.prepare-release.outputs.new_version }}"
+            CHANGELOG="${{ needs.prepare-release.outputs.release_notes }}"
+          else
+            # For tag push, extract from git
+            PREVIOUS_TAG=$(git tag --sort=-version:refname | head -2 | tail -1)
+            CURRENT_TAG=${GITHUB_REF#refs/tags/}
+
+            echo "## What's Changed" > changelog.md
+            echo "" >> changelog.md
+
+            if [ -n "$PREVIOUS_TAG" ]; then
+              git log --pretty=format:"- %s by @%an in %h" $PREVIOUS_TAG..$CURRENT_TAG --no-merges >> changelog.md
+              echo "" >> changelog.md
+              echo "**Full Changelog:** https://github.com/${{ github.repository }}/compare/$PREVIOUS_TAG...$CURRENT_TAG" >> changelog.md
+            else
+              git log --pretty=format:"- %s by @%an in %h" $CURRENT_TAG --no-merges >> changelog.md
+            fi
+
+            CHANGELOG=$(cat changelog.md)
+          fi
+
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: 🚀 Create GitHub Release
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG_NAME="v${{ needs.prepare-release.outputs.new_version }}"
+            VERSION="${{ needs.prepare-release.outputs.new_version }}"
+          else
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+            VERSION="${TAG_NAME#v}"
+          fi
+
+          # Determine if prerelease
+          PRERELEASE_FLAG=""
+          if [[ "$VERSION" =~ -[a-zA-Z] ]]; then
+            PRERELEASE_FLAG="--prerelease"
+          fi
+
+          # Create GitHub release (this will trigger the publish workflow)
+          gh release create "$TAG_NAME" \
+            --title "Release $TAG_NAME" \
+            --notes "${{ steps.changelog.outputs.changelog }}" \
+            $PRERELEASE_FLAG
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
+
+  dry-run-summary:
+    name: 🔍 Dry Run Summary
+    runs-on: ubuntu-latest
+    needs: [prepare-release, test-and-build]
+    if: always() && github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' && needs.test-and-build.result == 'success'
+
+    steps:
+      - name: 📋 Dry run summary
+        run: |
+          echo "🔍 **Dry Run Complete**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version Change**: ${{ needs.prepare-release.outputs.current_version }} → ${{ needs.prepare-release.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Type**: ${{ github.event.inputs.version_type }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Would publish**:" >> $GITHUB_STEP_SUMMARY
+          echo "- notebook-mdx@${{ needs.prepare-release.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Auto-Generated Release Notes Preview**:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "${{ needs.prepare-release.outputs.release_notes }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Tests passed" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Build succeeded" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Ready for real release" >> $GITHUB_STEP_SUMMARY
