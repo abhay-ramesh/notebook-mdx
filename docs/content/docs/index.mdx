@@ -32,39 +32,44 @@ Add the remark plugin to your MDX configuration:
 
 ```typescript title="next.config.js"
 import remarkDirective from 'remark-directive';
-import { remarkNotebookDirective } from 'notebook-mdx';
+import { remarkNotebookDirective } from 'notebook-mdx'; /* [!code highlight] */
 
-const withMDX = require('@next/mdx')({
-  extension: /\.mdx?$/,
-  options: {
-    remarkPlugins: [
-      remarkDirective,
-      remarkNotebookDirective,
-    ],
-  },
-});
-
-module.exports = withMDX({
-  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'mdx'],
-});
+// ...
+  remarkPlugins: [
+    remarkDirective, /* [!code highlight] */
+    remarkNotebookDirective, /* [!code highlight] */
+  ],
+// ...
 ```
 
-### 2. Use in Your MDX Files
+### 2. Import the components
+
+```typescript title="mdx-components.tsx" 
+import defaultMdxComponents from 'fumadocs-ui/mdx';
+import type { MDXComponents } from 'mdx/types';
+import { notebookComponents } from 'notebook-mdx'; /* [!code highlight] */
+
+export function getMDXComponents(components?: MDXComponents): MDXComponents {
+  return {
+    ...defaultMdxComponents,
+    ...components
+    ...notebookComponents, /* [!code highlight] */
+  } as MDXComponents;
+}
+```
+
+### 3. Use in Your MDX Files
 
 That's it! Now you can use notebook directives directly:
 
 ```mdx title="my-page.mdx"
 # My Article
 
-:::notebook{file="./example.ipynb" cells="1-5" showCellNumbers}
-This notebook shows data analysis results
-:::
+::notebook{file="./example.ipynb"} 
 
 More content here...
 
-:::notebook{file="./demo.ipynb" hideCode showOutputs}
-Another notebook with different options
-:::
+::notebook{file="./demo.ipynb"}
 ```
 
 ## 🎨 Directive Options

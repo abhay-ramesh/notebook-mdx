@@ -542,6 +542,8 @@ interface NotebookCodeCellProps {
   showLineNumbers?: boolean;
   language?: string;
   showCopyButton?: boolean;
+  showOutputs?: boolean;
+  showLanguageIndicators?: boolean;
 }
 
 // Helper function to render different types of output data
@@ -779,7 +781,9 @@ export const NotebookCodeCell: React.FC<NotebookCodeCellProps> = ({
   executionCount,
   showLineNumbers = false,
   language,
-  showCopyButton = true
+  showCopyButton = true,
+  showOutputs = true,
+  showLanguageIndicators = false
 }) => {
   const sourceString = Array.isArray(source) ? source.join("") : source;
   const normalizedLanguage = normalizeLanguage(language);
@@ -816,7 +820,7 @@ export const NotebookCodeCell: React.FC<NotebookCodeCellProps> = ({
                 />
               </pre>
               {showCopyButton && <CopyButton code={sourceString} />}
-              {language && (
+              {language && showLanguageIndicators && (
                 <div className="jp-language-indicator">{language}</div>
               )}
             </div>
@@ -824,7 +828,7 @@ export const NotebookCodeCell: React.FC<NotebookCodeCellProps> = ({
         </div>
 
         {/* Output area */}
-        {outputs.length > 0 && (
+        {outputs.length > 0 && showOutputs && (
           <div className="jp-cell-outputs">
             {outputs.map((output, index) => (
               <NotebookOutputComponent
@@ -902,7 +906,60 @@ interface NotebookLoaderProps {
   notebookData?: NotebookData | string; // Allow both object and JSON string
   notebookDataJson?: string; // New prop for directive-based usage
   showCopyButton?: boolean;
+  // New props for missing functionality
+  cells?: string;
+  hideCode?: boolean;
+  showOutputs?: boolean;
+  showLanguageIndicators?: boolean;
 }
+
+// Utility function to parse cell selection strings like "1, 2, 3", "1-5", "1,3,5", "1-3,7,9-12"
+const parseCellSelection = (cellsStr: string, totalCells: number): number[] => {
+  if (!cellsStr || !cellsStr.trim()) {
+    return Array.from({ length: totalCells }, (_, i) => i);
+  }
+
+  const selectedIndices: number[] = [];
+  const parts = cellsStr.split(",").map((part) => part.trim());
+
+  for (const part of parts) {
+    if (part.includes("-")) {
+      // Handle ranges like "1-5" or "7-9"
+      const splitParts = part.split("-").map((s) => s.trim());
+      if (splitParts.length !== 2) continue; // Skip invalid ranges
+      const [startStr, endStr] = splitParts;
+      const start = parseInt(startStr!, 10) - 1; // Convert to 0-indexed
+      const end = parseInt(endStr!, 10) - 1; // Convert to 0-indexed
+
+      if (
+        !isNaN(start) &&
+        !isNaN(end) &&
+        start >= 0 &&
+        end >= 0 &&
+        start <= end
+      ) {
+        for (let i = start; i <= Math.min(end, totalCells - 1); i++) {
+          if (!selectedIndices.includes(i)) {
+            selectedIndices.push(i);
+          }
+        }
+      }
+    } else {
+      // Handle single numbers like "3" or "7"
+      const index = parseInt(part, 10) - 1; // Convert to 0-indexed
+      if (
+        !isNaN(index) &&
+        index >= 0 &&
+        index < totalCells &&
+        !selectedIndices.includes(index)
+      ) {
+        selectedIndices.push(index);
+      }
+    }
+  }
+
+  return selectedIndices.sort((a, b) => a - b);
+};
 
 // Function to detect cell-level language - moved outside component for better performance
 const detectCellLanguage = (
@@ -948,6 +1005,10 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
   notebookData,
   notebookDataJson,
   showCopyButton = true,
+  cells, // New prop for cell selection
+  hideCode, // New prop for hiding code cells
+  showOutputs, // New prop for showing output cells
+  showLanguageIndicators, // New prop for showing language indicators
   ...otherProps // Capture any other props that might be passed
 }) => {
   // Parse notebook data synchronously during render to avoid hydration mismatch
@@ -1025,14 +1086,26 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
     );
   }, [notebook?.metadata]);
 
+  // Determine which cells to render based on cells prop
+  const selectedCellIndices = React.useMemo(() => {
+    if (!cells || !notebook?.cells) {
+      return Array.from({ length: notebook?.cells?.length || 0 }, (_, i) => i);
+    }
+    // TypeScript now knows cells and notebook.cells are defined
+    return parseCellSelection(cells as string, notebook.cells.length);
+  }, [cells, notebook?.cells?.length]);
+
   return (
     <>
       <NotebookStyles />
       <div className="jp-notebook">
-        {notebook.cells.map((cell: any, index: number) => {
+        {selectedCellIndices.map((index) => {
+          const cell = notebook?.cells?.[index];
+          if (!cell) return null;
+
           if (cell.cell_type === "markdown") {
             return <NotebookMarkdownCell key={index} source={cell.source} />;
-          } else if (cell.cell_type === "code") {
+          } else if (cell.cell_type === "code" && !hideCode) {
             const cellLanguage = detectCellLanguage(cell, kernelLanguage);
             return (
               <NotebookCodeCell
@@ -1043,9 +1116,11 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
                 showLineNumbers={showCellNumbers}
                 language={cellLanguage}
                 showCopyButton={showCopyButton}
+                showOutputs={showOutputs}
+                showLanguageIndicators={showLanguageIndicators}
               />
             );
-          } else if (cell.cell_type === "raw") {
+          } else if (cell.cell_type === "raw" && !hideCode) {
             const cellLanguage = detectCellLanguage(cell, kernelLanguage);
             return (
               <NotebookCodeCell
@@ -1056,6 +1131,8 @@ export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
                 showLineNumbers={showCellNumbers}
                 language={cellLanguage}
                 showCopyButton={showCopyButton}
+                showOutputs={showOutputs}
+                showLanguageIndicators={showLanguageIndicators}
               />
             );
           }
