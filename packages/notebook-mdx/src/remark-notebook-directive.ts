@@ -60,10 +60,24 @@ export const remarkNotebookDirective: Plugin<
       try {
         const baseDir =
           options.baseDir || (file.path ? dirname(file.path) : process.cwd());
-        const notebookContent = readFileSync(
-          resolve(baseDir, notebookPath),
-          "utf-8"
-        );
+        const resolvedNotebookPath = resolve(baseDir, notebookPath);
+
+        // 🔥 Add VFile dependency tracking for hot reloading
+        // This tells the build system that this file depends on the notebook file
+        const fileData = file.data as any;
+        if (!fileData.dependencies) {
+          fileData.dependencies = [];
+        }
+        if (!fileData.dependencies.includes(resolvedNotebookPath)) {
+          fileData.dependencies.push(resolvedNotebookPath);
+        }
+
+        // Also add to history for additional tracking support
+        if (!file.history.includes(resolvedNotebookPath)) {
+          file.history.push(resolvedNotebookPath);
+        }
+
+        const notebookContent = readFileSync(resolvedNotebookPath, "utf-8");
         const notebookData = JSON.parse(notebookContent);
 
         const { file: _file, ...attributes } = node.attributes || {};
