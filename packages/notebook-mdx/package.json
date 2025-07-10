@@ -56,7 +56,7 @@
     "code-cells",
     "syntax-highlighting"
   ],
-  "homepage": "https://github.com/abhay-ramesh/notebook-mdx#readme",
+  "homepage": "https://notebook-mdx.vercel.app",
   "repository": {
     "type": "git",
     "url": "https://github.com/abhay-ramesh/notebook-mdx.git",
