@@ -67,11 +67,6 @@ Optional caption or description
 | `showOutputs` | `boolean` | `true` | Show cell outputs |
 | `showCellNumbers` | `boolean` | `false` | Show cell numbers (In[n]/Out[n]) |
 | `showLanguageIndicators` | `boolean` | `false` | Show language indicators |
-| `interactive` | `boolean` | `false` | Enable interactive execution |
-| `theme` | `string` | `undefined` | Theme for syntax highlighting |
-| `className` | `string` | `undefined` | CSS class name |
-| `width` | `string` | `undefined` | Container width |
-| `height` | `string` | `undefined` | Container height |
 
 ### Cell Selection
 
@@ -303,24 +298,19 @@ Advanced results only
 :::
 ```
 
-### Themed Notebooks
+### Display Options
 
 ```mdx
-<!-- Light theme -->
-:::notebook{file="./demo.ipynb" theme="light" className="light-notebook"}
+<!-- Show cell numbers -->
+:::notebook{file="./demo.ipynb" showCellNumbers}
 :::
 
-<!-- Dark theme -->
-:::notebook{file="./demo.ipynb" theme="dark" className="dark-notebook"}
+<!-- Hide code, show outputs only -->
+:::notebook{file="./results.ipynb" hideCode}
 :::
-```
 
-### Interactive Notebooks
-
-```mdx
-<!-- Enable interactive features -->
-:::notebook{file="./interactive.ipynb" interactive showCellNumbers}
-Try running the cells yourself!
+<!-- Show language indicators -->
+:::notebook{file="./multi-lang.ipynb" showLanguageIndicators}
 :::
 ```
 

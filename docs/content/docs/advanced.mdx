@@ -92,26 +92,7 @@ Multi-language notebook
 :::
 ```
 
-### Styling and Layout
 
-Customize appearance and layout:
-
-```mdx
-<!-- Custom CSS class -->
-:::notebook{file="./styled.ipynb" className="custom-notebook"}
-Custom styled notebook
-:::
-
-<!-- Fixed dimensions -->
-:::notebook{file="./dashboard.ipynb" width="100%" height="600px"}
-Fixed size notebook
-:::
-
-<!-- Dark theme -->
-:::notebook{file="./dark-demo.ipynb" theme="dark"}
-Dark themed notebook
-:::
-```
 
 ## 🔧 Plugin Configuration
 
@@ -240,15 +221,11 @@ You can customize the styling using CSS custom properties:
 
 #### Custom Theme Classes
 
-```mdx
-<!-- Apply custom theme -->
-:::notebook{file="./demo.ipynb" className="theme-purple"}
-Purple themed notebook
-:::
-```
+You can create custom themes by targeting the notebook containers with CSS:
 
 ```css
-.theme-purple .notebook-container {
+/* Custom purple theme */
+.my-page .notebook-container {
   --notebook-background: #f8f4ff;
   --notebook-border-color: #8b5cf6;
   --cell-background: #faf5ff;
@@ -257,17 +234,14 @@ Purple themed notebook
 }
 ```
 
-## 🚀 Interactive Features
-
-### Interactive Mode
-
-Enable interactive features (coming soon):
-
 ```mdx
-:::notebook{file="./interactive.ipynb" interactive}
-Try running the cells yourself!
+<!-- Notebook will inherit the theme from the page -->
+:::notebook{file="./demo.ipynb"}
+Purple themed notebook
 :::
 ```
+
+## 🚀 Interactive Features
 
 ### Dynamic Loading
 
@@ -347,15 +321,15 @@ View the analysis results
 :::
 ```
 
-### 4. Consistent Styling
+### 4. Consistent Display Options
 
 ```mdx
-<!-- Use consistent classes -->
-:::notebook{file="./demo1.ipynb" className="tutorial-notebook"}
+<!-- Use consistent display options -->
+:::notebook{file="./demo1.ipynb" showCellNumbers}
 First tutorial
 :::
 
-:::notebook{file="./demo2.ipynb" className="tutorial-notebook"}
+:::notebook{file="./demo2.ipynb" showCellNumbers}
 Second tutorial
 :::
 ```
