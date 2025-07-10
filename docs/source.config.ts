@@ -23,7 +23,7 @@ export default defineConfig({
     // MDX options
     remarkPlugins: [
       remarkDirective, // Must come first
-      [remarkNotebookDirective, { componentName: "NotebookLoader" }]
+      [remarkNotebookDirective]
     ]
   }
 });
