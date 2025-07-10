@@ -1,0 +1,319 @@
+---
+title: Roadmap
+description: Development roadmap and future plans for notebook-mdx
+---
+
+# Roadmap
+
+This roadmap outlines the development plans for notebook-mdx, from pre-launch development to future enhancements.
+
+## Current State - Q3 2025 (Pre-Launch Development)
+
+### In Development - Preparing for v1.0 Launch
+
+**Core Architecture**
+- [x] **Remark Plugin System** - Clean directive-based syntax
+- [x] **Authentic Jupyter Styling** - Matches VSCode/Jupyter Lab appearance
+- [x] **Performance Optimized** - useMemo for highlighting, zero hydration issues
+- [x] **TypeScript Ready** - Full type safety and IntelliSense support
+
+**Framework Support**
+- [x] **React Ecosystem** - Next.js, Gatsby, Docusaurus, Nextra, Fumadocs, Remix
+- [x] **Build-time Processing** - Notebooks parsed at build time for optimal performance
+- [x] **Component Integration** - Seamless integration with MDX component systems
+
+### Framework Compatibility
+
+**✅ Frameworks That Work**
+- [x] **React-based**: Nextra, Docusaurus, Fumadocs, Next.js, Gatsby, Remix, Astro (with React)
+- [x] **Hybrid with React**: Storybook, component documentation tools
+
+**❌ Frameworks That DON'T Work (Planned for Future)**
+- [ ] **Vue-based**: VitePress, VuePress, Nuxt Content
+- [ ] **Traditional**: Hugo, Jekyll, MkDocs, mdBook  
+- [ ] **Pure Astro**: Without React integration
+- [ ] **Other ecosystems**: Svelte, Angular, etc.
+
+> **Note**: Current implementation is React-specific due to JSX components and React hooks. Framework expansion is planned for future releases.
+
+**Cell Features**
+- [x] **All Cell Types** - Code, markdown, and raw cells
+- [x] **Multi-language Support** - Cell-level language detection
+- [x] **Rich Outputs** - PNG, JPEG, GIF, SVG, HTML, JSON support
+- [x] **Execution Counts** - Proper In/Out prompts
+- [x] **Syntax Highlighting** - highlight.js (hljs) integration with instant rendering
+
+**Developer Experience**
+- [x] **Simple API** - Single plugin, zero configuration
+- [x] **Helpful Errors** - Clear error messages and debugging
+- [x] **Comprehensive Docs** - Complete documentation and examples
+- [x] **Developer Tools** - TypeScript support, IntelliSense
+
+### Pre-Launch Checklist
+
+**Release Preparation**
+- [ ] **Final Testing** - Comprehensive testing across all supported frameworks
+- [ ] **Documentation Review** - Final review of all documentation and examples
+- [ ] **Performance Audit** - Bundle size optimization and performance testing
+- [ ] **License & Legal** - Finalize license, contributing guidelines, security policy
+
+**Package Preparation**
+- [ ] **NPM Package** - Prepare for initial npm publication
+- [ ] **GitHub Release** - Set up repository for public launch
+- [ ] **CI/CD Pipeline** - Automated testing and deployment setup
+- [ ] **Version Tagging** - Semantic versioning strategy
+
+## Launch Goals - Q4 2025
+
+### v1.0 Initial Public Release
+
+**Core Launch Features**
+- [ ] **Public NPM Release** - First public version on npm registry
+- [ ] **Documentation Site** - Live documentation with examples
+- [ ] **GitHub Repository** - Public repository with issues and discussions
+- [ ] **Community Setup** - Discord, contributing guidelines, issue templates
+
+**Launch Targets**
+- [ ] **Framework Support** - 6+ documented framework integrations
+- [ ] **Bundle Size** - Under 50KB gzipped
+- [ ] **Performance** - Sub-100ms render time for typical notebooks
+- [ ] **Documentation** - Complete API docs and getting started guide
+
+### Post-Launch (Q1 2026)
+
+**Enhanced Display Options**
+- [ ] **Theme System** - Built-in light/dark themes with CSS custom properties
+- [ ] **Mobile Optimization** - Improved responsive design for mobile devices
+- [ ] **Cell Filtering** - Advanced cell selection (by tags, metadata, execution status)
+- [ ] **Output Formatting** - Better table rendering, improved error displays
+
+**Performance Improvements**
+- [ ] **Lazy Loading** - Optional lazy loading for large notebooks
+- [ ] **Bundle Optimization** - Tree-shaking improvements, smaller bundle size
+- [ ] **Caching System** - Intelligent caching for repeated notebook renders
+
+**Developer Experience**
+- [ ] **CLI Tools** - Command-line utilities for notebook validation and conversion
+- [ ] **Debug Mode** - Enhanced debugging with detailed logging
+- [ ] **Migration Guide** - Easy migration from other notebook embedding solutions
+
+## Short-term Goals - Q2 2026
+
+### Content Enhancement
+
+**Advanced Features**
+- [ ] **Image Optimization** - Automatic image compression and format conversion
+- [ ] **Copy-to-Clipboard** - Copy code cells with proper formatting
+- [ ] **Cross-references** - Link between notebook cells and documentation
+- [ ] **Metadata Display** - Show notebook metadata (author, created date, etc.)
+
+**Accessibility**
+- [ ] **Screen Reader Support** - Proper ARIA labels and semantic HTML
+- [ ] **Keyboard Navigation** - Full keyboard accessibility
+- [ ] **High Contrast Mode** - Improved contrast for accessibility
+
+**Framework Expansion**
+- [ ] **Vue Components** - Native Vue.js component versions (address current Vue limitation)
+- [ ] **VitePress Integration** - First-class VitePress support
+- [ ] **Nuxt Content** - Nuxt.js content module integration
+- [ ] **Svelte Support** - Expand beyond React ecosystem
+- [ ] **Angular Integration** - Support for Angular documentation frameworks
+
+## Medium-term Goals - Q3-Q4 2026
+
+### Interactive Features
+
+**Live Execution**
+- [ ] **WebAssembly Runtime** - In-browser Python execution with Pyodide
+- [ ] **Interactive Widgets** - Support for Jupyter widgets and interactive elements
+- [ ] **State Management** - Persistent cell state across page reloads
+
+**Universal Framework Support**
+- [ ] **HTML Renderer** - Framework-agnostic HTML output (solve traditional generator limitations)
+- [ ] **Multi-target Plugin** - Single plugin supporting React, Vue, Svelte, Angular
+- [ ] **Astro Integration** - Enhanced Astro support with multi-framework components
+- [ ] **Framework Detection** - Automatic framework detection and appropriate rendering
+
+**Enhanced Language Support**
+- [ ] **Custom Syntax Highlighting** - Plugin system for custom languages
+- [ ] **Language-specific Features** - Python docstring parsing, SQL formatting
+- [ ] **Multi-kernel Support** - Support for multiple kernels in one notebook
+
+**Plugin Ecosystem for Syntax Highlighting**
+- [x] **highlight.js (hljs)** - Current default highlighter (already integrated)
+- [ ] **Shiki Integration** - Support for Shiki syntax highlighter
+- [ ] **Prism.js Support** - Integration with Prism.js highlighter
+- [ ] **Custom Highlighter API** - Allow users to write their own highlighters
+- [ ] **Highlighter Plugins** - Plugin architecture for syntax highlighting
+- [ ] **Dynamic Highlighter Loading** - Runtime highlighter switching
+- [ ] **Theme Compatibility** - Ensure themes work across different highlighters
+
+### Collaboration Features
+
+**Social Features**
+- [ ] **Comments System** - Add comments to specific cells or outputs
+- [ ] **Annotations** - Highlight and annotate code sections
+- [ ] **Shareable Links** - Direct links to specific cells or outputs
+
+**Rich Media Support**
+- [ ] **Audio/Video** - Embed audio and video outputs
+- [ ] **Interactive Maps** - Support for mapping libraries (Folium, Plotly)
+- [ ] **3D Visualizations** - Support for 3D plots and visualizations
+
+## Long-term Goals - 2027+
+
+### Platform Expansion
+
+**Static Site Generators**
+- [ ] **Rust Ecosystem** - mdBook plugin for Rust documentation
+- [ ] **Ruby Ecosystem** - Jekyll plugin for Ruby communities
+- [ ] **Go Ecosystem** - Hugo shortcode for Go documentation
+
+**Headless CMS Integration**
+- [ ] **Notion Integration** - Direct Notion database to notebook rendering
+- [ ] **Strapi Plugin** - First-class Strapi CMS support
+- [ ] **Sanity Integration** - Sanity CMS with notebook content types
+
+### Enterprise Features
+
+**Performance & Scale**
+- [ ] **CDN Integration** - Notebook content delivery optimization
+- [ ] **Analytics** - Track notebook engagement and usage
+- [ ] **Security** - Sandboxed execution environments
+
+**Collaboration & Workflow**
+- [ ] **Team Features** - Shared notebooks with access control
+- [ ] **Version Control** - Git integration with notebook diffing
+- [ ] **Review System** - Peer review for notebook content
+
+### Plugin Architecture & Extensibility
+
+**Core Plugin System**
+- [ ] **Plugin Registry** - Central registry for community plugins
+- [ ] **Plugin API** - Standardized API for plugin development
+- [ ] **Plugin Manager** - Runtime plugin loading and management
+- [ ] **Plugin Templates** - Starter templates for plugin developers
+
+**Syntax Highlighter Plugins**
+- [ ] **Highlighter Plugin SDK** - Development kit for highlighter plugins
+- [ ] **Popular Highlighter Support** - Pre-built plugins for major highlighters
+- [ ] **Custom Language Support** - Easy addition of new programming languages
+- [ ] **Highlighter Performance** - Optimized rendering for different highlighters
+
+**Extensible Components**
+- [ ] **Custom Cell Renderers** - Plugin system for custom cell types
+- [ ] **Output Formatters** - Pluggable output rendering system
+- [ ] **Theme Plugins** - Community-contributed themes and styling
+- [ ] **Widget System** - Support for interactive widgets via plugins
+
+### Advanced Integrations
+
+**AI & ML Enhancements**
+- [ ] **AI Assistance** - AI-powered code suggestions and explanations
+- [ ] **Automatic Documentation** - Generate explanations for complex code
+- [ ] **Smart Search** - Semantic search across notebook content
+
+**Developer Tools**
+- [ ] **VS Code Extension** - Enhanced notebook editing experience
+- [ ] **Browser Extension** - Render notebooks on GitHub, GitLab, etc.
+- [ ] **API Ecosystem** - RESTful API for notebook management
+
+## Success Metrics
+
+### Launch Metrics (Q4 2025 Targets)
+- [ ] **Initial Downloads**: 1K+ monthly npm downloads
+- [ ] **GitHub Stars**: 100+ stars within first month
+- [ ] **Framework Support**: 6+ supported frameworks
+- [ ] **Community**: 5+ contributors
+
+### Year 1 Targets (2026)
+- [ ] **Downloads**: 10K+ monthly npm downloads
+- [ ] **GitHub Stars**: 500+ stars
+- [ ] **Framework Support**: 12+ supported frameworks
+- [ ] **Contributors**: 15+ regular contributors
+
+### Quality Metrics
+- [ ] **Performance**: Less than 100ms render time for typical notebooks
+- [ ] **Bundle Size**: Less than 50KB gzipped core bundle
+- [ ] **Accessibility**: WCAG 2.1 AA compliance
+- [ ] **Documentation**: 90%+ user satisfaction
+
+### Long-term Targets (2027+)
+- [ ] **Downloads**: 50K+ monthly npm downloads
+- [ ] **GitHub Stars**: 2K+ stars
+- [ ] **Framework Support**: 20+ supported frameworks
+- [ ] **Contributors**: 50+ regular contributors
+
+## Contributing
+
+We welcome contributions as we prepare for launch! Here's how you can help:
+
+### Pre-Launch Priorities
+- [ ] **Testing** - Help test across different frameworks and use cases
+- [ ] **Documentation** - Review and improve documentation
+- [ ] **Performance** - Help optimize bundle size and rendering speed
+- [ ] **Examples** - Create example integrations and demos
+
+### How to Contribute
+- 🐛 **Bug Reports** - Report issues during development
+- 💡 **Feature Requests** - Suggest new features and improvements
+- 🔧 **Code Contributions** - Submit pull requests with improvements
+- 📝 **Documentation** - Help improve docs and examples
+
+### Development Setup
+```bash
+# Clone the repository
+git clone https://github.com/your-org/notebook-mdx.git
+
+# Install dependencies
+pnpm install
+
+# Start development
+pnpm dev
+
+# Run tests
+pnpm test
+
+# Build for production
+pnpm build
+```
+
+## Get Involved
+
+**Pre-Launch Community**
+- 📧 **Early Access** - Join our early adopter program
+- 🐦 **Updates** - Follow development progress
+- 💬 **Feedback** - Help shape the final release
+
+**Post-Launch Community**
+- 💖 **GitHub Sponsors** - Support ongoing development
+- 🏢 **Corporate Sponsorship** - Partner with us for enterprise features
+- 📱 **Discord** - Join our community chat (launching with v1.0)
+
+## Development Timeline
+
+### Q3 2025 (Current)
+- [x] Core functionality complete
+- [x] React ecosystem support
+- [x] Documentation framework
+- [ ] Final testing and optimization (In Progress)
+
+### Q4 2025 (Launch Quarter)
+- [ ] Public repository launch
+- [ ] v1.0 npm release
+- [ ] Documentation site live
+- [ ] Community setup
+
+### Q1 2026
+- [ ] Enhanced features rollout
+- [ ] Framework expansion
+- [ ] Performance optimizations
+
+---
+
+*This roadmap is a living document and will be updated regularly based on community feedback and project evolution.*
+
+**Project Status**: Pre-Launch Development  
+**Expected Launch**: Q4 2025  
+**Last Updated**: July 10, 2025  
+**Next Review**: October 2025 
