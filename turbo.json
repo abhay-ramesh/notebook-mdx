@@ -26,6 +26,18 @@
         "^typecheck"
       ]
     },
+    "test": {
+      "dependsOn": [
+        "^test"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "**/*.test.{js,ts,tsx}",
+        "**/*.spec.{js,ts,tsx}",
+        "vitest.config.*",
+        "src/test/**"
+      ]
+    },
     "dev": {
       "cache": false,
       "persistent": true
