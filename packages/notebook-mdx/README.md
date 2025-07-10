@@ -71,11 +71,6 @@ Another notebook with different options
 | `showOutputs` | `boolean` | `true` | Show cell outputs |
 | `showCellNumbers` | `boolean` | `false` | Show cell numbers |
 | `showLanguageIndicators` | `boolean` | `false` | Show language indicators |
-| `interactive` | `boolean` | `false` | Enable interactive execution |
-| `theme` | `string` | `undefined` | Theme for syntax highlighting |
-| `className` | `string` | `undefined` | CSS class name |
-| `width` | `string` | `undefined` | Container width |
-| `height` | `string` | `undefined` | Container height |
 
 ## Usage Examples
 
