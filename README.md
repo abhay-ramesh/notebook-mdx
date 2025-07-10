@@ -35,40 +35,65 @@
 ### Installation
 
 ```bash
-npm install notebook-mdx
+npm install notebook-mdx remark-directive
 # or
-yarn add notebook-mdx
+yarn add notebook-mdx remark-directive
 # or
-pnpm add notebook-mdx
+pnpm add notebook-mdx remark-directive
+```
+
+### Setup
+
+Configure the remark plugin in your MDX setup:
+
+```javascript
+// next.config.js
+import remarkDirective from 'remark-directive';
+import { remarkNotebookDirective } from 'notebook-mdx';
+
+const withMDX = require('@next/mdx')({
+  extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: [
+      remarkDirective,
+      remarkNotebookDirective,
+    ],
+  },
+});
+
+module.exports = withMDX({
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'mdx'],
+});
 ```
 
 ### Basic Usage
+
+Use the notebook directive in your MDX files:
+
+```mdx
+# My Data Analysis
+
+:::notebook{file="./my-notebook.ipynb"}
+This notebook shows our analysis results
+:::
+
+More content here...
+
+:::notebook{file="./demo.ipynb" cells="1-5" showCellNumbers}
+Selected cells from another notebook
+:::
+```
+
+### Alternative: Direct Component Usage
+
+For more control, you can also use components directly:
 
 ```mdx
 import { NotebookLoader, NotebookStyles } from "notebook-mdx";
 import notebook from "./my-notebook.ipynb";
 
-# My Data Analysis
-
 <NotebookStyles />
 <NotebookLoader notebookData={JSON.parse(notebook)} />
-```
-
-### Next.js Setup
-
-Add to your `next.config.js`:
-
-```javascript
-module.exports = {
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.ipynb$/,
-      type: "json",
-      use: "raw-loader"
-    });
-    return config;
-  }
-};
 ```
 
 ## 📖 Documentation
@@ -139,9 +164,6 @@ _Authentic Jupyter styling with In/Out prompts_
 
 ```mdx
 // app/blog/my-analysis/page.mdx
-import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
-import notebook from './analysis.ipynb';
-
 export const metadata = {
   title: "My Data Analysis",
   description: "Deep dive into user behavior data"
@@ -149,8 +171,13 @@ export const metadata = {
 
 # My Data Analysis
 
-<NotebookStyles />
-<NotebookLoader notebookData={JSON.parse(notebook)} />
+:::notebook{file="./analysis.ipynb" showCellNumbers}
+This notebook shows our user behavior analysis
+:::
+
+:::notebook{file="./additional-analysis.ipynb" cells="1-3" hideCode}
+Key findings from our research
+:::
 ```
 
 </details>
@@ -163,13 +190,15 @@ export const metadata = {
 title: Machine Learning Tutorial
 ---
 
-import { NotebookLoader, NotebookStyles } from "notebook-mdx";
-import notebook from "./tutorial.ipynb";
-
 # Machine Learning Tutorial
 
-<NotebookStyles />
-<NotebookLoader notebookData={JSON.parse(notebook)} />
+:::notebook{file="./tutorial.ipynb" showCellNumbers showOutputs}
+Complete machine learning workflow
+:::
+
+:::notebook{file="./exercises.ipynb" cells="1,3,5"}
+Practice exercises
+:::
 ```
 
 </details>
@@ -183,11 +212,15 @@ title: API Documentation
 description: Complete guide to our data API
 ---
 
-import { NotebookLoader, NotebookStyles } from "notebook-mdx";
-import examples from "./api-examples.ipynb";
+# API Documentation
 
-<NotebookStyles />
-<NotebookLoader notebookData={JSON.parse(examples)} />
+:::notebook{file="./api-examples.ipynb" hideCode showOutputs}
+Live API examples and responses
+:::
+
+:::notebook{file="./advanced-usage.ipynb" cells="1-5"}
+Advanced usage patterns
+:::
 ```
 
 </details>
