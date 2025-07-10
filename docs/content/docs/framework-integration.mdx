@@ -75,6 +75,42 @@ This notebook demonstrates data analysis techniques.
 }]
 ```
 
+### Development Experience
+
+notebook-mdx strives to provide a good development experience with several key benefits:
+
+#### 🔄 Development Workflow
+**Current state**: Changes to `.ipynb` files don't automatically trigger hot module reload. Here's the current workflow:
+
+1. **Edit your notebook** in Jupyter/VSCode
+2. **Trigger refresh** by either:
+   - **Resave the MDX file** that contains the notebook directive
+   - **Make a small edit** to the MDX file and save
+   - **Restart the dev server** if the above doesn't work
+
+#### 🚧 Hot Module Reload (Coming Soon)
+**Full HMR support for notebooks is a priority on our roadmap!** Soon you'll be able to:
+
+- Edit notebooks in Jupyter/VSCode → See changes immediately in your docs
+- Modify notebook cells → Updates appear instantly  
+- No workarounds needed → True hot reload experience
+
+#### ⚡ Fast Rendering
+- **Build-time processing** - Notebooks are parsed during build for optimal runtime performance
+- **Optimized re-renders** - Only changed cells update, not the entire notebook
+- **Zero hydration issues** - Components render consistently between server and client
+
+#### 🛠️ Developer-Friendly
+- **TypeScript support** - Full type safety and IntelliSense
+- **Clear error messages** - Helpful debugging information when notebooks fail to load
+- **Component inspection** - Works seamlessly with React DevTools
+
+```mdx
+// Current workflow: Edit notebook → Save this MDX file → See changes
+:::notebook{file="./examples/data-analysis.ipynb"}
+:::
+```
+
 ---
 
 ## 📚 Fumadocs
