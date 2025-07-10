@@ -1,17 +1,32 @@
 {
   "name": "notebook-mdx",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Jupyter Notebook support for MDX via Remark and Rehype plugins",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
+  "sideEffects": false,
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "jest"
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "jest",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "pnpm run clean && pnpm run build",
+    "lint": "echo 'Linting not configured yet'",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "jupyter",
@@ -19,35 +34,54 @@
     "mdx",
     "remark",
     "rehype",
-    "unified"
+    "unified",
+    "react",
+    "typescript",
+    "documentation",
+    "data-science",
+    "code-cells",
+    "syntax-highlighting"
   ],
+  "homepage": "https://github.com/abhay-ramesh/notebook-mdx#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abhay-ramesh/notebook-mdx.git",
+    "directory": "packages/notebook-mdx"
+  },
+  "bugs": {
+    "url": "https://github.com/abhay-ramesh/notebook-mdx/issues"
+  },
+  "author": {
+    "name": "Abhay Ramesh",
+    "url": "https://github.com/abhay-ramesh"
+  },
+  "license": "MIT",
   "dependencies": {
-    "@types/hast": "^3.0.0",
-    "@types/mdast": "^4.0.0",
-    "@types/unist": "^3.0.0",
-    "hast-util-to-jsx-runtime": "^2.0.0",
     "highlight.js": "^11.11.1",
     "katex": "^0.16.9",
-    "mdast-util-to-hast": "^13.0.0",
     "plotly.js-dist-min": "^2.29.1",
-    "remark-directive": "^4.0.0",
-    "shiki": "^3.7.0",
     "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.3"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
-    "rehype": "^13.0.0",
     "remark": "^15.0.0",
+    "remark-directive": "^4.0.0",
     "unified": "^11.0.0"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/hast": "^3.0.0",
     "@types/katex": "^0.16.7",
+    "@types/mdast": "^4.0.0",
     "@types/node": "^20.0.0",
     "@types/plotly.js": "^2.12.29",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/unist": "^3.0.0",
     "jest": "^29.0.0",
+    "remark-directive": "^4.0.0",
+    "tsdown": "^0.12.9",
     "typescript": "^5.0.0"
   }
 }
