@@ -6,10 +6,9 @@ title: Multi-Language Notebook Demo
 
 This demonstrates real-world cell-level language detection using VSCode metadata format.
 
-import { NotebookLoader } from "notebook-mdx";
-import notebookRaw from "./multi-language-notebook.ipynb";
-
-<NotebookLoader notebookData={JSON.parse(notebookRaw)} />
+:::notebook{file="./multi-language-notebook.ipynb" showLanguageIndicators}
+Multi-language notebook with language indicators
+:::
 
 ## How Cell-Level Languages Work
 

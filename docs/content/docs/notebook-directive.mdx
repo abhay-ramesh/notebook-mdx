@@ -3,10 +3,6 @@ title: Notebook Directives
 description: Use directive syntax to embed Jupyter notebooks in your MDX content
 ---
 
-import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
-
-<NotebookStyles />
-
 # Notebook Directives
 
 The `remarkNotebookDirective` plugin enables you to embed Jupyter notebooks using a clean directive syntax that integrates seamlessly with the remark/rehype ecosystem.
@@ -178,30 +174,18 @@ The plugin provides helpful error messages for common issues:
 <!-- Error: Failed to process notebook file "./missing.ipynb": ENOENT -->
 ```
 
-## Integration with Existing Components
+## Auto-Generated Components
 
-The directive syntax generates the same component structure as manual usage:
-
-```mdx
-<!-- These are equivalent -->
-::notebook{file="./example.ipynb" hideCode}
-
-<NotebookLoader 
-  notebookData={JSON.stringify(notebookData)} 
-  hideCode={true} 
-/>
-```
-
-This means all existing styling and customizations continue to work seamlessly.
+The directive syntax automatically generates the appropriate component structure. No manual imports needed - everything is handled by the remark plugin!
 
 ## Why Use Directives?
 
 The directive syntax provides several advantages:
 
-1. **Ecosystem Compatibility**: Works with all remark/rehype plugins
-2. **Clean Syntax**: More readable than component imports
-3. **File Resolution**: Automatic relative path resolution
-4. **Error Handling**: Better error messages and validation
-5. **Standardization**: Follows established remark-directive patterns
+- **Clean syntax**: No need to import components manually
+- **Consistent**: Works the same way across all MDX files
+- **Flexible**: Easy to add options and customize behavior
+- **Maintainable**: Changes to the plugin affect all notebooks automatically
+- **Type-safe**: Full TypeScript support with proper error checking
 
-The directive approach is used by popular tools like Docusaurus, VitePress, and many documentation frameworks, making it familiar to users and compatible with existing workflows. 
+Get started with the directive syntax today for the cleanest notebook embedding experience! 

@@ -3,20 +3,13 @@ title: Jupyter Notebook Demo
 description: Live demonstration of Jupyter notebook integration with image rendering
 ---
 
-import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
-import notebookRaw from './example-notebook.ipynb';
-
-export const notebookData = JSON.parse(notebookRaw);
-
-<NotebookStyles />
-
 # Jupyter Notebook Demo
 
-This page demonstrates how to import and display Jupyter notebooks directly in MDX with **authentic styling and image rendering**.
+This page demonstrates how to embed Jupyter notebooks directly in MDX with **authentic styling and image rendering**.
 
 ## 🎯 Features
 
-- **📄 Direct Import**: Import `.ipynb` files directly in MDX
+- **📄 Direct Import**: Use simple `:::notebook` directive syntax
 - **🎨 Authentic Styling**: Matches real Jupyter notebook interface  
 - **🖼️ Image Rendering**: Supports PNG, JPEG, GIF, and SVG images
 - **📊 Multiple Outputs**: Stream, execute_result, display_data, and error outputs
@@ -26,7 +19,9 @@ This page demonstrates how to import and display Jupyter notebooks directly in M
 
 Here's the imported notebook:
 
-<NotebookLoader notebookData={notebookData} />
+:::notebook{file="./example-notebook.ipynb"}
+Example notebook with images and multiple output types
+:::
 
 ## 🧪 Image Output Types Supported
 
@@ -41,8 +36,8 @@ The notebook renderer supports all standard Jupyter image formats:
 
 ## 🎛️ How It Works
 
-1. **Webpack Loader**: Next.js processes `.ipynb` files with `raw-loader`
-2. **JSON Parsing**: Raw notebook string is parsed into JavaScript object
+1. **Remark Plugin**: `remarkNotebookDirective` processes `:::notebook` directives
+2. **File Loading**: Notebook files are loaded and parsed at build time
 3. **Component Rendering**: React components render each cell with proper styling
 4. **Image Processing**: Base64 images are converted to data URLs
 5. **Metadata Handling**: Image dimensions and other metadata are preserved
@@ -50,13 +45,11 @@ The notebook renderer supports all standard Jupyter image formats:
 ## 💡 Usage Example
 
 ```mdx
-import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
-import notebookRaw from './my-notebook.ipynb';
+# My Documentation
 
-export const notebookData = JSON.parse(notebookRaw);
-
-<NotebookStyles />
-<NotebookLoader notebookData={notebookData} />
+:::notebook{file="./my-notebook.ipynb"}
+Description of the notebook
+:::
 ```
 
 This approach allows you to version control your notebooks and display them with full fidelity in your documentation!

@@ -3,13 +3,9 @@ title: Advanced Usage
 description: Learn about multi-language support, cell-level language detection, and advanced features
 ---
 
-import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
-
-<NotebookStyles />
-
 # Advanced Usage
 
-Learn about advanced features including multi-language support, cell-level language detection, and customization options.
+Learn about advanced features including multi-language support, cell-level language detection, and customization options with the `:::notebook` directive.
 
 ## 🌐 Multi-Language Support
 
@@ -26,169 +22,149 @@ The language detection follows this priority order:
 
 ### Example Multi-Language Notebook
 
-<NotebookLoader
-  notebookData={{
-    "cells": [
-      {
-        "cell_type": "markdown",
-        "source": "# Multi-Language Demo\n\nThis notebook demonstrates different languages in different cells."
-      },
-      {
-        "cell_type": "code",
-        "execution_count": 1,
-        "metadata": {},
-        "outputs": [],
-        "source": "# Python cell (default kernel)\nimport pandas as pd\nprint('Hello from Python!')"
-      },
-      {
-        "cell_type": "code",
-        "execution_count": 2,
-        "metadata": {
-          "vscode": {
-            "languageId": "javascript"
-          }
-        },
-        "outputs": [],
-        "source": "// JavaScript cell (VSCode metadata)\nconsole.log('Hello from JavaScript!');\nconst data = [1, 2, 3, 4, 5];"
-      },
-      {
-        "cell_type": "code",
-        "execution_count": 3,
-        "metadata": {
-          "languageId": "sql"
-        },
-        "outputs": [],
-        "source": "-- SQL cell (cell metadata)\nSELECT customer_name, order_date \nFROM orders \nWHERE order_date > '2023-01-01'\nORDER BY order_date DESC;"
-      },
-      {
-        "cell_type": "raw",
-        "metadata": {
-          "format": "text/html"
-        },
-        "source": "<h3>Raw HTML Cell</h3>\n<p>This is a raw cell - always shows 'raw' language.</p>"
-      }
-    ],
-    "metadata": {
-      "kernelspec": {
-        "display_name": "Python 3",
-        "language": "python",
-        "name": "python3"
-      }
-    },
-    "nbformat": 4,
-    "nbformat_minor": 4
-  }}
-/>
+Here's what a multi-language notebook looks like:
+
+```mdx
+:::notebook{file="./multi-language-demo.ipynb" showLanguageIndicators}
+This notebook demonstrates different languages in different cells
+:::
+```
 
 ### Language Indicators
 
-Notice the language indicators in the bottom-right corner of each cell:
-- **Cell 1**: `python` (kernel default)
-- **Cell 2**: `javascript` (VSCode metadata)
-- **Cell 3**: `sql` (cell metadata)
-- **Raw Cell**: `raw` (always raw)
+With `showLanguageIndicators` enabled, you'll see language badges in the bottom-right corner of each cell:
+- **Python cells**: `python` (kernel default)
+- **JavaScript cells**: `javascript` (VSCode metadata)
+- **SQL cells**: `sql` (cell metadata)
+- **Raw cells**: `raw` (always raw)
 
-## 🔧 Configuration Options
+## 🔧 Advanced Directive Options
 
-### Next.js Configuration (Required)
+### Cell Selection
 
-For Next.js projects, you **must** configure webpack to handle `.ipynb` files:
+Select specific cells or ranges:
 
-```javascript
-// next.config.mjs
-import { createMDX } from 'fumadocs-mdx/next';
+```mdx
+<!-- Single cell -->
+:::notebook{file="./analysis.ipynb" cells="1"}
+Show only the first cell
+:::
 
-const withMDX = createMDX();
+<!-- Range of cells -->
+:::notebook{file="./analysis.ipynb" cells="1-5"}
+Show cells 1 through 5
+:::
 
-/** @type {import('next').NextConfig} */
-const config = {
-  reactStrictMode: true,
-  webpack: (config, { dev, isServer }) => {
-    // Add loader for .ipynb files to enable direct import in MDX
-    config.module.rules.push({
-      test: /\.ipynb$/,
-      use: [
-        {
-          loader: 'raw-loader',
-        },
-      ],
-    });
+<!-- Multiple specific cells -->
+:::notebook{file="./analysis.ipynb" cells="1,3,5"}
+Show cells 1, 3, and 5
+:::
 
-    // Add .ipynb to resolvable extensions
-    config.resolve.extensions.push('.ipynb');
-
-    return config;
-  },
-};
-
-export default withMDX(config);
+<!-- Mixed ranges and specific cells -->
+:::notebook{file="./analysis.ipynb" cells="1-3,5,7-9"}
+Show cells 1-3, 5, and 7-9
+:::
 ```
 
-**Install raw-loader:**
-```bash
-npm install --save-dev raw-loader
+### Display Options
+
+Control what gets displayed:
+
+```mdx
+<!-- Hide code, show outputs only -->
+:::notebook{file="./results.ipynb" hideCode}
+Show only the results
+:::
+
+<!-- Show code, hide outputs -->
+:::notebook{file="./code-examples.ipynb" hideCode=false showOutputs=false}
+Show only the code
+:::
+
+<!-- Show cell numbers -->
+:::notebook{file="./tutorial.ipynb" showCellNumbers}
+Tutorial with numbered cells
+:::
+
+<!-- Show language indicators -->
+:::notebook{file="./multi-lang.ipynb" showLanguageIndicators}
+Multi-language notebook
+:::
 ```
 
-Without this configuration, you'll get import errors when trying to import `.ipynb` files.
+### Styling and Layout
 
-### Plugin Configuration
+Customize appearance and layout:
 
-Configure the remark and rehype plugins with these options:
+```mdx
+<!-- Custom CSS class -->
+:::notebook{file="./styled.ipynb" className="custom-notebook"}
+Custom styled notebook
+:::
+
+<!-- Fixed dimensions -->
+:::notebook{file="./dashboard.ipynb" width="100%" height="600px"}
+Fixed size notebook
+:::
+
+<!-- Dark theme -->
+:::notebook{file="./dark-demo.ipynb" theme="dark"}
+Dark themed notebook
+:::
+```
+
+## 🔧 Plugin Configuration
+
+### Basic Plugin Setup
 
 ```typescript
-import { remarkJupyter, rehypeJupyter } from 'notebook-mdx';
+// next.config.js
+import remarkDirective from 'remark-directive';
+import { remarkNotebookDirective } from 'notebook-mdx';
+
+const withMDX = require('@next/mdx')({
+  extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: [
+      remarkDirective,
+      remarkNotebookDirective,
+    ],
+  },
+});
+
+module.exports = withMDX({
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'mdx'],
+});
+```
+
+### Advanced Plugin Options
+
+```typescript
+// With custom options
+remarkPlugins: [
+  remarkDirective,
+  [remarkNotebookDirective, {
+    baseDir: './content/notebooks',    // Base directory for notebooks
+    componentName: 'CustomNotebook'    // Custom component name
+  }]
+]
+```
+
+### Fumadocs Configuration
+
+```typescript
+// source.config.ts
+import { remarkNotebookDirective } from 'notebook-mdx';
+import remarkDirective from 'remark-directive';
 
 export default defineConfig({
   mdxOptions: {
     remarkPlugins: [
-      [remarkJupyter, {
-        executeCode: false,           // Don't execute code cells
-        showCellNumbers: true,        // Show In[n]/Out[n] numbers
-        showLanguageIndicators: true, // Show language badges
-        // Custom language mapping
-        languageMapping: {
-          'py': 'python',
-          'js': 'javascript',
-          'ts': 'typescript'
-        }
-      }],
-    ],
-    rehypePlugins: [
-      [rehypeJupyter, {
-        showCellNumbers: true,        // Show execution counts
-        syntaxHighlighting: true,     // Enable syntax highlighting
-        // Custom CSS class prefix
-        classPrefix: 'jupyter-'
-      }]
+      remarkDirective,
+      remarkNotebookDirective,
     ],
   },
 });
-```
-
-### Component Props
-
-#### NotebookLoader Props
-
-```typescript
-interface NotebookLoaderProps {
-  notebookData: NotebookData;     // Parsed notebook JSON
-  showCellNumbers?: boolean;      // Show In[n]/Out[n] prompts
-  showLanguageIndicators?: boolean; // Show language badges
-  className?: string;             // Custom CSS class
-}
-```
-
-#### NotebookCodeCell Props
-
-```typescript
-interface NotebookCodeCellProps {
-  source: string;                 // Cell source code
-  executionCount?: number | null; // Execution count
-  outputs?: CellOutput[];         // Cell outputs
-  metadata?: CellMetadata;        // Cell metadata
-  language?: string;              // Override language
-  showLanguageIndicator?: boolean; // Show language badge
-}
 ```
 
 ## 🎨 Custom Styling
@@ -198,190 +174,211 @@ interface NotebookCodeCellProps {
 You can customize the styling using CSS custom properties:
 
 ```css
-:root {
-  /* Colors */
-  --jp-input-prompt-color: #307FC1;
-  --jp-output-prompt-color: #D84315;
-  --jp-cell-border-color: #e0e0e0;
-  --jp-cell-hover-color: #2196F3;
+/* Customize notebook container */
+.notebook-container {
+  --notebook-border-color: #e1e5e9;
+  --notebook-border-radius: 8px;
+  --notebook-background: #ffffff;
+  --notebook-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   
-  /* Typography */
-  --jp-code-font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-  --jp-code-font-size: 13px;
-  --jp-code-line-height: 1.4;
+  border: 1px solid var(--notebook-border-color);
+  border-radius: var(--notebook-border-radius);
+  background: var(--notebook-background);
+  box-shadow: var(--notebook-shadow);
+}
+
+/* Customize cell styling */
+.notebook-cell {
+  --cell-border-color: #f0f0f0;
+  --cell-background: #fafafa;
+  --cell-padding: 1rem;
   
-  /* Spacing */
-  --jp-cell-padding: 8px 12px;
-  --jp-cell-margin: 4px 0;
+  border-bottom: 1px solid var(--cell-border-color);
+  background: var(--cell-background);
+  padding: var(--cell-padding);
+}
+
+/* Customize prompt colors */
+.notebook-prompt {
+  --prompt-input-color: #0969da;
+  --prompt-output-color: #cf222e;
+  --prompt-font-weight: 600;
   
-  /* Interactive */
-  --jp-cell-transition: all 0.2s ease;
-  --jp-cell-focus-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+  font-weight: var(--prompt-font-weight);
+}
+
+.notebook-prompt.input {
+  color: var(--prompt-input-color);
+}
+
+.notebook-prompt.output {
+  color: var(--prompt-output-color);
 }
 ```
 
-### Custom Component Classes
+### Theme Integration
 
-Override default styling with custom CSS classes:
+#### Light/Dark Theme Support
 
 ```css
-.custom-notebook {
-  /* Custom notebook container styles */
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 16px;
+/* Light theme */
+[data-theme="light"] .notebook-container {
+  --notebook-background: #ffffff;
+  --notebook-border-color: #e1e5e9;
+  --cell-background: #f8f9fa;
+  --text-color: #24292f;
 }
 
-.custom-notebook .notebook-cell {
-  /* Custom cell styles */
-  margin: 12px 0;
-  padding: 16px;
-  background: #f8f9fa;
-}
-
-.custom-notebook .notebook-code-cell {
-  /* Custom code cell styles */
-  border-left: 4px solid #007ACC;
+/* Dark theme */
+[data-theme="dark"] .notebook-container {
+  --notebook-background: #0d1117;
+  --notebook-border-color: #30363d;
+  --cell-background: #161b22;
+  --text-color: #c9d1d9;
 }
 ```
 
-## 📊 Output Types
+#### Custom Theme Classes
 
-notebook-mdx supports all standard Jupyter output types:
+```mdx
+<!-- Apply custom theme -->
+:::notebook{file="./demo.ipynb" className="theme-purple"}
+Purple themed notebook
+:::
+```
 
-### Stream Output
-```json
-{
-  "output_type": "stream",
-  "name": "stdout",
-  "text": ["Hello, World!\n"]
+```css
+.theme-purple .notebook-container {
+  --notebook-background: #f8f4ff;
+  --notebook-border-color: #8b5cf6;
+  --cell-background: #faf5ff;
+  --prompt-input-color: #7c3aed;
+  --prompt-output-color: #c084fc;
 }
 ```
 
-### Execute Result
-```json
-{
-  "output_type": "execute_result",
-  "execution_count": 1,
-  "data": {
-    "text/plain": ["42"]
-  }
-}
+## 🚀 Interactive Features
+
+### Interactive Mode
+
+Enable interactive features (coming soon):
+
+```mdx
+:::notebook{file="./interactive.ipynb" interactive}
+Try running the cells yourself!
+:::
 ```
 
-### Display Data
-```json
-{
-  "output_type": "display_data",
-  "data": {
-    "image/png": "iVBORw0KGgoAAAANSUhEUgAA...",
-    "text/plain": ["<matplotlib.figure.Figure>"]
-  }
-}
+### Dynamic Loading
+
+Load notebooks dynamically based on conditions:
+
+```mdx
+<!-- Basic example -->
+:::notebook{file="./basic.ipynb"}
+Basic example
+:::
+
+<!-- Advanced example -->
+:::notebook{file="./advanced.ipynb" cells="5-10"}
+Advanced concepts
+:::
 ```
 
-### Error Output
-```json
-{
-  "output_type": "error",
-  "ename": "ValueError",
-  "evalue": "invalid literal for int()",
-  "traceback": ["Traceback (most recent call last):\n", "ValueError: invalid literal for int()\n"]
-}
+## 🔍 Performance Optimization
+
+### Large Notebook Handling
+
+For large notebooks, use cell selection to improve performance:
+
+```mdx
+<!-- Show only key cells -->
+:::notebook{file="./large-analysis.ipynb" cells="1,5,10,15"}
+Key results from large analysis
+:::
+
+<!-- Show summary cells -->
+:::notebook{file="./large-analysis.ipynb" cells="1-3,25-30"}
+Introduction and conclusions
+:::
 ```
 
-## 🖼️ Image Support
+### Lazy Loading
 
-Supports all Jupyter image formats:
+Notebooks are loaded and parsed at build time, ensuring fast runtime performance.
 
-- **PNG**: `image/png` (base64 encoded)
-- **JPEG**: `image/jpeg` (base64 encoded)
-- **GIF**: `image/gif` (base64 encoded)
-- **SVG**: `image/svg+xml` (raw SVG string)
+## 🎯 Best Practices
 
-Images are automatically converted to proper data URLs for display.
+### 1. Organize Notebooks
 
-## 🔍 TypeScript Support
-
-Full TypeScript support with comprehensive type definitions:
-
-```typescript
-import type { 
-  NotebookData, 
-  CellData, 
-  CellOutput, 
-  CellMetadata 
-} from 'notebook-mdx';
-
-// Type-safe notebook handling
-const notebook: NotebookData = {
-  cells: [
-    {
-      cell_type: 'code',
-      source: 'print("Hello")',
-      execution_count: 1,
-      metadata: {},
-      outputs: []
-    }
-  ],
-  metadata: {
-    kernelspec: {
-      display_name: 'Python 3',
-      language: 'python',
-      name: 'python3'
-    }
-  },
-  nbformat: 4,
-  nbformat_minor: 4
-};
+```
+content/
+├── notebooks/
+│   ├── basics/
+│   │   ├── intro.ipynb
+│   │   └── setup.ipynb
+│   ├── advanced/
+│   │   ├── analysis.ipynb
+│   │   └── visualization.ipynb
+│   └── examples/
+│       └── demo.ipynb
 ```
 
-## 🚀 Performance Tips
+### 2. Use Descriptive Captions
 
-### 1. Lazy Loading
-For large notebooks, consider lazy loading:
-
-```typescript
-import { lazy, Suspense } from 'react';
-
-const NotebookLoader = lazy(() => import('notebook-mdx').then(m => ({ default: m.NotebookLoader })));
-
-function MyComponent() {
-  return (
-    <Suspense fallback={<div>Loading notebook...</div>}>
-      <NotebookLoader notebookData={notebookData} />
-    </Suspense>
-  );
-}
+```mdx
+:::notebook{file="./analysis.ipynb" cells="1-5" showCellNumbers}
+This analysis shows customer behavior patterns using Python pandas.
+The first 5 cells demonstrate data loading and initial exploration.
+:::
 ```
 
-### 2. Memoization
-Memoize parsed notebook data:
+### 3. Selective Display
 
-```typescript
-import { useMemo } from 'react';
+```mdx
+<!-- Show code for learning -->
+:::notebook{file="./tutorial.ipynb" showCellNumbers}
+Learn the implementation details
+:::
 
-function NotebookPage({ notebookRaw }) {
-  const notebookData = useMemo(() => JSON.parse(notebookRaw), [notebookRaw]);
-  
-  return <NotebookLoader notebookData={notebookData} />;
-}
+<!-- Show results for reports -->
+:::notebook{file="./results.ipynb" hideCode}
+View the analysis results
+:::
 ```
 
-### 3. Bundle Size
-Import only what you need:
+### 4. Consistent Styling
 
-```typescript
-// Instead of importing everything
-import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
+```mdx
+<!-- Use consistent classes -->
+:::notebook{file="./demo1.ipynb" className="tutorial-notebook"}
+First tutorial
+:::
 
-// Import specific components
-import { NotebookLoader } from 'notebook-mdx/components';
-import { NotebookStyles } from 'notebook-mdx/styles';
+:::notebook{file="./demo2.ipynb" className="tutorial-notebook"}
+Second tutorial
+:::
 ```
 
-## 🔧 Next Steps
+## 🔧 Troubleshooting
 
-- [API Reference](/docs/api) - Complete API documentation for all components and plugins
+### Common Issues
 
-Ready to build amazing notebook-powered documentation with notebook-mdx! 
+1. **File not found**: Check the notebook path relative to your MDX file
+2. **Missing language indicators**: Ensure `showLanguageIndicators` is enabled
+3. **Styling issues**: Check CSS custom properties and theme integration
+4. **Performance issues**: Use cell selection for large notebooks
+
+### Debug Tips
+
+```mdx
+<!-- Test with minimal options -->
+:::notebook{file="./test.ipynb"}
+:::
+
+<!-- Add options incrementally -->
+:::notebook{file="./test.ipynb" showCellNumbers}
+:::
+```
+
+This advanced usage guide should help you leverage the full power of notebook-mdx with the directive-based approach! 

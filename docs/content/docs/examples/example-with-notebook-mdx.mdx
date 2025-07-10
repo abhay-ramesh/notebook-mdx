@@ -3,12 +3,10 @@ title: "Example Usage"
 description: "Here's how the same notebook looks with notebook-mdx"
 ---
 
-import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
-import notebook from './example-for-screenshots.ipynb';
-
 # Example Usage
 
 Here's how the same notebook looks with **notebook-mdx**:
 
-<NotebookStyles />
-<NotebookLoader notebookData={JSON.parse(notebook)} /> 
+:::notebook{file="./example-for-screenshots.ipynb"}
+Example notebook showing notebook-mdx capabilities
+::: 

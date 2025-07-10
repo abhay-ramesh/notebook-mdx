@@ -3,119 +3,117 @@ title: Getting Started
 description: Learn how to render Jupyter notebooks in MDX with authentic styling
 ---
 
-import { NotebookLoader, NotebookStyles, NotebookCodeCell, NotebookMarkdownCell } from 'notebook-mdx';
-
-<NotebookStyles />
-
 # notebook-mdx
 
-A comprehensive solution for rendering Jupyter notebooks in MDX with authentic styling, syntax highlighting, and full cell type support.
+A powerful remark plugin for rendering Jupyter notebooks in MDX with authentic styling, syntax highlighting, and full cell type support.
 
 ## ✨ Features
 
 - 🎯 **Authentic Jupyter styling** - Matches real Jupyter notebook appearance
-- 🎨 **Syntax highlighting** - Full language support with Shiki
+- 🎨 **Syntax highlighting** - Full language support with highlight.js
 - 📊 **All cell types** - Code, markdown, and raw cells
 - 🔧 **TypeScript ready** - Full type safety and IntelliSense
 - ⚡ **Fast rendering** - Optimized for performance
 - 🌐 **Multi-language** - Cell-level language detection
 - 🖼️ **Image support** - PNG, JPEG, GIF, and SVG outputs
+- 📖 **Clean syntax** - Simple directive-based usage
 
 ## 📦 Installation
 
 ```package-install
-npm install notebook-mdx
+npm install notebook-mdx remark-directive
 ```
 
 ## 🚀 Quick Start
 
-### 1. Configure Your MDX Pipeline
+### 1. Configure Your MDX Setup
 
-Add the plugins to your MDX configuration:
+Add the remark plugin to your MDX configuration:
 
-```typescript
-import { remarkJupyter, rehypeJupyter } from 'notebook-mdx';
+```typescript title="next.config.js"
+import remarkDirective from 'remark-directive';
+import { remarkNotebookDirective } from 'notebook-mdx';
 
-export default defineConfig({
-  mdxOptions: {
+const withMDX = require('@next/mdx')({
+  extension: /\.mdx?$/,
+  options: {
     remarkPlugins: [
-      [remarkJupyter, { executeCode: false, showCellNumbers: true }],
+      remarkDirective,
+      remarkNotebookDirective,
     ],
-    rehypePlugins: [[rehypeJupyter, { showCellNumbers: true }]],
   },
+});
+
+module.exports = withMDX({
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'mdx'],
 });
 ```
 
-### 2. Configure Next.js (Required)
+### 2. Use in Your MDX Files
 
-For Next.js projects, you need to configure webpack to handle `.ipynb` files:
+That's it! Now you can use notebook directives directly:
 
-```javascript
-// next.config.mjs
-import { createMDX } from 'fumadocs-mdx/next';
+```mdx title="my-page.mdx"
+# My Article
 
-const withMDX = createMDX();
+:::notebook{file="./example.ipynb" cells="1-5" showCellNumbers}
+This notebook shows data analysis results
+:::
 
-/** @type {import('next').NextConfig} */
-const config = {
-  reactStrictMode: true,
-  webpack: (config, { dev, isServer }) => {
-    // Add loader for .ipynb files to enable direct import in MDX
-    config.module.rules.push({
-      test: /\.ipynb$/,
-      use: [
-        {
-          loader: 'raw-loader',
-        },
-      ],
-    });
+More content here...
 
-    // Add .ipynb to resolvable extensions
-    config.resolve.extensions.push('.ipynb');
-
-    return config;
-  },
-};
-
-export default withMDX(config);
+:::notebook{file="./demo.ipynb" hideCode showOutputs}
+Another notebook with different options
+:::
 ```
 
-**Install raw-loader:**
-```package-install
-npm install --save-dev raw-loader
+## 🎨 Directive Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `file` | `string` | **Required** | Path to the notebook file |
+| `cells` | `string` | `undefined` | Specific cells to show (e.g., "1-5", "1,3,5") |
+| `hideCode` | `boolean` | `false` | Hide code cells |
+| `showOutputs` | `boolean` | `true` | Show cell outputs |
+| `showCellNumbers` | `boolean` | `false` | Show cell numbers |
+| `showLanguageIndicators` | `boolean` | `false` | Show language indicators |
+| `interactive` | `boolean` | `false` | Enable interactive execution |
+| `theme` | `string` | `undefined` | Theme for syntax highlighting |
+| `className` | `string` | `undefined` | CSS class name |
+| `width` | `string` | `undefined` | Container width |
+| `height` | `string` | `undefined` | Container height |
+
+## 💡 Usage Examples
+
+### Basic Usage
+```mdx
+:::notebook{file="./example.ipynb"}
+:::
 ```
 
-### 3. Import and Render Notebooks (in MDX)
-
-```mdx title="notebook-demo.mdx"
-# Notebook Demo
-
-import { NotebookLoader, NotebookStyles } from 'notebook-mdx';
-import notebookRaw from './my-notebook.ipynb';
-
-<NotebookStyles />
-<NotebookLoader notebookData={JSON.parse(notebookRaw)} />
+### With Options
+```mdx
+:::notebook{file="./analysis.ipynb" cells="1-10" hideCode showCellNumbers}
+This notebook shows our data analysis results
+:::
 ```
 
-### 4. Manual Cell Creation
+### Selective Cells
+```mdx
+:::notebook{file="./demo.ipynb" cells="3,5,7-9"}
+:::
+```
 
-You can also create individual cells manually:
-
-<NotebookCodeCell
-  source={`# Hello from Python!
-import numpy as np
-print("notebook-mdx is working!")`}
-  executionCount={1}
-/>
-
-<NotebookMarkdownCell
-  source={`## Markdown Cell
-This is a **markdown cell** with proper styling.`}
-/>
+### Interactive Mode
+```mdx
+:::notebook{file="./interactive.ipynb" interactive}
+Try running the cells yourself!
+:::
+```
 
 ## 🎨 Authentic Styling
 
-The package provides authentic Jupyter notebook styling that matches VSCode and Jupyter Lab:
+The plugin provides authentic Jupyter notebook styling that matches VSCode and Jupyter Lab:
 
 - **Input prompts**: Blue `In [n]:` indicators
 - **Output prompts**: Orange `Out[n]:` indicators  
@@ -123,13 +121,14 @@ The package provides authentic Jupyter notebook styling that matches VSCode and 
 - **Monospace fonts**: System monospace fonts for code
 - **Color scheme**: Authentic Jupyter color palette
 - **Responsive design**: Works on all screen sizes
+- **Theme adaptive**: Inherits your site's light/dark theme
 
 ## 📝 Cell Types Supported
 
 ### Code Cells
 - Python, JavaScript, SQL, Bash, and more
 - Execution counts and outputs
-- Syntax highlighting with Shiki
+- Syntax highlighting with highlight.js
 - Language detection from metadata
 
 ### Markdown Cells
@@ -142,46 +141,40 @@ The package provides authentic Jupyter notebook styling that matches VSCode and 
 - No processing or rendering
 - Useful for data and configuration
 
+## 🔧 Plugin Configuration
+
+You can configure the plugin behavior:
+
+```typescript
+import { remarkNotebookDirective } from 'notebook-mdx';
+
+// With options
+remarkPlugins: [
+  remarkDirective,
+  [remarkNotebookDirective, {
+    baseDir: './notebooks',
+    componentName: 'CustomNotebookLoader'
+  }]
+]
+```
+
+### Plugin Options
+
+- `baseDir`: Base directory for resolving relative notebook paths
+- `componentName`: Custom component name for rendering (default: 'NotebookLoader')
+
+## 🚀 How It Works
+
+1. **Remark Plugin**: Processes `:::notebook` directives in your MDX
+2. **Automatic Loading**: Reads and parses notebook files at build time
+3. **Component Injection**: Transforms directives into React components
+4. **Seamless Rendering**: Displays notebooks with authentic Jupyter styling
+
+No manual component imports needed - everything works automatically through the remark plugin!
+
 ## 🔧 Next Steps
 
 - [Advanced Usage](/docs/advanced) - Learn about cell-level language detection, custom styling, and advanced features
-- [API Reference](/docs/api) - Complete API documentation for all components and plugins
-
-## 💡 Example Output
-
-Here's what a rendered notebook looks like:
-
-<NotebookLoader
-  notebookData={{
-    "cells": [
-      {
-        "cell_type": "markdown",
-        "source": "# Data Analysis Demo\n\nThis notebook demonstrates data analysis capabilities."
-      },
-      {
-        "cell_type": "code", 
-        "execution_count": 1,
-        "metadata": {},
-        "outputs": [
-          {
-            "output_type": "stream",
-            "name": "stdout",
-            "text": "Processing 100 data points...\nMean: 0.05\nStd: 0.98\n"
-          }
-        ],
-        "source": "import numpy as np\n\n# Generate sample data\ndata = np.random.randn(100)\nprint(f'Processing {len(data)} data points...')\nprint(f'Mean: {np.mean(data):.2f}')\nprint(f'Std: {np.std(data):.2f}')"
-      }
-    ],
-    "metadata": {
-      "kernelspec": {
-        "display_name": "Python 3",
-        "language": "python",
-        "name": "python3"
-      }
-    },
-    "nbformat": 4,
-    "nbformat_minor": 4
-  }}
-/>
+- [API Reference](/docs/api) - Complete API documentation for the remark plugin
 
 Get started with notebook-mdx today and bring your Jupyter notebooks to life in MDX!

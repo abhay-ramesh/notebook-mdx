@@ -14,7 +14,6 @@
     "fumadocs-ui": "15.6.1",
     "next": "15.3.4",
     "notebook-mdx": "workspace:*",
-    "raw-loader": "^4.0.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "remark-directive": "^4.0.0"

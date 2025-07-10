@@ -6,11 +6,11 @@ export {
   NotebookStyles
 } from "./components.js";
 
-// Export plugins
+// Main plugin export - the only thing users need to import
 export { remarkNotebookDirective } from "./remark-notebook-directive.js";
 export type { NotebookDirectiveOptions } from "./remark-notebook-directive.js";
 
-// Export types
+// Export essential types for TypeScript users
 export type {
   JupyterOptions,
   NotebookCell,
