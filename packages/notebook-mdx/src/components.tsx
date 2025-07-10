@@ -2,8 +2,13 @@
 
 // React components for rendering Jupyter notebook elements with authentic styling
 import hljs from "highlight.js";
+import katex from "katex";
+import "katex/dist/katex.min.css";
 import React from "react";
 import type { NotebookData, NotebookOutput } from "./types.js";
+// Note: KaTeX CSS should be imported by the consumer application
+
+// Note: plotly.js-dist-min doesn't have types, but it's the same API as plotly.js
 
 // Initialize highlight.js immediately since we're using "use client"
 hljs.configure({
@@ -153,6 +158,373 @@ const OutputText: React.FC<{ content: string }> = ({ content }) => {
   );
 };
 
+// Component for rendering LaTeX mathematics
+const LaTeXRenderer: React.FC<{ content: string }> = ({ content }) => {
+  const [renderedHTML, setRenderedHTML] = React.useState<string>("");
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    try {
+      // Remove display math delimiters and render
+      const cleanLatex = content
+        .replace(/^\$+|\$+$/g, "")
+        .replace(/^\\displaystyle\s*/, "");
+      const html = katex.renderToString(cleanLatex, {
+        displayMode: true,
+        throwOnError: false,
+        errorColor: "#cc0000",
+        strict: false
+      });
+      setRenderedHTML(html);
+      setError(null);
+    } catch (err) {
+      console.warn("LaTeX rendering error:", err);
+      setError(err instanceof Error ? err.message : "LaTeX rendering failed");
+      setRenderedHTML("");
+    }
+  }, [content]);
+
+  if (error) {
+    return (
+      <div className="notebook-output-latex-error">
+        <pre>{content}</pre>
+        <small style={{ color: "#cc0000" }}>LaTeX Error: {error}</small>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="notebook-output-latex"
+      dangerouslySetInnerHTML={{ __html: renderedHTML }}
+      style={{
+        textAlign: "center",
+        margin: "1em 0",
+        fontSize: "1.1em"
+      }}
+    />
+  );
+};
+
+// Component for rendering Plotly charts using plotly.js-dist-min directly
+const PlotlyRenderer: React.FC<{ data: any; config?: any; layout?: any }> = ({
+  data,
+  config = {},
+  layout = {}
+}) => {
+  const plotRef = React.useRef<HTMLDivElement>(null);
+  const [plotly, setPlotly] = React.useState<any>(null);
+  const [error, setError] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  const [isClient, setIsClient] = React.useState(false);
+  const [debugInfo, setDebugInfo] = React.useState<string>("Initializing...");
+
+  // Ensure we're on the client side and DOM is ready
+  React.useEffect(() => {
+    console.log("🔍 PlotlyRenderer: Checking client environment");
+    // Double-check we're in a browser environment
+    if (typeof window !== "undefined" && typeof document !== "undefined") {
+      console.log("✅ PlotlyRenderer: Client environment detected");
+      setIsClient(true);
+      setDebugInfo("Client environment ready");
+    } else {
+      console.log("❌ PlotlyRenderer: Server-side environment");
+      setDebugInfo("Server-side environment");
+    }
+  }, []);
+
+  React.useEffect(() => {
+    if (!isClient) {
+      console.log("⏳ PlotlyRenderer: Waiting for client environment");
+      return;
+    }
+
+    console.log("🚀 PlotlyRenderer: Starting Plotly loading process");
+    setDebugInfo("Loading Plotly library...");
+
+    const loadPlotlyDirect = async () => {
+      try {
+        console.log(
+          "📦 PlotlyRenderer: Attempting to import plotly.js-dist-min"
+        );
+
+        // Add a small delay to ensure the DOM is fully ready
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // Check if we're really in a browser environment
+        if (typeof window === "undefined" || typeof document === "undefined") {
+          throw new Error("Browser environment not available");
+        }
+
+        console.log("🔄 PlotlyRenderer: Dynamic importing plotly.js-dist-min");
+        setDebugInfo("Importing Plotly module...");
+
+        // Try to import plotly.js-dist-min directly
+        let Plotly: any;
+
+        try {
+          const plotlyModule = await import("plotly.js-dist-min" as any);
+          console.log(
+            "📦 PlotlyRenderer: Import successful, module keys:",
+            Object.keys(plotlyModule || {})
+          );
+
+          Plotly = plotlyModule.default || plotlyModule;
+          console.log("🔍 PlotlyRenderer: Plotly object type:", typeof Plotly);
+          console.log(
+            "🔍 PlotlyRenderer: Plotly has newPlot?",
+            typeof Plotly?.newPlot
+          );
+        } catch (importErr: any) {
+          console.error(
+            "❌ PlotlyRenderer: Failed to import plotly.js-dist-min:",
+            importErr
+          );
+          setDebugInfo(`Import failed: ${importErr?.message}`);
+          throw new Error(
+            `Could not load Plotly library: ${importErr?.message || "Unknown import error"}`
+          );
+        }
+
+        // Validate that we got the Plotly object
+        if (!Plotly) {
+          console.error("❌ PlotlyRenderer: No Plotly object received");
+          setDebugInfo("No Plotly object in module");
+          throw new Error("plotly.js-dist-min did not provide a Plotly object");
+        }
+
+        if (typeof Plotly.newPlot !== "function") {
+          console.error(
+            "❌ PlotlyRenderer: Plotly.newPlot is not a function:",
+            typeof Plotly.newPlot
+          );
+          console.error(
+            "Available methods:",
+            Object.keys(Plotly).filter(
+              (key) => typeof Plotly[key] === "function"
+            )
+          );
+          setDebugInfo("Plotly.newPlot not available");
+          throw new Error(
+            "plotly.js-dist-min did not provide a valid newPlot function"
+          );
+        }
+
+        // Successfully loaded!
+        console.log("✅ PlotlyRenderer: Plotly library loaded successfully");
+        setPlotly(Plotly);
+        setError(null);
+        setDebugInfo("Plotly library ready");
+      } catch (err: any) {
+        console.error("❌ PlotlyRenderer: Failed to load Plotly:", err);
+        const errorMessage =
+          err instanceof Error ? err.message : "Plotly library not available";
+        setError(errorMessage);
+        setDebugInfo(`Error: ${errorMessage}`);
+
+        // For development, provide more details
+        if (process.env.NODE_ENV === "development") {
+          console.error("PlotlyRenderer loading error details:", {
+            error: err,
+            isClient,
+            hasWindow: typeof window !== "undefined",
+            hasDocument: typeof document !== "undefined"
+          });
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPlotlyDirect();
+  }, [isClient]);
+
+  // Create the plot when Plotly is loaded
+  React.useEffect(() => {
+    if (!plotly || !plotRef.current || !data) {
+      console.log("⏳ PlotlyRenderer: Waiting for prerequisites", {
+        hasPlotly: !!plotly,
+        hasRef: !!plotRef.current,
+        hasData: !!data
+      });
+      return;
+    }
+
+    console.log("🎨 PlotlyRenderer: Creating plot with data:", data);
+    setDebugInfo("Creating chart...");
+
+    const createPlot = async () => {
+      try {
+        const plotConfig = {
+          displayModeBar: true,
+          displaylogo: false,
+          modeBarButtonsToRemove: ["pan2d", "lasso2d", "select2d"],
+          responsive: true,
+          ...config
+        };
+
+        const plotLayout = {
+          autosize: true,
+          margin: { t: 50, r: 30, b: 50, l: 50 },
+          font: { size: 12 },
+          ...layout,
+          // Override width/height to ensure responsiveness
+          width: undefined,
+          height: undefined
+        };
+
+        console.log("📊 PlotlyRenderer: Calling newPlot with:", {
+          element: plotRef.current,
+          dataLength: Array.isArray(data) ? data.length : "not-array",
+          layout: Object.keys(plotLayout),
+          config: Object.keys(plotConfig)
+        });
+
+        await plotly.newPlot(plotRef.current, data, plotLayout, plotConfig);
+
+        // Force a resize after plot creation to ensure proper fitting
+        setTimeout(() => {
+          if (plotly && plotRef.current) {
+            plotly.Plots.resize(plotRef.current);
+          }
+        }, 100);
+
+        console.log("✅ PlotlyRenderer: Chart rendered successfully");
+        setDebugInfo("Chart rendered successfully");
+      } catch (plotErr: any) {
+        console.error("❌ PlotlyRenderer: Failed to create plot:", plotErr);
+        const errorMessage =
+          plotErr instanceof Error ? plotErr.message : "Failed to render chart";
+        setError(errorMessage);
+        setDebugInfo(`Render error: ${errorMessage}`);
+      }
+    };
+
+    createPlot();
+  }, [plotly, data, layout, config]);
+
+  // Handle window resize to keep charts responsive
+  React.useEffect(() => {
+    if (!plotly || !plotRef.current) return;
+
+    const handleResize = () => {
+      if (plotly && plotRef.current) {
+        plotly.Plots.resize(plotRef.current);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [plotly]);
+
+  // Cleanup
+  React.useEffect(() => {
+    return () => {
+      if (plotly && plotRef.current) {
+        try {
+          console.log("🧹 PlotlyRenderer: Cleaning up chart");
+          plotly.purge(plotRef.current);
+        } catch (err) {
+          console.warn("PlotlyRenderer cleanup error:", err);
+        }
+      }
+    };
+  }, [plotly]);
+
+  // Show loading on server side and initial client render
+  if (!isClient || loading) {
+    return (
+      <div className="notebook-output-plotly-loading">
+        <div
+          style={{
+            padding: "20px",
+            textAlign: "center",
+            color: "#666",
+            border: "1px dashed #ccc",
+            borderRadius: "4px",
+            backgroundColor: "#f9f9f9"
+          }}
+        >
+          📊 Loading interactive chart...
+          <br />
+          <small>Plotly.js is loading</small>
+          <br />
+          <small style={{ color: "#999", fontSize: "11px" }}>{debugInfo}</small>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !plotly) {
+    return (
+      <div className="notebook-output-plotly-error">
+        <div
+          style={{
+            padding: "20px",
+            border: "1px solid #ff9800",
+            borderRadius: "4px",
+            backgroundColor: "#fff3e0",
+            color: "#e65100"
+          }}
+        >
+          <strong>📊 Interactive Chart Unavailable</strong>
+          <br />
+          <small>{error || "Plotly library not available"}</small>
+          <br />
+          <small style={{ color: "#666", marginTop: "5px", display: "block" }}>
+            Debug: {debugInfo}
+          </small>
+          <details style={{ marginTop: "10px" }}>
+            <summary style={{ cursor: "pointer", color: "#1976d2" }}>
+              View Raw Chart Data
+            </summary>
+            <pre
+              style={{
+                fontSize: "12px",
+                overflow: "auto",
+                maxHeight: "200px",
+                background: "#f5f5f5",
+                padding: "10px",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+                marginTop: "5px"
+              }}
+            >
+              {JSON.stringify({ data, layout, config }, null, 2)}
+            </pre>
+          </details>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="notebook-output-plotly"
+      style={{
+        width: "100%",
+        maxWidth: "100%",
+        overflow: "hidden",
+        margin: "10px 0",
+        border: "1px solid #e0e0e0",
+        borderRadius: "4px",
+        backgroundColor: "#fff"
+      }}
+    >
+      <div
+        ref={plotRef}
+        style={{
+          width: "100%",
+          height: "400px",
+          minHeight: "300px",
+          maxHeight: "600px",
+          position: "relative"
+        }}
+      />
+    </div>
+  );
+};
+
 interface NotebookCodeCellProps {
   source: string | string[];
   outputs?: NotebookOutput[];
@@ -203,6 +575,7 @@ const renderOutputData = (output: NotebookOutput) => {
 
     // MIME type priority order matching Jupyter protocol
     const MIME_PRIORITY = [
+      "application/vnd.plotly.v1+json",
       "text/html",
       "image/svg+xml",
       "image/png",
@@ -272,6 +645,44 @@ const renderOutputData = (output: NotebookOutput) => {
       for (const mimeType of MIME_PRIORITY) {
         if (data[mimeType]) {
           switch (mimeType) {
+            case "application/vnd.plotly.v1+json":
+              try {
+                const plotlyData = data[mimeType];
+                elements.push(
+                  <div key="plotly" className="notebook-output-plotly">
+                    <PlotlyRenderer
+                      data={plotlyData.data || []}
+                      layout={plotlyData.layout || {}}
+                      config={plotlyData.config || {}}
+                    />
+                  </div>
+                );
+              } catch (err) {
+                console.warn("Error rendering Plotly data:", err);
+                // Fallback to JSON display
+                elements.push(
+                  <div key="plotly-error" className="notebook-output-json">
+                    <pre>Plotly Chart (rendering failed)</pre>
+                    <details>
+                      <summary>Raw Data</summary>
+                      <pre>{JSON.stringify(data[mimeType], null, 2)}</pre>
+                    </details>
+                  </div>
+                );
+              }
+              break;
+
+            case "text/latex":
+              const latexContent = Array.isArray(data[mimeType])
+                ? data[mimeType].join("")
+                : data[mimeType];
+              elements.push(
+                <div key="latex" className="notebook-output-latex">
+                  <LaTeXRenderer content={latexContent} />
+                </div>
+              );
+              break;
+
             case "text/html":
               const htmlContent = Array.isArray(data[mimeType])
                 ? data[mimeType].join("")
@@ -1275,6 +1686,58 @@ export const NotebookStyles: React.FC = () => {
         overflow-x: auto;
         white-space: pre-wrap;
         color: inherit;
+      }
+
+      /* LaTeX output */
+      .notebook-output-latex {
+        font-family: var(--jp-code-font-family);
+        font-size: 1.1em;
+        line-height: 1.6;
+        color: inherit;
+        background: transparent;
+        text-align: center;
+        margin: 1em 0;
+      }
+
+      .notebook-output-latex-error {
+        color: #cc0000;
+        font-family: var(--jp-code-font-family);
+        font-size: 1em;
+        line-height: 1.6;
+        background: transparent;
+        padding: 8px;
+        border: 1px solid #ffcdd2;
+        border-radius: 4px;
+        margin: 1em 0;
+      }
+
+      /* Plotly output */
+      .notebook-output-plotly {
+        width: 100%;
+        height: 400px;
+        margin: 1em 0;
+      }
+
+      .notebook-output-plotly-error {
+        color: #cc0000;
+        font-family: var(--jp-code-font-family);
+        font-size: 1em;
+        line-height: 1.6;
+        background: #fff5f5;
+        padding: 20px;
+        border: 1px solid #ffcdd2;
+        border-radius: 4px;
+        margin: 1em 0;
+      }
+
+      .notebook-output-plotly-loading {
+        color: #666;
+        font-family: var(--jp-ui-font-family);
+        font-size: var(--jp-ui-font-size1);
+        line-height: 1.5;
+        padding: 20px;
+        text-align: center;
+        background: transparent;
       }
 
       /* Loading and error states - inherit theme colors */
