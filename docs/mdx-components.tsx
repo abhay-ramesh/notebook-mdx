@@ -1,11 +1,24 @@
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
-import { notebookComponents } from "notebook-mdx";
+import {
+  NotebookCodeCell,
+  NotebookLoader,
+  NotebookMarkdownCell,
+  NotebookStyles
+} from "notebook-mdx/client";
+
+// Direct import approach to avoid timing issues
+const notebookComponents = {
+  NotebookCodeCell,
+  NotebookLoader,
+  NotebookMarkdownCell,
+  NotebookStyles
+};
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,
-    ...notebookComponents,
-    ...components
+    ...components,
+    ...notebookComponents
   } as MDXComponents;
 }

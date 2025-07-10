@@ -32,7 +32,7 @@ Add the remark plugin to your MDX configuration:
 
 ```typescript title="next.config.js"
 import remarkDirective from 'remark-directive';
-import { remarkNotebookDirective } from 'notebook-mdx'; /* [!code highlight] */
+import { remarkNotebookDirective } from 'notebook-mdx/server'; /* [!code highlight] */
 
 // ...
   remarkPlugins: [
@@ -47,7 +47,14 @@ import { remarkNotebookDirective } from 'notebook-mdx'; /* [!code highlight] */
 ```typescript title="mdx-components.tsx" 
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import type { MDXComponents } from 'mdx/types';
-import { notebookComponents } from 'notebook-mdx'; /* [!code highlight] */
+import { NotebookCodeCell, NotebookLoader, NotebookMarkdownCell, NotebookStyles } from 'notebook-mdx'; /* [!code highlight] */
+
+const notebookComponents = {  /* [!code highlight] */
+  NotebookCodeCell, /* [!code highlight] */
+  NotebookLoader, /* [!code highlight] */
+  NotebookMarkdownCell, /* [!code highlight] */
+  NotebookStyles /* [!code highlight] */
+}; /* [!code highlight] */
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {

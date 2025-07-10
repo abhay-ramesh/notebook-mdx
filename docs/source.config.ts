@@ -4,7 +4,7 @@ import {
   frontmatterSchema,
   metaSchema
 } from "fumadocs-mdx/config";
-import { remarkNotebookDirective } from "notebook-mdx";
+import { remarkNotebookDirective } from "notebook-mdx/server";
 import remarkDirective from "remark-directive";
 
 // You can customise Zod schemas for frontmatter and `meta.json` here

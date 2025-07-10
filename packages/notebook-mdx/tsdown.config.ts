@@ -1,12 +1,19 @@
 import { defineConfig } from "tsdown";
 
 export default defineConfig({
-  entry: ["src/index.ts"],
+  entry: {
+    index: "src/index.ts",
+    client: "src/client.ts",
+    server: "src/server.ts"
+  },
   format: ["cjs", "esm"],
   dts: true,
   clean: true,
-  target: "es2022",
-  outDir: "dist",
+  minify: true,
+  treeshake: true,
+  sourcemap: false,
+  target: "es2020",
+  platform: "neutral",
   external: [
     // React and related - CRITICAL: Don't bundle React
     "react",
@@ -15,12 +22,11 @@ export default defineConfig({
     "react/jsx-dev-runtime",
 
     // Peer dependencies - don't bundle these
-    "rehype",
     "remark",
     "remark-directive",
     "unified",
 
-    // Node built-ins
+    // Node built-ins - CRITICAL for server/client separation
     "fs",
     "path",
     "util",
@@ -33,7 +39,22 @@ export default defineConfig({
     "katex",
     "plotly.js-dist-min"
   ],
-  platform: "neutral", // Works in both Node.js and browser
-  sourcemap: true,
-  minify: false // Keep readable for debugging
+  // Use outExtensions for proper file extensions
+  outExtensions: ({ format }) => ({
+    js: format === "cjs" ? ".cjs" : ".js"
+  }),
+  outputOptions: {
+    // Add "use client" directive to client-side components
+    banner: (chunk) => {
+      // Add "use client" to client entry and any components
+      if (
+        chunk.fileName.includes("client") ||
+        chunk.fileName === "index.js" ||
+        chunk.fileName === "index.cjs"
+      ) {
+        return '"use client";';
+      }
+      return "";
+    }
+  }
 });
