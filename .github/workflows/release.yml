@@ -11,9 +11,6 @@
 name: Create Release
 
 on:
-  push:
-    tags:
-      - "v*"
   workflow_dispatch:
     inputs:
       version_type:
@@ -193,7 +190,14 @@ jobs:
           NEW_VERSION="${{ needs.prepare-release.outputs.new_version }}"
 
           cd packages/notebook-mdx
-          npm version $NEW_VERSION --no-git-tag-version
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+
+          if [ "$CURRENT_VERSION" != "$NEW_VERSION" ]; then
+            echo "📝 Updating version from $CURRENT_VERSION to $NEW_VERSION"
+            npm version $NEW_VERSION --no-git-tag-version
+          else
+            echo "✅ Version already set to $NEW_VERSION, skipping version update"
+          fi
 
       - name: 🏷️ Create git tag and commit (manual dispatch only)
         if: github.event_name == 'workflow_dispatch'

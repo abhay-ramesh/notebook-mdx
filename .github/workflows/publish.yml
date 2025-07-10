@@ -238,8 +238,15 @@ jobs:
       - name: 🔄 Update package version
         run: |
           cd packages/notebook-mdx
-          # Update version in package.json
-          npm version ${{ needs.validate-release.outputs.version }} --no-git-tag-version
+          TARGET_VERSION="${{ needs.validate-release.outputs.version }}"
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+
+          if [ "$CURRENT_VERSION" != "$TARGET_VERSION" ]; then
+            echo "📝 Updating version from $CURRENT_VERSION to $TARGET_VERSION"
+            npm version $TARGET_VERSION --no-git-tag-version
+          else
+            echo "✅ Version already set to $TARGET_VERSION, skipping version update"
+          fi
 
       - name: 🔍 Pre-publish validation
         run: |
