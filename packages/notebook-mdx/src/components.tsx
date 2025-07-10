@@ -3,7 +3,6 @@
 // React components for rendering Jupyter notebook elements with authentic styling
 import hljs from "highlight.js";
 import katex from "katex";
-// import "katex/dist/katex.min.css";
 import React from "react";
 import type { NotebookData, NotebookOutput } from "./types.js";
 // Note: KaTeX CSS should be imported by the consumer application
@@ -1073,6 +1072,9 @@ export const NotebookStyles: React.FC = () => {
   // Deduplication happens naturally via the id attribute
   return (
     <style id="jupyter-notebook-styles">{`
+      /* Import KaTeX stylesheet */
+        @import url('https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css');
+
       /* CSS Variables for authentic Jupyter theming */
       :root {
         --jp-border-width: 1px;
