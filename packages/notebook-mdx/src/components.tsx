@@ -160,35 +160,47 @@ const OutputText: React.FC<{ content: string }> = ({ content }) => {
 
 // Component for rendering LaTeX mathematics
 const LaTeXRenderer: React.FC<{ content: string }> = ({ content }) => {
-  const [renderedHTML, setRenderedHTML] = React.useState<string>("");
-  const [error, setError] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
+  // Render LaTeX synchronously for instant display
+  const renderLatex = React.useMemo(() => {
     try {
       // Remove display math delimiters and render
       const cleanLatex = content
         .replace(/^\$+|\$+$/g, "")
         .replace(/^\\displaystyle\s*/, "");
+
       const html = katex.renderToString(cleanLatex, {
         displayMode: true,
         throwOnError: false,
         errorColor: "#cc0000",
         strict: false
       });
-      setRenderedHTML(html);
-      setError(null);
+
+      return { html, error: null };
     } catch (err) {
       console.warn("LaTeX rendering error:", err);
-      setError(err instanceof Error ? err.message : "LaTeX rendering failed");
-      setRenderedHTML("");
+      const errorMessage =
+        err instanceof Error ? err.message : "LaTeX rendering failed";
+      return { html: "", error: errorMessage };
     }
   }, [content]);
 
-  if (error) {
+  if (renderLatex.error) {
     return (
       <div className="notebook-output-latex-error">
-        <pre>{content}</pre>
-        <small style={{ color: "#cc0000" }}>LaTeX Error: {error}</small>
+        <pre
+          style={{
+            background: "#fff5f5",
+            border: "1px solid #ff6b6b",
+            borderRadius: "4px",
+            padding: "10px",
+            color: "#d63031"
+          }}
+        >
+          {content}
+        </pre>
+        <small style={{ color: "#cc0000", display: "block", marginTop: "5px" }}>
+          LaTeX Error: {renderLatex.error}
+        </small>
       </div>
     );
   }
@@ -196,9 +208,8 @@ const LaTeXRenderer: React.FC<{ content: string }> = ({ content }) => {
   return (
     <div
       className="notebook-output-latex"
-      dangerouslySetInnerHTML={{ __html: renderedHTML }}
+      dangerouslySetInnerHTML={{ __html: renderLatex.html }}
       style={{
-        textAlign: "center",
         margin: "1em 0",
         fontSize: "1.1em"
       }}
