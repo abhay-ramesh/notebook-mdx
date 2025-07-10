@@ -264,7 +264,7 @@ jobs:
 
           # Create GitHub release (this will trigger the publish workflow)
           gh release create "$TAG_NAME" \
-            --title "Release $TAG_NAME" \
+            --title "$TAG_NAME" \
             --notes "${{ steps.changelog.outputs.changelog }}" \
             $PRERELEASE_FLAG
         env:
