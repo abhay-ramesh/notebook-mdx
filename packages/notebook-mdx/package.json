@@ -30,6 +30,7 @@
   ],
   "sideEffects": false,
   "scripts": {
+    "preinstall": "tsc",
     "build": "tsdown",
     "dev": "tsdown --watch",
     "test": "jest",
