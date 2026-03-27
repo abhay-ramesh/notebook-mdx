@@ -1,7 +1,8 @@
 import { readFileSync } from "fs";
 import type { Root } from "mdast";
 import { dirname, resolve } from "path";
-import type { Plugin } from "unified";
+import remarkDirective from "remark-directive";
+import type { Plugin, Processor } from "unified";
 import { visit } from "unist-util-visit";
 import type { VFile } from "vfile";
 
@@ -23,13 +24,31 @@ const toBooleanProp = (value: string | undefined): boolean | undefined =>
   value !== undefined ? value === "true" || value === "" : undefined;
 
 /**
- * Remark plugin to handle notebook directives
- * Requires remark-directive to be used before this plugin
+ * All-in-one remark plugin: includes remark-directive + notebook directive handling.
+ * Users only need this one plugin — no need to install or configure remark-directive separately.
+ */
+export const remarkNotebook: Plugin<[NotebookDirectiveOptions?], Root> =
+  function (this: Processor, options = {}) {
+    // Apply remark-directive first
+    this.use(remarkDirective);
+    // Then apply the notebook directive handler
+    return remarkNotebookDirectiveHandler.call(this, options);
+  };
+
+/**
+ * Remark plugin to handle notebook directives.
+ * Requires remark-directive to be used before this plugin.
+ * Use `remarkNotebook` instead for a simpler single-plugin setup.
  */
 export const remarkNotebookDirective: Plugin<
   [NotebookDirectiveOptions?],
   Root
-> = (options = {}) => {
+> = remarkNotebookDirectiveHandler;
+
+function remarkNotebookDirectiveHandler(
+  this: unknown,
+  options: NotebookDirectiveOptions = {}
+) {
   const { componentName = "NotebookLoader" } = options;
 
   return (tree: Root, file: VFile) => {
@@ -116,6 +135,6 @@ export const remarkNotebookDirective: Plugin<
       }
     });
   };
-};
+}
 
-export default remarkNotebookDirective;
+export default remarkNotebook;

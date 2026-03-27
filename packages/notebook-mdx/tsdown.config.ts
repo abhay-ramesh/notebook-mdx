@@ -23,7 +23,6 @@ export default defineConfig({
 
     // Peer dependencies - don't bundle these
     "remark",
-    "remark-directive",
     "unified",
 
     // Node built-ins - CRITICAL for server/client separation

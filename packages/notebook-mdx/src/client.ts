@@ -19,10 +19,17 @@ export type {
   NotebookOutput
 } from "./types.js";
 
-// Helper for easier MDX component setup
 export {
   NotebookCodeCell,
   NotebookLoader,
   NotebookMarkdownCell,
   NotebookStyles
+};
+
+// Convenience object — spread into your MDX components map instead of importing 4 names
+export const notebookComponents = {
+  NotebookCodeCell,
+  NotebookLoader,
+  NotebookMarkdownCell,
+  NotebookStyles,
 };

@@ -74,12 +74,12 @@
     "highlight.js": "^11.11.1",
     "katex": "^0.16.9",
     "plotly.js-dist-min": "^2.29.1",
+    "remark-directive": "^4.0.0",
     "unist-util-visit": "^5.0.0",
     "vfile": "^6.0.3"
   },
   "peerDependencies": {
-    "react": "^18.0.0 || ^19.0.0",
-    "remark-directive": "^4.0.0",
+    "react": "^17.0.0 || ^18.0.0 || ^19.0.0",
     "unified": "^11.0.0"
   },
   "devDependencies": {
@@ -97,7 +97,6 @@
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
     "jsdom": "^26.1.0",
-    "remark-directive": "^4.0.0",
     "tsdown": "^0.12.9",
     "typescript": "^5.0.0",
     "vitest": "^3.2.4"
