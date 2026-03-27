@@ -1001,7 +1001,7 @@ const detectCellLanguage = (
 
 export const NotebookLoader: React.FC<NotebookLoaderProps> = ({
   notebookPath,
-  showCellNumbers = true,
+  showCellNumbers = false,
   notebookData,
   notebookDataJson,
   showCopyButton = true,

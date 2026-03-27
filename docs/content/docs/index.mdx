@@ -59,7 +59,7 @@ const notebookComponents = {  /* [!code highlight] */
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,
-    ...components
+    ...components,
     ...notebookComponents, /* [!code highlight] */
   } as MDXComponents;
 }
