@@ -30,6 +30,7 @@
   ],
   "sideEffects": false,
   "scripts": {
+    "prepare": "tsdown",
     "build": "tsdown",
     "dev": "tsdown --watch",
     "test": "vitest run",
