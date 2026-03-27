@@ -264,23 +264,60 @@ my-fumadocs-site/
 **Additional dependency**: `@next/mdx`
 
 ```typescript
-// next.config.js
+// next.config.mjs
 import remarkDirective from 'remark-directive';
 import { remarkNotebookDirective } from 'notebook-mdx/server';
+import createMDX from '@next/mdx';
 
-const withMDX = require('@next/mdx')({
-  extension: /\.mdx?$/,
+const withMDX = createMDX({
   options: {
     remarkPlugins: [
       remarkDirective,
-      [remarkNotebookDirective],
+      remarkNotebookDirective,
     ],
   },
 });
 
-module.exports = withMDX({
-  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'mdx'],
-});
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+};
+
+export default withMDX(nextConfig);
+```
+
+#### `mdx-components.tsx`
+
+```typescript
+import type { MDXComponents } from 'mdx/types';
+import {
+  NotebookLoader,
+  NotebookCodeCell,
+  NotebookMarkdownCell,
+  NotebookStyles,
+} from 'notebook-mdx/client';
+
+export function useMDXComponents(components: MDXComponents): MDXComponents {
+  return {
+    ...components,
+    NotebookLoader,
+    NotebookCodeCell,
+    NotebookMarkdownCell,
+    NotebookStyles,
+  };
+}
+```
+
+### ⚠️ Turbopack Compatibility
+
+`@next/mdx` is **not compatible with Turbopack** (the default bundler in Next.js 15+). You must use webpack:
+
+```bash
+# Dev
+next dev --webpack
+
+# Or set in package.json
+"dev": "next dev --webpack"
 ```
 
 ### Usage
@@ -318,9 +355,19 @@ export default {
 
 notebook-mdx works with Docusaurus v3 using its built-in MDX and remark pipeline.
 
+### Installation
+
+```bash
+npm install notebook-mdx remark-directive --legacy-peer-deps
+```
+
+> `--legacy-peer-deps` is required because Docusaurus pins React to a specific version that may conflict with notebook-mdx's peer dep range.
+
 ### Configuration
 
 #### 1. Add remark plugins to your preset
+
+`remark-directive` is a pure ESM package — you **must** use ES `import`, not `require()`.
 
 ```javascript
 // docusaurus.config.js
