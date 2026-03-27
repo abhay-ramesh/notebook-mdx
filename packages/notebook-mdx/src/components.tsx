@@ -557,6 +557,9 @@ const renderOutputData = (output: NotebookOutput) => {
   }
 
   if (output.output_type === "error") {
+    // Strip ANSI escape codes — Jupyter notebooks embed colour codes in
+    // tracebacks (e.g. \x1b[0;31m) that must not be shown as raw text.
+    const stripAnsi = (s: string) => s.replace(/\x1b\[[\d;]*m/g, "");
     return (
       <div className="jp-output-error">
         <div className="jp-output-error-name">
@@ -564,7 +567,7 @@ const renderOutputData = (output: NotebookOutput) => {
         </div>
         {output.traceback && (
           <pre className="jp-output-traceback">
-            {output.traceback.join("\n")}
+            {output.traceback.map(stripAnsi).join("\n")}
           </pre>
         )}
       </div>
