@@ -219,10 +219,12 @@ jobs:
 
       - name: 📝 Generate enhanced changelog
         id: changelog
+        env:
+          RELEASE_NOTES: ${{ needs.prepare-release.outputs.release_notes }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             CURRENT_TAG="v${{ needs.prepare-release.outputs.new_version }}"
-            CHANGELOG="${{ needs.prepare-release.outputs.release_notes }}"
+            CHANGELOG="$RELEASE_NOTES"
           else
             # For tag push, extract from git
             PREVIOUS_TAG=$(git tag --sort=-version:refname | head -2 | tail -1)
@@ -247,6 +249,9 @@ jobs:
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: 🚀 Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
+          CHANGELOG_NOTES: ${{ steps.changelog.outputs.changelog }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             TAG_NAME="v${{ needs.prepare-release.outputs.new_version }}"
@@ -265,10 +270,8 @@ jobs:
           # Create GitHub release (this will trigger the publish workflow)
           gh release create "$TAG_NAME" \
             --title "$TAG_NAME" \
-            --notes "${{ steps.changelog.outputs.changelog }}" \
+            --notes "$CHANGELOG_NOTES" \
             $PRERELEASE_FLAG
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
 
   dry-run-summary:
     name: 🔍 Dry Run Summary
