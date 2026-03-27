@@ -33,3 +33,12 @@ export const notebookComponents = {
   NotebookMarkdownCell,
   NotebookStyles,
 };
+
+// Astro-specific: Astro lowercases hast node names when resolving MDX components,
+// so PascalCase keys like NotebookLoader won't match. Use this in Astro MDX pages.
+export const notebookComponentsAstro = {
+  notebookloader: NotebookLoader,
+  notebookcodecell: NotebookCodeCell,
+  notebookmarkdowncell: NotebookMarkdownCell,
+  notebookstyles: NotebookStyles,
+};

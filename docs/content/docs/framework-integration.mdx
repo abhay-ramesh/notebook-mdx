@@ -291,14 +291,59 @@ Works with both Pages Router (`pages/`) and App Router (`app/`) in Next.js.
 
 ## 📖 Nextra
 
-**Status: 🚧 Coming Soon**
+**Status: ✅ Supported**
 
-Integration with Nextra is planned and will include:
+notebook-mdx works with Nextra v4 on Next.js 15.
 
-- Simple configuration setup
-- Theme integration (light/dark mode)
-- Search integration for notebook content
-- Custom components for enhanced display
+### Installation
+
+```bash
+npm install notebook-mdx nextra nextra-theme-docs
+```
+
+### Configuration
+
+```js
+// next.config.mjs
+import nextra from 'nextra'
+import { remarkNotebook } from 'notebook-mdx/server'
+
+const withNextra = nextra({
+  mdxOptions: {
+    remarkPlugins: [remarkNotebook],
+  },
+})
+
+export default withNextra({})
+```
+
+### Component registration
+
+```jsx
+// mdx-components.jsx
+import { useMDXComponents as useNextraMDXComponents } from 'nextra/mdx-components'
+import { notebookComponents } from 'notebook-mdx/client'
+
+export function useMDXComponents(components) {
+  return useNextraMDXComponents({
+    ...notebookComponents,
+    ...components,
+  })
+}
+```
+
+### ⚠️ Turbopack incompatibility
+
+Same as Next.js + `@next/mdx` — Turbopack silently drops remark plugins (Next.js 15) or throws a hard error (Next.js 16). Always run without Turbopack:
+
+```bash
+next dev --webpack
+# or in package.json: "dev": "next dev --webpack"
+```
+
+### ⚠️ Next.js 16 not supported
+
+Nextra v4 + Next.js 16 has an RSC/SWC bug unrelated to notebook-mdx. Use Next.js 15.
 
 ## 📘 Docusaurus
 
@@ -378,13 +423,11 @@ my-docusaurus-site/
 
 ## 📙 VitePress
 
-**Status: 🚧 Planned**
+**Status: ❌ Not Supported**
 
-VitePress support is planned for future releases:
+VitePress uses **markdown-it** (not remark/unified) and **Vue 3** (not React). notebook-mdx remark plugins cannot be used in VitePress's pipeline.
 
-- Vue 3 component integration
-- Vite build optimization
-- Theme integration
+Supporting VitePress would require a separate Vue component library and a markdown-it plugin — a significant effort with a different architecture. If you need VitePress support, [open an issue](https://github.com/abhay-ramesh/notebook-mdx/issues) to express interest.
 
 ## 📕 GitBook
 
@@ -398,23 +441,122 @@ GitBook integration is under consideration:
 
 ## 📗 Astro
 
-**Status: 🚧 Planned**
+**Status: ✅ Supported**
 
-Astro integration is planned:
+notebook-mdx works with Astro via `@astrojs/mdx` and `@astrojs/react`.
 
-- Island architecture support
-- Multi-framework compatibility
-- Static site optimization
+### Installation
+
+```bash
+npm install notebook-mdx @astrojs/mdx @astrojs/react
+```
+
+### Configuration
+
+```js
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import mdx from '@astrojs/mdx';
+import react from '@astrojs/react';
+import { remarkNotebook } from 'notebook-mdx/server';
+
+export default defineConfig({
+  integrations: [
+    react(),
+    mdx({
+      remarkPlugins: [remarkNotebook],
+    }),
+  ],
+});
+```
+
+### Component registration
+
+Astro lowercases MDX component names when resolving them, so you must use `notebookComponentsAstro` (with lowercase keys) instead of `notebookComponents`:
+
+```mdx
+---
+// src/pages/my-doc.mdx
+---
+import { notebookComponentsAstro } from 'notebook-mdx/client';
+
+export const components = notebookComponentsAstro;
+
+# My Doc
+
+:::notebook{file="./example.ipynb"}
+:::
+```
+
+### ⚠️ Per-page component registration
+
+Unlike Next.js or Fumadocs where components are registered globally, Astro requires you to export `components` from each MDX page that uses notebooks.
 
 ## 📘 Gatsby
 
-**Status: 🚧 Planned**
+**Status: ✅ Supported**
 
-Gatsby plugin development:
+notebook-mdx works with Gatsby v5 + `gatsby-plugin-mdx`, but requires a specific `remark-directive` version due to a unified version mismatch.
 
-- GraphQL integration
-- Image optimization
-- Performance optimization
+### Installation
+
+```bash
+npm install notebook-mdx gatsby-plugin-mdx gatsby-source-filesystem
+npm install remark-directive@2   # Must be v2 — Gatsby uses @mdx-js/mdx@2 (unified@10), remark-directive@3+ requires unified@11
+```
+
+### ⚠️ Use `remarkNotebookDirective`, not `remarkNotebook`
+
+`remarkNotebook` internally bundles `remark-directive@4` which will crash in Gatsby. You must use `remarkNotebookDirective` with `remark-directive@2` explicitly:
+
+### Configuration
+
+```js
+// gatsby-config.mjs
+import { fileURLToPath } from 'url'
+import { dirname, resolve } from 'path'
+import remarkDirective from 'remark-directive'              // v2 installed above
+import { remarkNotebookDirective } from 'notebook-mdx/server'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
+const config = {
+  plugins: [
+    {
+      resolve: 'gatsby-source-filesystem',
+      options: {
+        name: 'pages',
+        path: resolve(__dirname, 'src/pages'),  // Required for gatsby-plugin-mdx
+      },
+    },
+    {
+      resolve: 'gatsby-plugin-mdx',
+      options: {
+        mdxOptions: {
+          remarkPlugins: [remarkDirective, remarkNotebookDirective],
+        },
+      },
+    },
+  ],
+}
+
+export default config
+```
+
+### Component registration
+
+Gatsby uses `wrapRootElement` in both `gatsby-browser.js` and `gatsby-ssr.js`:
+
+```js
+// gatsby-browser.js (and gatsby-ssr.js — same content)
+import React from 'react'
+import { MDXProvider } from '@mdx-js/react'
+import { notebookComponents } from 'notebook-mdx/client'
+
+export const wrapRootElement = ({ element }) => (
+  <MDXProvider components={notebookComponents}>{element}</MDXProvider>
+)
+```
 
 ## 🔧 Custom Framework Integration
 
@@ -444,20 +586,21 @@ If you're working on integration with a framework not listed here:
 | Framework | Status | Difficulty | Notes |
 |-----------|--------|------------|-------|
 | **Fumadocs** | ✅ Ready | Easy | Full support |
-| **Next.js + MDX** | ✅ Ready | Easy | Use `--webpack` flag (Turbopack unsupported by `@next/mdx`) |
+| **Next.js + MDX** | ✅ Ready | Easy | Use `--webpack` (Turbopack incompatible with `@next/mdx`) |
 | **Docusaurus** | ✅ Ready | Easy | Full support |
-| **Nextra** | 🚧 In Progress | Easy | Theme integration |
-| **VitePress** | 📋 Planned | Medium | Vue components |
-| **Astro** | 📋 Planned | Medium | Islands architecture |
+| **Nextra** | ✅ Ready | Easy | Use `--webpack`; Next.js 15 only |
+| **Astro** | ✅ Ready | Easy | Use `notebookComponentsAstro` for component registration |
+| **Gatsby** | ✅ Ready | Medium | Use `remarkNotebookDirective` + `remark-directive@2` (unified@10) |
+| **VitePress** | ❌ Not supported | — | Uses markdown-it + Vue, incompatible architecture |
 | **GitBook** | 🤔 Evaluating | Hard | Block system |
-| **Gatsby** | 📋 Planned | Medium | GraphQL integration |
 
 ## 🎯 Recommended Workflow
 
 1. **Start with Fumadocs** if you're building a new documentation site
 2. **Use Next.js + MDX** for existing Next.js applications
-3. **Wait for official plugins** for other frameworks
-4. **Request integration** for your preferred framework via GitHub issues
+3. **Use Nextra** for Next.js with a built-in docs theme
+4. **Use Astro or Docusaurus** for other React-based doc sites
+5. **Request integration** for your preferred framework via GitHub issues
 
 ---
 
