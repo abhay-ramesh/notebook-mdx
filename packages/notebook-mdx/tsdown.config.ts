@@ -44,14 +44,11 @@ export default defineConfig({
     js: format === "cjs" ? ".cjs" : ".js"
   }),
   outputOptions: {
-    // Add "use client" directive to client-side components
+    // Add "use client" directive only to the client entry point.
+    // The main index bundle re-exports the server-side remark plugin which
+    // uses Node.js `fs`, so it must NOT be marked as a client module.
     banner: (chunk) => {
-      // Add "use client" to client entry and any components
-      if (
-        chunk.fileName.includes("client") ||
-        chunk.fileName === "index.js" ||
-        chunk.fileName === "index.cjs"
-      ) {
+      if (chunk.fileName.includes("client")) {
         return '"use client";';
       }
       return "";
