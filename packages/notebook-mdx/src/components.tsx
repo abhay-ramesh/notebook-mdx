@@ -227,120 +227,53 @@ const PlotlyRenderer: React.FC<{ data: any; config?: any; layout?: any }> = ({
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [isClient, setIsClient] = React.useState(false);
-  const [debugInfo, setDebugInfo] = React.useState<string>("Initializing...");
 
   // Ensure we're on the client side and DOM is ready
   React.useEffect(() => {
-    console.log("🔍 PlotlyRenderer: Checking client environment");
-    // Double-check we're in a browser environment
     if (typeof window !== "undefined" && typeof document !== "undefined") {
-      console.log("✅ PlotlyRenderer: Client environment detected");
       setIsClient(true);
-      setDebugInfo("Client environment ready");
-    } else {
-      console.log("❌ PlotlyRenderer: Server-side environment");
-      setDebugInfo("Server-side environment");
     }
   }, []);
 
   React.useEffect(() => {
-    if (!isClient) {
-      console.log("⏳ PlotlyRenderer: Waiting for client environment");
-      return;
-    }
-
-    console.log("🚀 PlotlyRenderer: Starting Plotly loading process");
-    setDebugInfo("Loading Plotly library...");
+    if (!isClient) return;
 
     const loadPlotlyDirect = async () => {
       try {
-        console.log(
-          "📦 PlotlyRenderer: Attempting to import plotly.js-dist-min"
-        );
-
         // Add a small delay to ensure the DOM is fully ready
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        // Check if we're really in a browser environment
         if (typeof window === "undefined" || typeof document === "undefined") {
           throw new Error("Browser environment not available");
         }
 
-        console.log("🔄 PlotlyRenderer: Dynamic importing plotly.js-dist-min");
-        setDebugInfo("Importing Plotly module...");
-
-        // Try to import plotly.js-dist-min directly
         let Plotly: any;
 
         try {
           const plotlyModule = await import("plotly.js-dist-min" as any);
-          console.log(
-            "📦 PlotlyRenderer: Import successful, module keys:",
-            Object.keys(plotlyModule || {})
-          );
-
           Plotly = plotlyModule.default || plotlyModule;
-          console.log("🔍 PlotlyRenderer: Plotly object type:", typeof Plotly);
-          console.log(
-            "🔍 PlotlyRenderer: Plotly has newPlot?",
-            typeof Plotly?.newPlot
-          );
         } catch (importErr: any) {
-          console.error(
-            "❌ PlotlyRenderer: Failed to import plotly.js-dist-min:",
-            importErr
-          );
-          setDebugInfo(`Import failed: ${importErr?.message}`);
           throw new Error(
             `Could not load Plotly library: ${importErr?.message || "Unknown import error"}`
           );
         }
 
-        // Validate that we got the Plotly object
         if (!Plotly) {
-          console.error("❌ PlotlyRenderer: No Plotly object received");
-          setDebugInfo("No Plotly object in module");
           throw new Error("plotly.js-dist-min did not provide a Plotly object");
         }
 
         if (typeof Plotly.newPlot !== "function") {
-          console.error(
-            "❌ PlotlyRenderer: Plotly.newPlot is not a function:",
-            typeof Plotly.newPlot
-          );
-          console.error(
-            "Available methods:",
-            Object.keys(Plotly).filter(
-              (key) => typeof Plotly[key] === "function"
-            )
-          );
-          setDebugInfo("Plotly.newPlot not available");
           throw new Error(
             "plotly.js-dist-min did not provide a valid newPlot function"
           );
         }
 
-        // Successfully loaded!
-        console.log("✅ PlotlyRenderer: Plotly library loaded successfully");
         setPlotly(Plotly);
         setError(null);
-        setDebugInfo("Plotly library ready");
       } catch (err: any) {
-        console.error("❌ PlotlyRenderer: Failed to load Plotly:", err);
         const errorMessage =
           err instanceof Error ? err.message : "Plotly library not available";
         setError(errorMessage);
-        setDebugInfo(`Error: ${errorMessage}`);
-
-        // For development, provide more details
-        if (process.env.NODE_ENV === "development") {
-          console.error("PlotlyRenderer loading error details:", {
-            error: err,
-            isClient,
-            hasWindow: typeof window !== "undefined",
-            hasDocument: typeof document !== "undefined"
-          });
-        }
       } finally {
         setLoading(false);
       }
@@ -351,17 +284,7 @@ const PlotlyRenderer: React.FC<{ data: any; config?: any; layout?: any }> = ({
 
   // Create the plot when Plotly is loaded
   React.useEffect(() => {
-    if (!plotly || !plotRef.current || !data) {
-      console.log("⏳ PlotlyRenderer: Waiting for prerequisites", {
-        hasPlotly: !!plotly,
-        hasRef: !!plotRef.current,
-        hasData: !!data
-      });
-      return;
-    }
-
-    console.log("🎨 PlotlyRenderer: Creating plot with data:", data);
-    setDebugInfo("Creating chart...");
+    if (!plotly || !plotRef.current || !data) return;
 
     const createPlot = async () => {
       try {
@@ -383,13 +306,6 @@ const PlotlyRenderer: React.FC<{ data: any; config?: any; layout?: any }> = ({
           height: undefined
         };
 
-        console.log("📊 PlotlyRenderer: Calling newPlot with:", {
-          element: plotRef.current,
-          dataLength: Array.isArray(data) ? data.length : "not-array",
-          layout: Object.keys(plotLayout),
-          config: Object.keys(plotConfig)
-        });
-
         await plotly.newPlot(plotRef.current, data, plotLayout, plotConfig);
 
         // Force a resize after plot creation to ensure proper fitting
@@ -398,15 +314,10 @@ const PlotlyRenderer: React.FC<{ data: any; config?: any; layout?: any }> = ({
             plotly.Plots.resize(plotRef.current);
           }
         }, 100);
-
-        console.log("✅ PlotlyRenderer: Chart rendered successfully");
-        setDebugInfo("Chart rendered successfully");
       } catch (plotErr: any) {
-        console.error("❌ PlotlyRenderer: Failed to create plot:", plotErr);
         const errorMessage =
           plotErr instanceof Error ? plotErr.message : "Failed to render chart";
         setError(errorMessage);
-        setDebugInfo(`Render error: ${errorMessage}`);
       }
     };
 
@@ -432,10 +343,9 @@ const PlotlyRenderer: React.FC<{ data: any; config?: any; layout?: any }> = ({
     return () => {
       if (plotly && plotRef.current) {
         try {
-          console.log("🧹 PlotlyRenderer: Cleaning up chart");
           plotly.purge(plotRef.current);
-        } catch (err) {
-          console.warn("PlotlyRenderer cleanup error:", err);
+        } catch {
+          // ignore cleanup errors
         }
       }
     };
@@ -458,8 +368,6 @@ const PlotlyRenderer: React.FC<{ data: any; config?: any; layout?: any }> = ({
           📊 Loading interactive chart...
           <br />
           <small>Plotly.js is loading</small>
-          <br />
-          <small style={{ color: "#999", fontSize: "11px" }}>{debugInfo}</small>
         </div>
       </div>
     );
@@ -480,10 +388,6 @@ const PlotlyRenderer: React.FC<{ data: any; config?: any; layout?: any }> = ({
           <strong>📊 Interactive Chart Unavailable</strong>
           <br />
           <small>{error || "Plotly library not available"}</small>
-          <br />
-          <small style={{ color: "#666", marginTop: "5px", display: "block" }}>
-            Debug: {debugInfo}
-          </small>
           <details style={{ marginTop: "10px" }}>
             <summary style={{ cursor: "pointer", color: "#1976d2" }}>
               View Raw Chart Data
