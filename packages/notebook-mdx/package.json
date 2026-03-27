@@ -30,7 +30,7 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "preinstall": "tsc",
+    "prepare": "tsdown",
     "build": "tsdown",
     "dev": "tsdown --watch",
     "test": "vitest run",
