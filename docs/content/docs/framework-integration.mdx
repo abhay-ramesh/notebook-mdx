@@ -12,7 +12,7 @@ Learn how to integrate notebook-mdx with popular documentation frameworks. Get y
 ### Installation
 
 ```package-install
-npm install notebook-mdx remark-directive
+npm install notebook-mdx
 ```
 
 ### Basic Configuration
@@ -23,17 +23,11 @@ notebook-mdx requires two main components:
 2. **Client-side**: React components for rendering notebooks
 
 ```typescript
-// Import the server plugin
-import remarkDirective from 'remark-directive';
-import { remarkNotebookDirective } from 'notebook-mdx/server';
+// Import the server plugin (includes remark-directive automatically)
+import { remarkNotebook } from 'notebook-mdx/server';
 
-// Import client components
-import {
-  NotebookCodeCell,
-  NotebookLoader,
-  NotebookMarkdownCell,
-  NotebookStyles
-} from 'notebook-mdx/client';
+// Import client components (one spread, all components included)
+import { notebookComponents } from 'notebook-mdx/client';
 ```
 
 ### Usage in MDX
@@ -65,12 +59,12 @@ This notebook demonstrates data analysis techniques.
 
 ```typescript
 // Custom base directory for notebooks
-[remarkNotebookDirective, {
+[remarkNotebook, {
   baseDir: './content/notebooks',
 }]
 
 // Custom component name
-[remarkNotebookDirective, {
+[remarkNotebook, {
   componentName: 'CustomNotebookRenderer',
 }]
 ```
@@ -92,7 +86,7 @@ notebook-mdx strives to provide a good development experience with several key b
 **Full HMR support for notebooks is a priority on our roadmap!** Soon you'll be able to:
 
 - Edit notebooks in Jupyter/VSCode → See changes immediately in your docs
-- Modify notebook cells → Updates appear instantly  
+- Modify notebook cells → Updates appear instantly
 - No workarounds needed → True hot reload experience
 
 #### ⚡ Fast Rendering
@@ -105,19 +99,13 @@ notebook-mdx strives to provide a good development experience with several key b
 - **Clear error messages** - Helpful debugging information when notebooks fail to load
 - **Component inspection** - Works seamlessly with React DevTools
 
-```mdx
-// Current workflow: Edit notebook → Save this MDX file → See changes
-:::notebook{file="./examples/data-analysis.ipynb"}
-:::
-```
-
 ---
 
 ## 📚 Fumadocs
 
 **Status: ✅ Fully Supported**
 
-Fumadocs is a modern documentation framework built on Next.js. 
+Fumadocs is a modern documentation framework built on Next.js.
 
 ### Configuration
 
@@ -125,8 +113,7 @@ Fumadocs is a modern documentation framework built on Next.js.
 
 ```typescript
 // source.config.ts
-import { remarkNotebookDirective } from 'notebook-mdx/server';
-import remarkDirective from 'remark-directive';
+import { remarkNotebook } from 'notebook-mdx/server';
 import { defineConfig, defineDocs } from 'fumadocs-mdx/config';
 
 export const { docs, meta } = defineDocs({
@@ -136,8 +123,7 @@ export const { docs, meta } = defineDocs({
 export default defineConfig({
   mdxOptions: {
     remarkPlugins: [
-      remarkDirective,           // Required: Enable directive syntax
-      [remarkNotebookDirective], // Add notebook support
+      remarkNotebook, // Handles everything — no separate remark-directive needed
     ],
   },
 });
@@ -149,26 +135,13 @@ export default defineConfig({
 // mdx-components.tsx
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
-import {
-  NotebookCodeCell,
-  NotebookLoader,
-  NotebookMarkdownCell,
-  NotebookStyles
-} from "notebook-mdx/client";
-
-// Direct import approach to avoid timing issues
-const notebookComponents = {
-  NotebookCodeCell,
-  NotebookLoader,
-  NotebookMarkdownCell,
-  NotebookStyles
-};
+import { notebookComponents } from "notebook-mdx/client";
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,
     ...components,
-    ...notebookComponents
+    ...notebookComponents,
   } as MDXComponents;
 }
 ```
@@ -182,9 +155,8 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
 export default defineConfig({
   mdxOptions: {
     remarkPlugins: [
-      remarkDirective,
-      [remarkNotebookDirective, {
-        baseDir: './content/notebooks',  // Custom notebook directory
+      [remarkNotebook, {
+        baseDir: './content/notebooks',
       }],
     ],
   },
@@ -198,8 +170,7 @@ export default defineConfig({
 export default defineConfig({
   mdxOptions: {
     remarkPlugins: [
-      remarkDirective,
-      [remarkNotebookDirective, {
+      [remarkNotebook, {
         componentName: 'CustomNotebookRenderer',
       }],
     ],
@@ -249,7 +220,7 @@ my-fumadocs-site/
    ```mdx
    <Callout type="info">
    The following notebook demonstrates the core concepts:
-   
+
    :::notebook{file="./core-concepts.ipynb" cells="1-3"}
    :::
    </Callout>
@@ -259,21 +230,23 @@ my-fumadocs-site/
 
 **Status: ✅ Fully Supported**
 
-### Configuration
+### Installation
 
-**Additional dependency**: `@next/mdx`
+```bash
+npm install notebook-mdx @next/mdx
+```
+
+### Configuration
 
 ```typescript
 // next.config.mjs
-import remarkDirective from 'remark-directive';
-import { remarkNotebookDirective } from 'notebook-mdx/server';
+import { remarkNotebook } from 'notebook-mdx/server';
 import createMDX from '@next/mdx';
 
 const withMDX = createMDX({
   options: {
     remarkPlugins: [
-      remarkDirective,
-      remarkNotebookDirective,
+      remarkNotebook,
     ],
   },
 });
@@ -290,20 +263,12 @@ export default withMDX(nextConfig);
 
 ```typescript
 import type { MDXComponents } from 'mdx/types';
-import {
-  NotebookLoader,
-  NotebookCodeCell,
-  NotebookMarkdownCell,
-  NotebookStyles,
-} from 'notebook-mdx/client';
+import { notebookComponents } from 'notebook-mdx/client';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     ...components,
-    NotebookLoader,
-    NotebookCodeCell,
-    NotebookMarkdownCell,
-    NotebookStyles,
+    ...notebookComponents,
   };
 }
 ```
@@ -335,20 +300,6 @@ Integration with Nextra is planned and will include:
 - Search integration for notebook content
 - Custom components for enhanced display
 
-Expected completion: **Q2 2025**
-
-```typescript
-// nextra.config.js (Preview)
-export default {
-  // Configuration will be available soon
-  mdxOptions: {
-    remarkPlugins: [
-      // nextra-notebook integration
-    ],
-  },
-}
-```
-
 ## 📘 Docusaurus
 
 **Status: ✅ Supported**
@@ -358,36 +309,25 @@ notebook-mdx works with Docusaurus v3 using its built-in MDX and remark pipeline
 ### Installation
 
 ```bash
-npm install notebook-mdx remark-directive --legacy-peer-deps
+npm install notebook-mdx
 ```
-
-> `--legacy-peer-deps` is required because Docusaurus pins React to a specific version that may conflict with notebook-mdx's peer dep range.
 
 ### Configuration
 
-#### 1. Add remark plugins to your preset
-
-`remark-directive` is a pure ESM package — you **must** use ES `import`, not `require()`.
+#### 1. Add remark plugin to your preset
 
 ```javascript
 // docusaurus.config.js
-import remarkDirective from 'remark-directive';
-import { remarkNotebookDirective } from 'notebook-mdx/server';
+import { remarkNotebook } from 'notebook-mdx/server';
 
 export default {
   presets: [
     ['@docusaurus/preset-classic', {
       docs: {
-        remarkPlugins: [
-          remarkDirective,
-          remarkNotebookDirective,
-        ],
+        remarkPlugins: [remarkNotebook],
       },
       blog: {
-        remarkPlugins: [
-          remarkDirective,
-          remarkNotebookDirective,
-        ],
+        remarkPlugins: [remarkNotebook],
       },
     }],
   ],
@@ -400,28 +340,13 @@ Docusaurus uses a "swizzle" pattern to extend MDX components. Create or update `
 
 ```javascript
 // src/theme/MDXComponents.js
-import React from 'react';
 import MDXComponents from '@theme-original/MDXComponents';
-import {
-  NotebookLoader,
-  NotebookCodeCell,
-  NotebookMarkdownCell,
-  NotebookStyles,
-} from 'notebook-mdx/client';
+import { notebookComponents } from 'notebook-mdx/client';
 
 export default {
   ...MDXComponents,
-  NotebookLoader,
-  NotebookCodeCell,
-  NotebookMarkdownCell,
-  NotebookStyles,
+  ...notebookComponents,
 };
-```
-
-If the file doesn't exist yet, run:
-
-```bash
-npm run swizzle @docusaurus/theme-classic MDXComponents -- --wrap
 ```
 
 #### 3. Use in your MDX files
@@ -461,8 +386,6 @@ VitePress support is planned for future releases:
 - Vite build optimization
 - Theme integration
 
-Expected completion: **Q3 2025**
-
 ## 📕 GitBook
 
 **Status: 🚧 Planned**
@@ -472,8 +395,6 @@ GitBook integration is under consideration:
 - Block-based notebook rendering
 - Collaborative editing support
 - Version control integration
-
-Status: **Under evaluation**
 
 ## 📗 Astro
 
@@ -485,8 +406,6 @@ Astro integration is planned:
 - Multi-framework compatibility
 - Static site optimization
 
-Expected completion: **Q3 2025**
-
 ## 📘 Gatsby
 
 **Status: 🚧 Planned**
@@ -496,8 +415,6 @@ Gatsby plugin development:
 - GraphQL integration
 - Image optimization
 - Performance optimization
-
-Expected completion: **Q4 2025**
 
 ## 🔧 Custom Framework Integration
 
@@ -520,42 +437,28 @@ Your framework needs:
 
 If you're working on integration with a framework not listed here:
 
-- 📧 **Email**: [Contact us](mailto:support@notebook-mdx.dev)
-- 💬 **Discord**: [Join our community](https://discord.gg/notebook-mdx)
 - 🐙 **GitHub**: [Open an issue](https://github.com/abhay-ramesh/notebook-mdx/issues)
-
-## 🚀 Quick Start Templates
-
-**Coming soon**: Official templates for popular frameworks
-
-```bash
-# Fumadocs template (coming soon)
-npx create-fumadocs-app --template notebook-mdx
-
-# Next.js template (coming soon)  
-npx create-next-app --template notebook-mdx
-```
 
 ## 📊 Framework Comparison
 
-| Framework | Status | Difficulty | Features | ETA |
-|-----------|--------|------------|----------|-----|
-| **Fumadocs** | ✅ Ready | Easy | Full support | Now |
-| **Next.js + MDX** | ✅ Ready | Easy | Full support | Now |
-| **Docusaurus** | ✅ Ready | Easy | Full support | Now |
-| **Nextra** | 🚧 In Progress | Easy | Theme integration | TBD |
-| **VitePress** | 📋 Planned | Medium | Vue components | Q3 2025 |
-| **Astro** | 📋 Planned | Medium | Islands architecture | Q3 2025 |
-| **GitBook** | 🤔 Evaluating | Hard | Block system | TBD |
-| **Gatsby** | 📋 Planned | Medium | GraphQL integration | Q4 2025 |
+| Framework | Status | Difficulty | Notes |
+|-----------|--------|------------|-------|
+| **Fumadocs** | ✅ Ready | Easy | Full support |
+| **Next.js + MDX** | ✅ Ready | Easy | Use `--webpack` flag (Turbopack unsupported by `@next/mdx`) |
+| **Docusaurus** | ✅ Ready | Easy | Full support |
+| **Nextra** | 🚧 In Progress | Easy | Theme integration |
+| **VitePress** | 📋 Planned | Medium | Vue components |
+| **Astro** | 📋 Planned | Medium | Islands architecture |
+| **GitBook** | 🤔 Evaluating | Hard | Block system |
+| **Gatsby** | 📋 Planned | Medium | GraphQL integration |
 
 ## 🎯 Recommended Workflow
 
 1. **Start with Fumadocs** if you're building a new documentation site
-2. **Use Next.js + MDX** for existing Next.js applications  
+2. **Use Next.js + MDX** for existing Next.js applications
 3. **Wait for official plugins** for other frameworks
 4. **Request integration** for your preferred framework via GitHub issues
 
 ---
 
-**Have questions about framework integration?** Check our [GitHub Discussions](https://github.com/abhay-ramesh/notebook-mdx/discussions) or [open an issue](https://github.com/abhay-ramesh/notebook-mdx/issues). 
+**Have questions about framework integration?** Check our [GitHub Discussions](https://github.com/abhay-ramesh/notebook-mdx/discussions) or [open an issue](https://github.com/abhay-ramesh/notebook-mdx/issues).

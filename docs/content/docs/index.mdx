@@ -21,7 +21,7 @@ A powerful remark plugin for rendering Jupyter notebooks in MDX with authentic s
 ## 📦 Installation
 
 ```package-install
-npm install notebook-mdx remark-directive
+npm install notebook-mdx
 ```
 
 ## 🚀 Quick Start
@@ -30,31 +30,22 @@ npm install notebook-mdx remark-directive
 
 Add the remark plugin to your MDX configuration:
 
-```typescript title="next.config.js"
-import remarkDirective from 'remark-directive';
-import { remarkNotebookDirective } from 'notebook-mdx/server'; /* [!code highlight] */
+```typescript title="next.config.mjs"
+import { remarkNotebook } from 'notebook-mdx/server'; /* [!code highlight] */
 
 // ...
   remarkPlugins: [
-    remarkDirective, /* [!code highlight] */
-    remarkNotebookDirective, /* [!code highlight] */
+    remarkNotebook, /* [!code highlight] */
   ],
 // ...
 ```
 
-### 2. Import the components
+### 2. Add the components
 
-```typescript title="mdx-components.tsx" 
+```typescript title="mdx-components.tsx"
 import defaultMdxComponents from 'fumadocs-ui/mdx';
 import type { MDXComponents } from 'mdx/types';
-import { NotebookCodeCell, NotebookLoader, NotebookMarkdownCell, NotebookStyles } from 'notebook-mdx'; /* [!code highlight] */
-
-const notebookComponents = {  /* [!code highlight] */
-  NotebookCodeCell, /* [!code highlight] */
-  NotebookLoader, /* [!code highlight] */
-  NotebookMarkdownCell, /* [!code highlight] */
-  NotebookStyles /* [!code highlight] */
-}; /* [!code highlight] */
+import { notebookComponents } from 'notebook-mdx/client'; /* [!code highlight] */
 
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
@@ -72,11 +63,13 @@ That's it! Now you can use notebook directives directly:
 ```mdx title="my-page.mdx"
 # My Article
 
-::notebook{file="./example.ipynb"} 
+:::notebook{file="./example.ipynb"}
+:::
 
 More content here...
 
-::notebook{file="./demo.ipynb"}
+:::notebook{file="./demo.ipynb"}
+:::
 ```
 
 ## 🎨 Directive Options
@@ -116,7 +109,7 @@ This notebook shows our data analysis results
 The plugin provides authentic Jupyter notebook styling that matches VSCode and Jupyter Lab:
 
 - **Input prompts**: Blue `In [n]:` indicators
-- **Output prompts**: Orange `Out[n]:` indicators  
+- **Output prompts**: Orange `Out[n]:` indicators
 - **Cell borders**: Subtle borders with hover effects
 - **Monospace fonts**: System monospace fonts for code
 - **Color scheme**: Authentic Jupyter color palette
@@ -143,15 +136,13 @@ The plugin provides authentic Jupyter notebook styling that matches VSCode and J
 
 ## 🔧 Plugin Configuration
 
-You can configure the plugin behavior:
+Pass options to customize behavior:
 
 ```typescript
-import { remarkNotebookDirective } from 'notebook-mdx';
+import { remarkNotebook } from 'notebook-mdx/server';
 
-// With options
 remarkPlugins: [
-  remarkDirective,
-  [remarkNotebookDirective, {
+  [remarkNotebook, {
     baseDir: './notebooks',
     componentName: 'CustomNotebookLoader'
   }]
@@ -177,7 +168,7 @@ No manual component imports needed - everything works automatically through the 
 **Current workflow**: When you edit a notebook file, changes won't automatically appear in your browser. To see updates:
 
 1. **Resave the MDX file** that contains the notebook directive, or
-2. **Make a small edit** to the MDX file and save, or  
+2. **Make a small edit** to the MDX file and save, or
 3. **Restart your dev server** if the above doesn't work
 
 > **Coming soon**: Hot module reload support for notebook files is a high priority on our roadmap!
