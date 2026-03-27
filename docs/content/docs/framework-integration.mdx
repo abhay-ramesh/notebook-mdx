@@ -314,24 +314,94 @@ export default {
 
 ## 📘 Docusaurus
 
-**Status: 🚧 Coming Soon**
+**Status: ✅ Supported**
 
-Docusaurus integration is in development and will provide:
+notebook-mdx works with Docusaurus v3 using its built-in MDX and remark pipeline.
 
-- Plugin-based installation
-- Sidebar integration
-- Multi-versioning support
-- Internationalization support
+### Configuration
 
-Expected completion: **Q2 2025**
+#### 1. Add remark plugins to your preset
 
 ```javascript
-// docusaurus.config.js (Preview)
-module.exports = {
-  plugins: [
-    // '@notebook-mdx/docusaurus-plugin', // Coming soon
+// docusaurus.config.js
+import remarkDirective from 'remark-directive';
+import { remarkNotebookDirective } from 'notebook-mdx/server';
+
+export default {
+  presets: [
+    ['@docusaurus/preset-classic', {
+      docs: {
+        remarkPlugins: [
+          remarkDirective,
+          remarkNotebookDirective,
+        ],
+      },
+      blog: {
+        remarkPlugins: [
+          remarkDirective,
+          remarkNotebookDirective,
+        ],
+      },
+    }],
   ],
 };
+```
+
+#### 2. Register MDX components via swizzling
+
+Docusaurus uses a "swizzle" pattern to extend MDX components. Create or update `src/theme/MDXComponents.js`:
+
+```javascript
+// src/theme/MDXComponents.js
+import React from 'react';
+import MDXComponents from '@theme-original/MDXComponents';
+import {
+  NotebookLoader,
+  NotebookCodeCell,
+  NotebookMarkdownCell,
+  NotebookStyles,
+} from 'notebook-mdx/client';
+
+export default {
+  ...MDXComponents,
+  NotebookLoader,
+  NotebookCodeCell,
+  NotebookMarkdownCell,
+  NotebookStyles,
+};
+```
+
+If the file doesn't exist yet, run:
+
+```bash
+npm run swizzle @docusaurus/theme-classic MDXComponents -- --wrap
+```
+
+#### 3. Use in your MDX files
+
+```mdx
+---
+title: My Tutorial
+---
+
+# Data Analysis
+
+:::notebook{file="./example.ipynb"}
+:::
+```
+
+### Project Structure
+
+```
+my-docusaurus-site/
+├── docs/
+│   ├── tutorial.mdx
+│   └── examples/
+│       └── example.ipynb      # Notebooks alongside content
+├── src/
+│   └── theme/
+│       └── MDXComponents.js   # Component registration
+└── docusaurus.config.js
 ```
 
 ## 📙 VitePress
@@ -425,8 +495,8 @@ npx create-next-app --template notebook-mdx
 |-----------|--------|------------|----------|-----|
 | **Fumadocs** | ✅ Ready | Easy | Full support | Now |
 | **Next.js + MDX** | ✅ Ready | Easy | Full support | Now |
-| **Nextra** | 🚧 In Progress | Easy | Theme integration | Q2 2025 |
-| **Docusaurus** | 🚧 In Progress | Medium | Plugin system | Q2 2025 |
+| **Docusaurus** | ✅ Ready | Easy | Full support | Now |
+| **Nextra** | 🚧 In Progress | Easy | Theme integration | TBD |
 | **VitePress** | 📋 Planned | Medium | Vue components | Q3 2025 |
 | **Astro** | 📋 Planned | Medium | Islands architecture | Q3 2025 |
 | **GitBook** | 🤔 Evaluating | Hard | Block system | TBD |
