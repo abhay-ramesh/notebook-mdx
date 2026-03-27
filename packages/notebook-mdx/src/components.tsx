@@ -143,16 +143,12 @@ const normalizeLanguage = (lang?: string): string | undefined => {
   return languageMap[lang.toLowerCase()] || lang.toLowerCase();
 };
 
-// Component for rendering output text with syntax highlighting
+// Component for rendering plain output text (stream, text/plain).
+// Stream and text/plain outputs are terminal text, not source code — do not syntax-highlight.
 const OutputText: React.FC<{ content: string }> = ({ content }) => {
-  // Use useMemo to compute highlighted content only when content changes
-  const highlightedContent = React.useMemo(() => {
-    return highlightCode(content);
-  }, [content]);
-
   return (
     <pre>
-      <span dangerouslySetInnerHTML={{ __html: highlightedContent }} />
+      <span>{content}</span>
     </pre>
   );
 };
@@ -561,6 +557,9 @@ const renderOutputData = (output: NotebookOutput) => {
   }
 
   if (output.output_type === "error") {
+    // Strip ANSI escape codes — Jupyter notebooks embed colour codes in
+    // tracebacks (e.g. \x1b[0;31m) that must not be shown as raw text.
+    const stripAnsi = (s: string) => s.replace(/\x1b\[[\d;]*m/g, "");
     return (
       <div className="jp-output-error">
         <div className="jp-output-error-name">
@@ -568,7 +567,7 @@ const renderOutputData = (output: NotebookOutput) => {
         </div>
         {output.traceback && (
           <pre className="jp-output-traceback">
-            {output.traceback.join("\n")}
+            {output.traceback.map(stripAnsi).join("\n")}
           </pre>
         )}
       </div>
@@ -853,25 +852,52 @@ export const NotebookMarkdownCell: React.FC<NotebookMarkdownCellProps> = ({
 }) => {
   const sourceString = Array.isArray(source) ? source.join("") : source;
 
-  // Enhanced markdown parsing - memoized to avoid re-computation
+  // Markdown parsing — split into block-level elements to produce valid HTML.
+  // Block elements (headings, blockquotes, code blocks) must never be wrapped in <p>.
   const parsedMarkdown = React.useMemo(() => {
-    const parseMarkdown = (text: string) => {
-      return text
-        .replace(/^### (.*$)/gim, "<h3>$1</h3>")
-        .replace(/^## (.*$)/gim, "<h2>$1</h2>")
-        .replace(/^# (.*$)/gim, "<h1>$1</h1>")
-        .replace(/^\> (.*$)/gim, "<blockquote>$1</blockquote>")
-        .replace(/\*\*(.*?)\*\*/gim, "<strong>$1</strong>")
-        .replace(/\*(.*?)\*/gim, "<em>$1</em>")
-        .replace(/`([^`]+)`/gim, "<code>$1</code>")
-        .replace(/```([^`]+)```/gim, "<pre><code>$1</code></pre>")
-        .replace(/!\[([^\]]*)\]\(([^\)]*)\)/gim, '<img alt="$1" src="$2" />')
-        .replace(/\[([^\]]*)\]\(([^\)]*)\)/gim, '<a href="$2">$1</a>')
-        .replace(/\n\n/gim, "</p><p>")
-        .replace(/\n/gim, "<br>");
-    };
+    // Apply inline markdown within a single line or paragraph
+    const processInline = (s: string) =>
+      s
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*(.*?)\*/g, "<em>$1</em>")
+        .replace(/`([^`]+)`/g, "<code>$1</code>")
+        .replace(/!\[([^\]]*)\]\(([^)]*)\)/g, '<img alt="$1" src="$2" />')
+        .replace(/\[([^\]]*)\]\(([^)]*)\)/g, '<a href="$2">$1</a>');
 
-    return parseMarkdown(sourceString);
+    // Split on blank lines to get block-level chunks
+    const blocks = sourceString.split(/\n{2,}/);
+
+    return blocks
+      .map((block) => {
+        const trimmed = block.trim();
+        if (!trimmed) return "";
+
+        // Fenced code block
+        if (trimmed.startsWith("```")) {
+          const code = trimmed.replace(/^```[^\n]*\n?/, "").replace(/```$/, "");
+          return `<pre><code>${code}</code></pre>`;
+        }
+        // Heading 3
+        if (trimmed.startsWith("### ")) {
+          return `<h3>${processInline(trimmed.slice(4))}</h3>`;
+        }
+        // Heading 2
+        if (trimmed.startsWith("## ")) {
+          return `<h2>${processInline(trimmed.slice(3))}</h2>`;
+        }
+        // Heading 1
+        if (trimmed.startsWith("# ")) {
+          return `<h1>${processInline(trimmed.slice(2))}</h1>`;
+        }
+        // Blockquote
+        if (trimmed.startsWith("> ")) {
+          return `<blockquote>${processInline(trimmed.slice(2))}</blockquote>`;
+        }
+        // Regular paragraph — single newlines become <br>
+        const inner = trimmed.split("\n").map(processInline).join("<br>");
+        return `<p>${inner}</p>`;
+      })
+      .join("\n");
   }, [sourceString]);
 
   return (
@@ -886,11 +912,7 @@ export const NotebookMarkdownCell: React.FC<NotebookMarkdownCellProps> = ({
           <div className="jp-cell-input-area">
             <div className="jp-cell-input-content">
               <div className="jp-markdown-content">
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: `<p>${parsedMarkdown}</p>`
-                  }}
-                />
+                <div dangerouslySetInnerHTML={{ __html: parsedMarkdown }} />
               </div>
             </div>
           </div>
