@@ -187,7 +187,7 @@ jobs:
     needs: [validate-release, test, build]
     permissions:
       contents: write # Required for editing releases
-      id-token: write # Required for npm provenance
+      id-token: write # Required for npm trusted publishing (OIDC) and provenance
 
     steps:
       - name: 📥 Checkout
@@ -201,10 +201,9 @@ jobs:
       - name: 📦 Setup NPM registry
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22 # npm 11 + trusted publishing need a current Node
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
-          always-auth: true
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -221,19 +220,14 @@ jobs:
           cp artifacts/package.json packages/notebook-mdx/package.json
           cp artifacts/README.md packages/notebook-mdx/README.md
 
-      - name: 🔐 Verify NPM authentication
+      # Trusted publishing (OIDC): npm exchanges this job's GitHub identity
+      # for a short-lived publish credential. No NPM_TOKEN secret exists or is
+      # needed. The package must list this repo + publish.yml as its Trusted
+      # Publisher on npmjs.com. Requires npm >= 11.5.1.
+      - name: 🔐 Use npm with trusted publishing support
         run: |
-          if [ -z "$NPM_TOKEN" ]; then
-            echo "❌ NPM_TOKEN is not set"
-            exit 1
-          fi
-          echo "✅ NPM token is configured"
-
-          # Test authentication
-          npm whoami
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          npm install -g npm@11.11.0
+          npm --version
 
       - name: 🔄 Update package version
         run: |
@@ -277,8 +271,6 @@ jobs:
           cd packages/notebook-mdx
           echo "📦 Publishing stable version..."
           npm publish --tag latest --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: 📤 Publish to NPM (Prerelease)
         if: env.SKIP_PUBLISH == 'false' && needs.validate-release.outputs.is_prerelease == 'true'
@@ -293,8 +285,6 @@ jobs:
           fi
           echo "📦 Publishing prerelease version with tag: $TAG"
           npm publish --tag $TAG --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: ✅ Verify publication
         if: env.SKIP_PUBLISH == 'false'
