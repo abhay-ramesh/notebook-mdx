@@ -220,13 +220,15 @@ jobs:
           cp artifacts/package.json packages/notebook-mdx/package.json
           cp artifacts/README.md packages/notebook-mdx/README.md
 
-      # Trusted publishing (OIDC): npm exchanges this job's GitHub identity
-      # for a short-lived publish credential. No NPM_TOKEN secret exists or is
-      # needed. The package must list this repo + publish.yml as its Trusted
-      # Publisher on npmjs.com. Requires npm >= 11.5.1.
-      - name: 🔐 Use npm with trusted publishing support
+      # Trusted publishing (OIDC) + staged publishing: npm exchanges this
+      # job's GitHub identity for a short-lived credential that can only STAGE
+      # a version. Nothing goes public until a maintainer approves it on
+      # npmjs.com with 2FA (`npm stage approve`). No NPM_TOKEN exists. The
+      # package must list this repo + publish.yml as its Trusted Publisher on
+      # npmjs.com. `npm stage` needs npm >= 11.21.
+      - name: 🔐 Use npm with trusted + staged publishing support
         run: |
-          npm install -g npm@11.11.0
+          npm install -g npm@11.21.2
           npm --version
 
       - name: 🔄 Update package version
@@ -270,7 +272,7 @@ jobs:
         run: |
           cd packages/notebook-mdx
           echo "📦 Publishing stable version..."
-          npm publish --tag latest --provenance --access public
+          npm stage publish --tag latest --provenance --access public
 
       - name: 📤 Publish to NPM (Prerelease)
         if: env.SKIP_PUBLISH == 'false' && needs.validate-release.outputs.is_prerelease == 'true'
@@ -284,37 +286,20 @@ jobs:
             TAG=rc
           fi
           echo "📦 Publishing prerelease version with tag: $TAG"
-          npm publish --tag $TAG --provenance --access public
+          npm stage publish --tag $TAG --provenance --access public
 
-      - name: ✅ Verify publication
+      - name: 🔏 Approval needed
         if: env.SKIP_PUBLISH == 'false'
         run: |
           VERSION="${{ needs.validate-release.outputs.version }}"
-
-          # Function to verify package with retries
-          max_attempts=5
-          delay=10
-
-          for attempt in $(seq 1 $max_attempts); do
-            echo "🔍 Attempt $attempt/$max_attempts: Verifying notebook-mdx@$VERSION..."
-            
-            if npm view "notebook-mdx@$VERSION" version 2>/dev/null; then
-              echo "✅ notebook-mdx@$VERSION verified successfully!"
-              break
-            else
-              if [ $attempt -lt $max_attempts ]; then
-                echo "⏳ Package not yet available, waiting ${delay}s before retry..."
-                sleep $delay
-              else
-                echo "❌ Failed to verify notebook-mdx@$VERSION after $max_attempts attempts"
-                echo "🔍 Checking if package exists with different version..."
-                npm view "notebook-mdx" versions --json 2>/dev/null || echo "Package not found in registry"
-                exit 1
-              fi
-            fi
-          done
-
-          echo "📦 Publication verified successfully!"
+          {
+            echo "## 🔏 Staged on npm: approve to publish"
+            echo ""
+            echo "\`notebook-mdx@$VERSION\` is staged, not public yet."
+            echo "Approve it with 2FA on npmjs.com, or run \`npm stage list notebook-mdx\` and \`npm stage approve <id>\`."
+            echo ""
+            echo "- https://www.npmjs.com/package/notebook-mdx"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: 📝 Enhance release notes
         if: github.event_name == 'release'
@@ -417,9 +402,9 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ **Tests passed**" >> $GITHUB_STEP_SUMMARY
           echo "✅ **Package built**" >> $GITHUB_STEP_SUMMARY
-          echo "✅ **Published to NPM**" >> $GITHUB_STEP_SUMMARY
+          echo "🔏 **Staged on npm: approve on npmjs.com to publish**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 📦 Published Package" >> $GITHUB_STEP_SUMMARY
+          echo "## 📦 Package (live after approval)" >> $GITHUB_STEP_SUMMARY
           echo "- [\`notebook-mdx@$VERSION\`](https://www.npmjs.com/package/notebook-mdx/v/$VERSION)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ github.event_name }}" = "release" ]; then
